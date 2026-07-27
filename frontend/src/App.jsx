@@ -16,7 +16,7 @@ import { useContext } from 'react';
 import { AuthContext } from './contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
 
-import Chatbot from "./components/chatbot";
+import Chatbot from "./components/Chatbot";
 
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useContext(AuthContext);
