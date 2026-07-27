@@ -811,3 +811,35 @@ transition:none !important;
 }
 
 }
+
+/* ============================================
+   TABLET E SAFE AREA (NOTCH)
+============================================ */
+
+@media(min-width:501px) and (max-width:768px){
+
+.chatbot-card{
+
+width:min(370px, calc(100vw - 40px));
+
+}
+
+}
+
+
+@media(max-width:500px){
+
+.chatbot-fab{
+
+bottom:max(20px, env(safe-area-inset-bottom));
+
+}
+
+
+.chatbot-card{
+
+bottom:max(10px, env(safe-area-inset-bottom));
+
+}
+
+}

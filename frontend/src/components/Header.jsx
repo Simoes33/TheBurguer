@@ -73,7 +73,7 @@ export const Header = () => {
 
           <button className="cart-btn" onClick={toggleCart} aria-label={`Carrinho: ${totalItems} itens`}>
             <ShoppingBag size={16} />
-            Pedido
+            <span className="cart-btn-label">Pedido</span>
             {totalItems > 0 && <span className="cart-count" aria-hidden="true">{totalItems}</span>}
           </button>
         </div>
@@ -115,4 +115,3 @@ export const Header = () => {
     </>
   );
 };
-

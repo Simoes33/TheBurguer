@@ -392,12 +392,18 @@ header {
   margin-bottom: 4rem;
   border: 1px solid var(--border);
   width: fit-content;
+  max-width: 100%;
   margin-left: auto;
   margin-right: auto;
   border-radius: 2px;
-  overflow: hidden;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
 }
+.cat-tabs::-webkit-scrollbar { display: none; }
+
 .cat-tab {
+  flex-shrink: 0;
   background: transparent;
   border: none;
   color: var(--text-muted);
@@ -432,15 +438,19 @@ header {
   overflow: hidden;
   position: relative;
   cursor: pointer;
-  transition: border-color 0.3s;
+  transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
   display: flex;
   flex-direction: column;
   height: 100%;
 }
-.product-card:hover { border-color: var(--border-warm); }
+.product-card:hover {
+  border-color: var(--border-warm);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(200, 64, 26, 0.08);
+}
 
 .product-image {
-  height: 260px;
+  aspect-ratio: 4 / 3;
   overflow: hidden;
   background: var(--bg-3);
   position: relative;
@@ -784,6 +794,13 @@ header {
 @media (max-width: 600px) {
   .hero { padding: 0 5% 5rem; }
   .products-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 380px) {
+  header { gap: 0.5rem; padding: 1.4rem 4%; }
+  .cart-btn-label { display: none; }
+  .cart-btn { padding: 0.55rem 0.8rem; }
+  .logo { font-size: 1.3rem; }
 }
 
 /* ========================================
@@ -1160,16 +1177,6 @@ header {
   letter-spacing: 0.05em;
 }
 
-/* Product card hover 2026 — glow sutil */
-.product-card:hover {
-  border-color: var(--border-warm);
-  transform: translateY(-2px);
-  box-shadow: 0 12px 40px rgba(200, 64, 26, 0.08);
-}
-
-.product-card {
-  transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
-}
 
 /* ========================================
    CART COUNT — BOUNCE ANIMATION
