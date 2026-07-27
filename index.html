@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Burguer | Premium Artisanal Burgers</title>
+  <meta name="description" content="A melhor hamburgueria artesanal da cidade. Peça online e receba em casa com rapidez e qualidade.">
+  <link rel="stylesheet" href="styles.css">
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <a href="#" class="logo">
+      <i class="ph-fill ph-hamburger"></i>
+      The<span>Burguer</span>
+    </a>
+    
+    <ul class="nav-links">
+      <li><a href="#home">Início</a></li>
+      <li><a href="#menu">Cardápio</a></li>
+      <li><a href="#about">Sobre nós</a></li>
+    </ul>
+
+    <button class="cart-btn" id="open-cart-btn">
+      <i class="ph ph-shopping-cart" style="font-size: 1.2rem;"></i>
+      Carrinho
+      <span class="cart-count" id="cart-count">0</span>
+    </button>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero" id="home">
+    <div class="glow"></div>
+    <div class="hero-content">
+      <span class="hero-tag">🔥 O Sabor da Brasa</span>
+      <h1>Hambúrguer de verdade, <br> feito na <span style="color: var(--primary-color)">brasa.</span></h1>
+      <p>Ingredientes selecionados, blend exclusivo 100% Angus e aquele sabor de churrasco que você só encontra aqui. Peça agora e sinta a diferença.</p>
+      <a href="#menu" class="btn-primary">Ver Cardápio</a>
+    </div>
+    <div class="hero-image">
+      <!-- Using a placeholder transparent burger image for the wow effect -->
+      <img src="https://freepngimg.com/thumb/burger/5-2-burger-png.png" alt="Premium The Burguer">
+    </div>
+  </section>
+
+  <!-- Menu Section -->
+  <section class="menu-section" id="menu">
+    <div class="section-header">
+      <h2>Nosso Cardápio</h2>
+      <p>Escolha sua categoria e monte o seu pedido perfeito.</p>
+    </div>
+
+    <div class="categories">
+      <button class="category-btn active">Todos</button>
+      <button class="category-btn">Smash</button>
+      <button class="category-btn">Premium</button>
+      <button class="category-btn">Bebidas</button>
+    </div>
+
+    <div class="menu-grid" id="menu-grid">
+      <!-- Item 1 -->
+      <div class="menu-item">
+        <div class="item-img-wrap">
+          <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=500&auto=format&fit=crop" alt="Classic Smash">
+        </div>
+        <h3 class="item-title">Classic Smash</h3>
+        <p class="item-desc">Pão brioche tostado, 2 blends smash de 90g, queijo cheddar duplo derretido e nosso molho secreto.</p>
+        <div class="item-bottom">
+          <span class="item-price">R$ 32,90</span>
+          <button class="add-to-cart" onclick="addToCart('Classic Smash', 32.90)">
+            <i class="ph ph-plus"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Item 2 -->
+      <div class="menu-item">
+        <div class="item-img-wrap">
+          <img src="https://images.unsplash.com/photo-1594212586052-198114f76269?q=80&w=500&auto=format&fit=crop" alt="Bacon Brasa">
+        </div>
+        <h3 class="item-title">Bacon Brasa</h3>
+        <p class="item-desc">Pão australiano, blend 160g de fraldinha, muito bacon crocante, cebola caramelizada e cheddar.</p>
+        <div class="item-bottom">
+          <span class="item-price">R$ 42,00</span>
+          <button class="add-to-cart" onclick="addToCart('Bacon Brasa', 42.00)">
+            <i class="ph ph-plus"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Item 3 -->
+      <div class="menu-item">
+        <div class="item-img-wrap">
+          <img src="https://images.unsplash.com/photo-1586190848861-99aa4a171e90?q=80&w=500&auto=format&fit=crop" alt="Monster Duplo">
+        </div>
+        <h3 class="item-title">Monster Duplo</h3>
+        <p class="item-desc">Para os famintos: 2 blends de 160g, 4 fatias de cheddar, bacon, alface, tomate e maionese defumada.</p>
+        <div class="item-bottom">
+          <span class="item-price">R$ 54,90</span>
+          <button class="add-to-cart" onclick="addToCart('Monster Duplo', 54.90)">
+            <i class="ph ph-plus"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Cart Drawer -->
+  <div class="cart-overlay" id="cart-overlay"></div>
+  <aside class="cart-drawer" id="cart-drawer">
+    <div class="cart-header">
+      <h3>Seu Pedido</h3>
+      <button class="close-cart" id="close-cart-btn"><i class="ph ph-x"></i></button>
+    </div>
+    
+    <div class="cart-items" id="cart-items-container">
+      <div class="empty-cart" id="empty-cart-msg">
+        <i class="ph ph-shopping-bag" style="font-size: 3rem; margin-bottom: 1rem; color: var(--border-color)"></i>
+        <p>Seu carrinho está vazio.</p>
+      </div>
+      <!-- Items will be injected here via JS -->
+    </div>
+
+    <div class="cart-footer">
+      <div class="cart-total">
+        <span>Total:</span>
+        <span id="cart-total-price">R$ 0,00</span>
+      </div>
+      <button class="btn-primary btn-checkout" onclick="checkout()">Finalizar Pedido</button>
+    </div>
+  </aside>
+
+  <script src="app.js"></script>
+</body>
+</html>

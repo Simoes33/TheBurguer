@@ -1,0 +1,21 @@
+{
+  "short_name": "The Burguer",
+  "name": "The Burguer — Hamburgueria Artesanal",
+  "icons": [
+    {
+      "src": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&q=80&w=192",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&q=80&w=512",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#080808",
+  "theme_color": "#C8401A",
+  "display": "standalone",
+  "orientation": "portrait"
+}
