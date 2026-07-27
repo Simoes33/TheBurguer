@@ -793,7 +793,33 @@ header {
 
 @media (max-width: 600px) {
   .hero { padding: 0 5% 5rem; }
-  .products-grid { grid-template-columns: 1fr; }
+
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+  }
+
+  .product-info {
+    padding: 1rem 0.9rem 1.2rem;
+  }
+
+  .product-info h3 {
+    font-size: 1rem;
+  }
+
+  .product-info .description {
+    font-size: 0.78rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .price {
+    font-size: 1.1rem;
+  }
+
+  .add-to-cart {
+    width: 32px;
+    height: 32px;
+  }
 }
 
 @media (max-width: 380px) {
