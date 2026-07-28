@@ -288,7 +288,7 @@ export const Home = () => {
             <p>Acompanhe nossos bastidores e novidades em tempo real.</p>
           </div>
 
-          <div className="insta-grid">
+          <div className="insta-grid" style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
             {(instaPosts.length ? instaPosts.slice(0, 6) : [
               'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=800&auto=format&fit=crop',
               'https://images.unsplash.com/photo-1550547660-d9450f859349?q=80&w=800&auto=format&fit=crop',
