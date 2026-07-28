@@ -86,8 +86,8 @@ export const Register = () => {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)', padding: '2rem' }}>
-      <div style={{ width: '100%', maxWidth: '560px', background: 'var(--bg-2)', border: '1px solid var(--border)', padding: '2.8rem 3rem' }}>
+    <div className="register-page">
+      <div className="register-card">
         
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <span style={{ ...labelStyle, display: 'block', marginBottom: '0.5rem' }}>Novo cliente</span>
@@ -105,7 +105,7 @@ export const Register = () => {
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {/* Dados pessoais */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div className="form-row-2">
             <Field label="Nome Completo *">
               <input required name="name" value={form.name} onChange={handleChange}
                 autoComplete="name" style={inputStyle} placeholder="João Silva" />
@@ -116,7 +116,7 @@ export const Register = () => {
             </Field>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div className="form-row-2">
             <Field label="E-mail *">
               <input required type="email" name="email" value={form.email} onChange={handleChange}
                 autoComplete="email" style={inputStyle} placeholder="seu@email.com" />
@@ -136,7 +136,7 @@ export const Register = () => {
               autoComplete="postal-code" style={inputStyle} placeholder="00000-000" maxLength={9} />
           </Field>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '3fr 1fr', gap: '1rem' }}>
+          <div className="form-row-address">
             <Field label="Rua">
               <input name="address" value={form.address} onChange={handleChange}
                 style={inputStyle} placeholder="Preenchido pelo CEP" />
@@ -147,7 +147,7 @@ export const Register = () => {
             </Field>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div className="form-row-2">
             <Field label="Complemento">
               <input name="complement" value={form.complement} onChange={handleChange}
                 style={inputStyle} placeholder="Apto, Bloco…" />

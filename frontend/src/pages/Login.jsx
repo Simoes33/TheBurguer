@@ -44,16 +44,13 @@ export const Login = () => {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', background: 'var(--bg)' }}>
-      {/* Painel esquerdo — imagem */}
-      <div style={{
-        flex: 1,
+    <div className="login-page">
+      {/* Painel esquerdo — imagem (escondido no mobile) */}
+      <div className="login-image-panel" style={{
         backgroundImage: [
           'linear-gradient(to right, rgba(8,8,8,0.1) 0%, rgba(8,8,8,0.75) 100%)',
           "url('https://images.unsplash.com/photo-1558030006-450675393462?auto=format&fit=crop&q=80&w=1200')",
         ].join(', '),
-        backgroundSize: 'cover', backgroundPosition: 'center',
-        display: 'flex', alignItems: 'flex-end', padding: '4rem',
       }}>
         <div>
           <div style={{ fontFamily: 'var(--serif)', fontSize: '1.5rem', fontWeight: 700, color: '#fff', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
@@ -66,11 +63,7 @@ export const Login = () => {
       </div>
 
       {/* Painel direito — formulário */}
-      <div style={{
-        width: '420px', flexShrink: 0,
-        background: 'var(--bg-2)', borderLeft: '1px solid var(--border)',
-        display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '4rem 3rem',
-      }}>
+      <div className="login-form-panel">
         <div style={{ marginBottom: '2.5rem' }}>
           <span style={{ ...labelStyle, display: 'block', marginBottom: '0.6rem' }}>Área restrita</span>
           <h2 style={{ fontFamily: 'var(--serif)', fontSize: '2rem', color: 'var(--text)', fontWeight: 600 }}>

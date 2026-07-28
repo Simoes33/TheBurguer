@@ -794,6 +794,12 @@ header {
 @media (max-width: 600px) {
   .hero { padding: 0 5% 5rem; }
 
+  header { gap: 0.4rem; padding: 1.2rem 4%; }
+  .cart-btn-label { display: none; }
+  .cart-btn { padding: 0.55rem 0.7rem; }
+  .logo { font-size: 1.15rem; gap: 0.35rem; }
+  .logo em { font-style: normal; }
+
   .products-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 1px;
@@ -820,13 +826,6 @@ header {
     width: 32px;
     height: 32px;
   }
-}
-
-@media (max-width: 380px) {
-  header { gap: 0.5rem; padding: 1.4rem 4%; }
-  .cart-btn-label { display: none; }
-  .cart-btn { padding: 0.55rem 0.8rem; }
-  .logo { font-size: 1.3rem; }
 }
 
 /* ========================================
@@ -1202,7 +1201,6 @@ header {
   color: var(--text-muted);
   letter-spacing: 0.05em;
 }
-
 
 /* ========================================
    CART COUNT — BOUNCE ANIMATION
@@ -1584,4 +1582,92 @@ input:focus, textarea:focus, select:focus {
   }
   .toast { max-width: 100%; }
   .pwa-prompt { width: calc(100% - 2rem); }
+}
+
+/* ========================================
+   LOGIN PAGE
+   ======================================== */
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  background: var(--bg);
+}
+
+.login-image-panel {
+  flex: 1;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: flex-end;
+  padding: 4rem;
+}
+
+.login-form-panel {
+  width: 420px;
+  flex-shrink: 0;
+  background: var(--bg-2);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 4rem 3rem;
+}
+
+@media (max-width: 760px) {
+  .login-image-panel {
+    display: none;
+  }
+  .login-form-panel {
+    width: 100%;
+    padding: 3rem 1.5rem;
+    justify-content: flex-start;
+    padding-top: 4rem;
+  }
+}
+
+/* ========================================
+   REGISTER PAGE
+   ======================================== */
+.register-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  padding: 2rem;
+}
+
+.register-card {
+  width: 100%;
+  max-width: 560px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  padding: 2.8rem 3rem;
+}
+
+.form-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.form-row-address {
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 560px) {
+  .register-page {
+    padding: 0;
+  }
+  .register-card {
+    padding: 2.5rem 1.3rem;
+    border: none;
+    max-width: 100%;
+  }
+  .form-row-2,
+  .form-row-address {
+    grid-template-columns: 1fr;
+  }
 }
