@@ -50,7 +50,7 @@ export const ProductModal = ({ product, onClose }) => {
           </div>
           
           <div className="modal-details">
-            <header>
+            <div className="modal-header-group">
               <span className="label" style={{ color: 'var(--gold)', display: 'block', marginBottom: '0.5rem' }}>
                 {product.category?.name || 'Lanche'}
               </span>
@@ -63,7 +63,7 @@ export const ProductModal = ({ product, onClose }) => {
                   <p>{product.ingredients}</p>
                 </div>
               )}
-            </header>
+            </div>
             
             <div className="modal-price-tag">
               {fmt(product.price)}
@@ -201,14 +201,14 @@ export const ProductModal = ({ product, onClose }) => {
           background: var(--bg-2);
         }
 
-        .modal-details h2 {
+        .modal-header-group h2 {
           font-size: 2.4rem;
           line-height: 1.1;
           margin: 0.4rem 0 1rem;
           font-family: var(--serif);
         }
 
-        .modal-details .description {
+        .modal-header-group .description {
           color: var(--text-muted);
           font-size: 1rem;
           line-height: 1.6;
