@@ -95,14 +95,23 @@ export default function Chatbot() {
 
     setIsTyping(true);
 
+    // DEBUG TEMPORÁRIO: confirma exatamente qual URL está sendo chamada.
+    // Se aparecer "[object Object]/chatbot" ou "undefined/chatbot" no console,
+    // o problema é o valor exportado por services/api.js.
+    const targetUrl = `${API_URL}/chatbot`;
+    console.log("Chatbot -> chamando:", targetUrl);
+
     try {
-      const response = await fetch(`${API_URL}/chatbot`, {
+      const response = await fetch(targetUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: text, userId })
       });
 
-      if (!response.ok) throw new Error("Falha na resposta");
+      if (!response.ok) {
+        const errorBody = await response.text().catch(() => "");
+        throw new Error(`HTTP ${response.status} - ${errorBody}`);
+      }
 
       const data = await response.json();
 
@@ -112,7 +121,9 @@ export default function Chatbot() {
         setUnreadCount(prev => prev + 1);
       }
 
-    } catch {
+    } catch (err) {
+      // Log real do erro, em vez de simplesmente engolir a falha.
+      console.error("Chatbot -> falha ao buscar resposta:", err.message || err);
 
       setLastFailedMessage(text);
 
