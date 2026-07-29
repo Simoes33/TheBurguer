@@ -159,9 +159,9 @@ export const Home = () => {
         <div role="complementary" aria-label="Horários de funcionamento" style={{ background: 'var(--bg-3)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)', padding: '3.5rem 5%' }}>
           <div className="info-strip">
             {[
-              { label: 'Terça a Sábado', value: '12h às 00h' },
-              { label: 'Domingo',         value: '12h às 19h' },
-              { label: 'Reservas & Suporte', value: '(21) 98507-5154' },
+              { label: 'Segunda a Domingo', value: '19h às 23h' },
+              { label: 'Siga o Instagram para ficar por dentro das promoções', value: '@the.burguer' },
+              { label: 'Fale Conosco', value: '(21) 98507-5154' },
             ].map(({ label, value }) => (
               <div key={label} className="info-strip-item">
                 <span className="label">{label}</span>
