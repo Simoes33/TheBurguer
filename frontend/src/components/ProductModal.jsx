@@ -111,6 +111,19 @@ else if (/batata|fritas/i.test(productName)) {
     }
 
     if (isBurger && isCombo) base += COMBO_PRICE;
+    
+    console.log({
+  productName,
+  categoryName,
+  isPotato,
+  isBurger,
+  potatoSize,
+  smallPrice,
+  mediumPrice,
+  largePrice,
+  unitPrice,
+  product,
+});
 
     return base;
   };
