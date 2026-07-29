@@ -132,7 +132,6 @@ export const Home = () => {
             </p>
             <div className="hero-actions">
               <a href="#menu" className="btn-primary">Ver Cardápio</a>
-              <a href="#sobre" className="btn-outline">Nossa História</a>
             </div>
           </div>
           <div className="hero-scroll" aria-hidden="true">
@@ -153,31 +152,6 @@ export const Home = () => {
           <div className="stat-item">
             <div className="stat-number">4.9★</div>
             <div className="stat-label">Avaliação dos Clientes</div>
-          </div>
-        </section>
-
-        {/* ── SOBRE ───────────────────────── */}
-        <section className="manifesto" id="sobre" aria-label="Sobre nós">
-          <div className="manifesto-img">
-            <img
-              src="https://images.unsplash.com/photo-1550317138-10000687a72b?auto=format&fit=crop&q=80&w=900"
-              alt="Hambúrguer artesanal preparado na brasa"
-              loading="lazy"
-            />
-          </div>
-          <div className="manifesto-text">
-            <span className="label">Nossa filosofia</span>
-            <h2>Onde o fogo guia,<br />o tempo desacelera.</h2>
-            <div className="manifesto-divider" />
-            <p>
-              Nascemos da paixão pelo fogo e pelo encontro. Cada hambúrguer que sai
-              da nossa cozinha carrega o cuidado de quem acredita que uma boa refeição
-              conecta pessoas.
-            </p>
-            <p>
-              Usamos apenas carne 100% Angus, pão brioche feito diariamente e
-              ingredientes frescos escolhidos com rigor.
-            </p>
           </div>
         </section>
 
