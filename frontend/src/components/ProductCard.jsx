@@ -100,30 +100,30 @@ export const ProductCard = React.memo(({ product, onClick, isBestseller = false 
         )}
 
         {isBestseller && (
-          <span
-            className="product-badge"
-            style={{
-              right: '0.8rem',
-              left: 'auto',
-              top: '0.8rem',
-            }}
-          >
-            🔥 Mais Pedido
-          </span>
-        )}
+  <span
+    className="product-badge"
+    style={{
+      bottom: '0.8rem',
+      left: '0.8rem',
+      top: 'auto',
+      right: 'auto',
+    }}
+  >
+    🔥 Mais Pedido
+  </span>
+)}
 
-        <button
-          className={`favorite-btn ${isFav ? 'active' : ''}`}
-          onClick={handleFavorite}
-          aria-label={
-            isFav
-              ? `Remover ${product.name} dos favoritos`
-              : `Adicionar ${product.name} aos favoritos`
-          }
-          style={{ top: isBestseller ? '3rem' : '0.8rem' }}
-        >
-          <Heart size={16} weight={isFav ? 'fill' : 'regular'} />
-        </button>
+<button
+  className={`favorite-btn ${isFav ? 'active' : ''}`}
+  onClick={handleFavorite}
+  aria-label={
+    isFav
+      ? `Remover ${product.name} dos favoritos`
+      : `Adicionar ${product.name} aos favoritos`
+  }
+>
+  <Heart size={16} weight={isFav ? 'fill' : 'regular'} />
+</button>
       </div>
 
       <div className="product-info">

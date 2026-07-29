@@ -6,142 +6,22 @@ import { ProductModal } from '../components/ProductModal';
 import api from '../api/axios';
 import { ArrowDown, MagnifyingGlass, X, Flame, InstagramLogo, WhatsappLogo, MapPin, Clock } from '@phosphor-icons/react';
 
-// ── DEFINIÇÃO DE BACKUP LOCAL (Usado apenas se a API estiver offline/vazia) ──
-const OFFICIAL_MENU = [
-  {
-    id: '1',
-    name: 'The Smash',
-    description: 'Pão de brioche, maionese de alho, carne, queijo, cebola crispy e ketchup de goiabada.',
-    ingredients: 'Pão de brioche + maionese de alho + carne + queijo + cebola crispy + ketchup de goiabada.',
-    price: 19.00,
-    priceDouble: 29.00,
-    isburger: true,
-    stock: 50,
-    imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&q=80&w=800',
-    category: { id: 'c1', name: 'Burguers Artesanais' },
-  },
-  {
-    id: '2',
-    name: 'The Salad',
-    description: 'Pão de brioche, maionese de alho, carne, queijo, alface americana, tomate, cebola rosa, cebola crispy, molho mostarda e mel.',
-    ingredients: 'Pão de brioche + maionese de alho + carne + queijo + alface americana + tomate + cebola rosa + cebola crispy + molho mostarda e mel.',
-    price: 25.00,
-    priceDouble: 32.00,
-    isburger: true,
-    stock: 50,
-    imageUrl: 'https://images.unsplash.com/photo-1594212691516-069e8f8ddce8?auto=format&fit=crop&q=80&w=800',
-    category: { id: 'c1', name: 'Burguers Artesanais' },
-  },
-  {
-    id: '3',
-    name: 'The Bacon',
-    description: 'Pão de brioche, maionese de alho, carne, queijo, geleia de bacon, cebola crispy e ketchup de goiabada.',
-    ingredients: 'Pão de brioche + maionese de alho + carne + queijo + geleia de bacon + cebola crispy + ketchup de goiabada.',
-    price: 25.00,
-    priceDouble: 32.00,
-    isburger: true,
-    stock: 50,
-    imageUrl: 'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&q=80&w=800',
-    category: { id: 'c1', name: 'Burguers Artesanais' },
-  },
-  {
-    id: '4',
-    name: 'The Aloha',
-    description: 'Pão de brioche, maionese de alho, carnes, queijo, abacaxi, cebola crispy e melado de cana.',
-    ingredients: 'Pão de brioche + maionese de alho + carnes + queijo + abacaxi + cebola crispy + melado de cana.',
-    price: 25.00,
-    priceDouble: 32.00,
-    isburger: true,
-    stock: 50,
-    imageUrl: 'https://images.unsplash.com/photo-1615887023516-9dfbc8f117ce?auto=format&fit=crop&q=80&w=800',
-    category: { id: 'c1', name: 'Burguers Artesanais' },
-  },
-  {
-    id: '5',
-    name: 'Batata Tradicional',
-    description: 'Batata frita crocante por fora e macia por dentro.',
-    ingredients: 'Batata frita crocante. Disponível em tamanhos P, M e G.',
-    price: 9.00,
-    priceMedium: 12.00,
-    priceLarge: 15.00,
-    hasSizes: true,
-    stock: 50,
-    imageUrl: 'https://images.unsplash.com/photo-1576107232684-1279f3908594?auto=format&fit=crop&q=80&w=800',
-    category: { id: 'c2', name: 'Batatas' },
-  },
-  {
-    id: '6',
-    name: 'Batata Cheddar & Farofa de Bacon',
-    description: 'Batata frita coberta com cheddar cremoso e farofa de bacon crocante.',
-    ingredients: 'Batata frita + cheddar cremoso + farofa de bacon. Tamanhos P, M e G.',
-    price: 15.00,
-    priceMedium: 19.00,
-    priceLarge: 23.00,
-    hasSizes: true,
-    stock: 50,
-    imageUrl: 'https://images.unsplash.com/photo-1639024471283-03518883512d?auto=format&fit=crop&q=80&w=800',
-    category: { id: 'c2', name: 'Batatas' },
-  },
+const FALLBACK_PRODUCTS = [
+  { id: '1', name: 'The Classic', description: 'O clássico que nunca erra.', ingredients: 'Blend 180g de Angus, queijo prato, alface americana, tomate e molho especial no brioche.', price: 32.90, imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&q=80&w=800', category: { name: 'Burgers' } },
+  { id: '2', name: 'Double Smash Bacon', description: 'Para quem tem fome de verdade.', ingredients: 'Dois smashs de 90g, duplo cheddar, bacon artesanal e cebola caramelizada.', price: 39.90, imageUrl: 'https://images.unsplash.com/photo-1594212691516-069e8f8ddce8?auto=format&fit=crop&q=80&w=800', category: { name: 'Burgers' } },
+  { id: '3', name: 'Truffle Mushroom', description: 'Uma explosão de sabores terrosos.', ingredients: 'Blend 180g, mix de cogumelos salteados, queijo gruyère e maionese trufada.', price: 45.90, imageUrl: 'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&q=80&w=800', category: { name: 'Burgers' } },
+  { id: '4', name: 'Crispy Chicken', description: 'Frango crocante e suculento.', ingredients: 'Sobrecoxa empanada crocante, coleslaw, picles e maionese de limão siciliano.', price: 29.90, imageUrl: 'https://images.unsplash.com/photo-1615887023516-9dfbc8f117ce?auto=format&fit=crop&q=80&w=800', category: { name: 'Burgers' } },
+  { id: '5', name: 'Veggie Supreme', description: 'Saboroso e 100% vegetal.', ingredients: 'Hambúrguer de grão de bico, rúcula, tomate confit e creme de queijo vegano no pão rústico.', price: 34.90, imageUrl: 'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&q=80&w=800', category: { name: 'Burgers' } },
+  { id: '6', name: 'Fritas Rústicas', description: 'O acompanhamento perfeito.', ingredients: 'Batatas rústicas com páprica, alecrim e sal marinho. Acompanha maionese da casa.', price: 18.90, imageUrl: 'https://images.unsplash.com/photo-1576107232684-1279f3908594?auto=format&fit=crop&q=80&w=800', category: { name: 'Porções' } },
+  { id: '7', name: 'Onion Rings', description: 'Crocantes por fora, macias por dentro.', ingredients: 'Anéis de cebola empanados e crocantes. Servidos com molho barbecue artesanal.', price: 22.90, imageUrl: 'https://images.unsplash.com/photo-1639024471283-03518883512d?auto=format&fit=crop&q=80&w=800', category: { name: 'Porções' } },
+  { id: '8', name: 'Nuggets Artesanais', description: 'Feitos com frango de verdade.', ingredients: 'Pedaços de peito de frango empanados em farinha panko. (10 unidades)', price: 24.90, imageUrl: 'https://images.unsplash.com/photo-1562967914-01efa7e87832?auto=format&fit=crop&q=80&w=800', category: { name: 'Porções' } },
+  { id: '9', name: 'Milkshake de Nutella', description: 'Doce na medida certa.', ingredients: 'Sorvete de creme batido com muita Nutella e chantilly fresco.', price: 26.90, imageUrl: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&q=80&w=800', category: { name: 'Bebidas' } },
+  { id: '10', name: 'Pink Lemonade', description: 'Refrescância total.', ingredients: 'Limonada com xarope de frutas vermelhas e hortelã fresca.', price: 14.90, imageUrl: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&q=80&w=800', category: { name: 'Bebidas' } },
 ];
 
-// Enriquece o produto individualmente com as configurações de preço/opções
-const enrichProduct = (p) => {
-  if (!p) return p;
-
-  const catName  = (p.category?.name || '').toLowerCase();
-  const prodName = (p.name || '').toLowerCase();
-
-  // Batatas NUNCA são consideradas hambúrgueres
-  const isP = /batata|fritas|porç|acompanh/i.test(catName) || /batata|fritas/i.test(prodName);
-  const isB = !isP && (/burg|hamb|lanche|artesanal/i.test(catName) || /smash|salad|bacon|aloha|burg|classic/i.test(prodName));
-
-  let singlePrice = p.price;
-  let doublePrice = p.priceDouble;
-
-  if (isB && !doublePrice) {
-    if (prodName.includes('smash')) doublePrice = 29.00;
-    else if (prodName.includes('salad') || prodName.includes('bacon') || prodName.includes('aloha')) doublePrice = 32.00;
-    else doublePrice = singlePrice + 7.00;
-  }
-
-  let smallPrice  = p.price;
-  let mediumPrice = p.priceMedium;
-  let largePrice  = p.priceLarge;
-
-  if (isP && (!mediumPrice || !largePrice)) {
-    if (prodName.includes('cheddar') || prodName.includes('bacon')) {
-      smallPrice  = 15.00;
-      mediumPrice = 19.00;
-      largePrice  = 23.00;
-    } else {
-      smallPrice  = 9.00;
-      mediumPrice = 12.00;
-      largePrice  = 15.00;
-    }
-  }
-
-  return {
-    ...p,
-    price: isP ? smallPrice : singlePrice,
-    isburger: isB,
-    hasSizes: isP,
-    priceDouble: isB ? doublePrice : undefined,
-    priceMedium: isP ? mediumPrice : undefined,
-    priceLarge: isP ? largePrice : undefined,
-  };
-};
-
-// Retorna EXCLUSIVAMENTE os produtos cadastrados no banco (quando existirem)
-const normalizeProducts = (apiProducts = []) => {
-  if (Array.isArray(apiProducts) && apiProducts.length > 0) {
-    return apiProducts.map(enrichProduct);
-  }
-  // Se a API estiver offline ou sem produtos, usa a lista local
-  return OFFICIAL_MENU.map(enrichProduct);
-};
-
 export const Home = () => {
-  const [products, setProducts]             = useState([]);
+  const [products, setProducts]             = useState(FALLBACK_PRODUCTS);
+  const [bestsellerIds, setBestsellerIds]   = useState([]);
   const [activeCategory, setActiveCategory]   = useState('Todos');
   const [searchQuery, setSearchQuery]       = useState('');
   const [isLoading, setIsLoading]           = useState(true);
@@ -163,11 +43,13 @@ export const Home = () => {
       api.get('/products').catch(() => ({ data: [] })),
       api.get('/settings/store-status').catch(() => ({ data: { isOpen: true } })),
       api.get('/instagram/feed').catch(() => ({ data: [] })),
-    ]).then(([productsRes, statusRes, instaRes]) => {
+      api.get('/stats/bestsellers').catch(() => ({ data: [] })),
+    ]).then(([productsRes, statusRes, instaRes, bestsellersRes]) => {
       if (cancelled) return;
-      setProducts(normalizeProducts(productsRes.data));
+      setProducts(productsRes.data.length ? productsRes.data : FALLBACK_PRODUCTS);
       setIsStoreOpen(statusRes.data.isOpen);
       if (instaRes.data.length) setInstaPosts(instaRes.data);
+      setBestsellerIds(bestsellersRes.data || []);
     }).finally(() => {
       if (!cancelled) setIsLoading(false);
     });
@@ -253,6 +135,7 @@ export const Home = () => {
             </p>
             <div className="hero-actions">
               <a href="#menu" className="btn-primary">Ver Cardápio</a>
+              <a href="#sobre" className="btn-outline">Nossa História</a>
             </div>
           </div>
           <div className="hero-scroll" aria-hidden="true">
@@ -276,13 +159,38 @@ export const Home = () => {
           </div>
         </section>
 
+        {/* ── SOBRE ───────────────────────── */}
+        <section className="manifesto" id="sobre" aria-label="Sobre nós">
+          <div className="manifesto-img">
+            <img
+              src="https://images.unsplash.com/photo-1550317138-10000687a72b?auto=format&fit=crop&q=80&w=900"
+              alt="Hambúrguer artesanal preparado na brasa"
+              loading="lazy"
+            />
+          </div>
+          <div className="manifesto-text">
+            <span className="label">Nossa filosofia</span>
+            <h2>Onde o fogo guia,<br />o tempo desacelera.</h2>
+            <div className="manifesto-divider" />
+            <p>
+              Nascemos da paixão pelo fogo e pelo encontro. Cada hambúrguer que sai
+              da nossa cozinha carrega o cuidado de quem acredita que uma boa refeição
+              conecta pessoas.
+            </p>
+            <p>
+              Usamos apenas carne 100% Angus, pão brioche feito diariamente e
+              ingredientes frescos escolhidos com rigor.
+            </p>
+          </div>
+        </section>
+
         {/* ── HORÁRIOS ────────────────────── */}
         <div role="complementary" aria-label="Horários de funcionamento" style={{ background: 'var(--bg-3)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)', padding: '3.5rem 5%' }}>
           <div className="info-strip">
             {[
-              { label: 'Segunda a Domingo', value: '19h às 23h' },
-              { label: 'Siga nosso Instagram', value: '@the.burguer' },
-              { label: 'Fale Conosco', value: '(21) 98507-5154' },
+              { label: 'Terça a Sábado', value: '12h às 00h' },
+              { label: 'Domingo',         value: '12h às 19h' },
+              { label: 'Reservas & Suporte', value: '(21) 98507-5154' },
             ].map(({ label, value }) => (
               <div key={label} className="info-strip-item">
                 <span className="label">{label}</span>
@@ -361,7 +269,7 @@ export const Home = () => {
                   key={product.id}
                   product={product}
                   onClick={setSelectedProduct}
-                  isBestseller={product.name.toLowerCase().includes('smash') || product.name.toLowerCase().includes('bacon')}
+                  isBestseller={bestsellerIds.includes(product.id)}
                 />
               ))}
             </div>
@@ -383,7 +291,7 @@ export const Home = () => {
             <p>Acompanhe nossos bastidores e novidades em tempo real.</p>
           </div>
 
-          <div className="insta-grid" style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
+          <div className="insta-grid">
             {(instaPosts.length ? instaPosts.slice(0, 6) : [
               'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=800&auto=format&fit=crop',
               'https://images.unsplash.com/photo-1550547660-d9450f859349?q=80&w=800&auto=format&fit=crop',
@@ -424,6 +332,7 @@ export const Home = () => {
               <ul className="footer-links">
                 <li><a href="#home">Início</a></li>
                 <li><a href="#menu">Cardápio</a></li>
+                <li><a href="#sobre">Nossa História</a></li>
                 <li><a href="/login">Área do Cliente</a></li>
               </ul>
             </div>
