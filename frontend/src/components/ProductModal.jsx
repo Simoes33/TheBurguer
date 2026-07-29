@@ -65,39 +65,38 @@ export const ProductModal = ({ product, onClose }) => {
     /smash|salad|bacon|aloha|burg|classic/i.test(productName)
   );
 
- // Preços conforme o cardápio oficial
+ let singlePrice = product.price;
+let doublePrice = product.priceDouble;
 
-const singlePrice = product.price;
+let smallPrice = product.price;
+let mediumPrice = product.priceMedium;
+let largePrice = product.priceLarge;
 
-const doublePrice = product.priceDouble ?? (
-  /smash/i.test(productName)
-    ? 29.00
-    : /salad|bacon|aloha/i.test(productName)
-      ? 32.00
-      : singlePrice + 7.00
-);
+// ---------- Hambúrgueres ----------
 
-// ------------------------
-// Batatas
-// ------------------------
+if (/smash/i.test(productName)) {
+  singlePrice = 19;
+  doublePrice = 29;
+}
 
-const smallPrice = product.price;
+else if (/salad|bacon|aloha/i.test(productName)) {
+  singlePrice = 25;
+  doublePrice = 32;
+}
 
-const mediumPrice = product.priceMedium ?? (
-  /cheddar|farofa/i.test(productName)
-    ? 19.00
-    : /batata|fritas|tradicional/i.test(productName)
-      ? 12.00
-      : smallPrice + 3.00
-);
+// ---------- Batatas ----------
 
-const largePrice = product.priceLarge ?? (
-  /cheddar|farofa/i.test(productName)
-    ? 23.00
-    : /batata|fritas|tradicional/i.test(productName)
-      ? 15.00
-      : smallPrice + 6.00
-);
+if (/cheddar|farofa/i.test(productName)) {
+  smallPrice = 15;
+  mediumPrice = 19;
+  largePrice = 23;
+}
+
+else if (/batata|fritas/i.test(productName)) {
+  smallPrice = 9;
+  mediumPrice = 12;
+  largePrice = 15;
+}
   // ── Calculo dinamico do preco unitario ──────────────────────
   const getUnitPrice = () => {
     let base = singlePrice;
