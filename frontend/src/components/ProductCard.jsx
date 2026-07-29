@@ -128,28 +128,25 @@ export const ProductCard = React.memo(({ product, onClick, isBestseller = false 
       </div>
 
       <div className="product-info">
-        {avgRating && (
-          <div className="product-rating">
-            <div className="rating-stars" aria-hidden="true">
-              {[1, 2, 3, 4, 5].map((n) => (
-                <Star
-                  key={n}
-                  size={11}
-                  weight={
-                    n <= Math.round(Number(avgRating))
-                      ? 'fill'
-                      : 'thin'
-                  }
-                  color="var(--gold)"
-                />
-              ))}
-            </div>
-
-            <span className="rating-count">
-              {avgRating} ({product.reviews.length})
-            </span>
-          </div>
-        )}
+        {avgRating ? (
+  <div className="product-rating">
+    <div className="rating-stars" aria-hidden="true">
+      {[1, 2, 3, 4, 5].map((n) => (
+        <Star
+          key={n}
+          size={11}
+          weight={n <= Math.round(Number(avgRating)) ? 'fill' : 'thin'}
+          color="var(--gold)"
+        />
+      ))}
+    </div>
+    <span className="rating-count">
+      {avgRating} ({product.reviews.length})
+    </span>
+  </div>
+) : (
+  <div className="rating-placeholder" />
+)}
 
         <h3>{product.name}</h3>
 

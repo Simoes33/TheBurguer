@@ -480,6 +480,9 @@ header {
   font-size: 1.05rem;
   font-weight: 600;
   margin-bottom: 0.3rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .product-info .description {
@@ -1189,6 +1192,11 @@ header {
   display: flex;
   align-items: center;
   gap: 0.3rem;
+  margin-bottom: 0.8rem;
+}
+
+.rating-placeholder {
+  height: 1.2rem;
   margin-bottom: 0.8rem;
 }
 
