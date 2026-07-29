@@ -85,7 +85,17 @@ const ADMIN_DASHBOARD_STYLES = `
 
   /* Tablets menores / celulares em modo paisagem */
   @media (max-width: 768px) {
-    .adb-header { padding: 1rem 4%; }
+    .adb-header-right {
+    width: 100%;
+    justify-content: space-between;
+    gap: .8rem;
+}
+
+.adb-view-store-link {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+}
     .adb-content { padding: 1.5rem 4%; }
     .adb-header-left { gap: 1rem; }
     .adb-tabs { width: 100%; }
@@ -94,7 +104,6 @@ const ADMIN_DASHBOARD_STYLES = `
 
   /* Smartphones */
   @media (max-width: 640px) {
-    .adb-view-store-link { display: none; }
     .adb-table-wrapper { display: none; }
     .adb-orders-cards { display: flex; }
     .adb-stats-value { font-size: 1.7rem; }
