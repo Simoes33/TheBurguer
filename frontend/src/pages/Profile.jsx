@@ -20,6 +20,52 @@ const labelStyle = {
   fontFamily: 'var(--sans)', fontWeight: 500,
 };
 
+// Estilos responsivos: no desktop é um split-screen (imagem + formulário
+// lado a lado); no mobile empilha (imagem vira um banner curto em cima,
+// formulário ocupa a largura toda embaixo).
+const PROFILE_STYLES = `
+  .profile-page {
+    min-height: 100vh;
+    display: flex;
+    background: var(--bg);
+  }
+
+  .profile-image-panel {
+    flex: 1;
+    background-image:
+      linear-gradient(to right, rgba(8,8,8,0.1) 0%, rgba(8,8,8,0.75) 100%),
+      url('https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&q=80&w=1200');
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: flex-end;
+    padding: 4rem;
+  }
+
+  .profile-form-panel {
+    width: 500px;
+    flex-shrink: 0;
+    background: var(--bg-2);
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 4rem 3rem;
+    overflow-y: auto;
+  }
+
+  .profile-row { display: flex; gap: 1rem; }
+
+  @media (max-width: 900px) {
+    .profile-page { flex-direction: column; min-height: auto; }
+    .profile-image-panel { flex: none; height: 200px; padding: 1.5rem; }
+    .profile-form-panel { width: 100%; border-left: none; border-top: 1px solid var(--border); padding: 2.5rem 1.5rem; overflow-y: visible; }
+  }
+
+  @media (max-width: 420px) {
+    .profile-row { flex-direction: column; gap: 1.2rem; }
+  }
+`;
+
 export const Profile = () => {
   const { user, updateUser } = useContext(AuthContext);
   const toast = useToast();
@@ -92,17 +138,11 @@ export const Profile = () => {
   if (!user) return null;
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', background: 'var(--bg)' }}>
+    <div className="profile-page">
+      <style>{PROFILE_STYLES}</style>
+
       {/* Painel esquerdo — imagem */}
-      <div style={{
-        flex: 1,
-        backgroundImage: [
-          'linear-gradient(to right, rgba(8,8,8,0.1) 0%, rgba(8,8,8,0.75) 100%)',
-          "url('https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&q=80&w=1200')",
-        ].join(', '),
-        backgroundSize: 'cover', backgroundPosition: 'center',
-        display: 'flex', alignItems: 'flex-end', padding: '4rem',
-      }}>
+      <div className="profile-image-panel">
         <div>
           <div style={{ fontFamily: 'var(--serif)', fontSize: '1.5rem', fontWeight: 700, color: '#fff', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
             THE<span style={{ color: 'var(--ember)' }}>BURGUER</span>
@@ -114,12 +154,7 @@ export const Profile = () => {
       </div>
 
       {/* Painel direito — formulário */}
-      <div style={{
-        width: '500px', flexShrink: 0,
-        background: 'var(--bg-2)', borderLeft: '1px solid var(--border)',
-        display: 'flex', flexDirection: 'column', padding: '4rem 3rem',
-        overflowY: 'auto',
-      }}>
+      <div className="profile-form-panel">
         <div style={{ marginBottom: '2.5rem' }}>
           <span style={{ ...labelStyle, display: 'block', marginBottom: '0.6rem' }}>Área do Cliente</span>
           <h2 style={{ fontFamily: 'var(--serif)', fontSize: '2rem', color: 'var(--text)', fontWeight: 600 }}>
@@ -180,7 +215,7 @@ export const Profile = () => {
               <input type="text" name="phone" value={formData.phone} onChange={handleChange} style={inputStyle} placeholder="(11) 99999-9999" />
             </div>
 
-            <div style={{ display: 'flex', gap: '1rem' }}>
+            <div className="profile-row">
               <div style={{ flex: 1 }}>
                 <label style={labelStyle}>CEP</label>
                 <input type="text" name="cep" value={formData.cep} onChange={handleChange} style={inputStyle} placeholder="00000-000" />
@@ -196,7 +231,7 @@ export const Profile = () => {
               <input type="text" name="address" value={formData.address} onChange={handleChange} style={inputStyle} placeholder="Av. Principal" />
             </div>
 
-            <div style={{ display: 'flex', gap: '1rem' }}>
+            <div className="profile-row">
               <div style={{ flex: 1 }}>
                 <label style={labelStyle}>Número</label>
                 <input type="text" name="number" value={formData.number} onChange={handleChange} style={inputStyle} placeholder="123" />
