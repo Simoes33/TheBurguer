@@ -39,39 +39,13 @@ export const ProductCard = React.memo(({ product, onClick, isBestseller = false 
       ).toFixed(1)
     : null;
 
-  const categoryName = (product?.category?.name || '').toLowerCase();
-  const productName = (product?.name || '').toLowerCase();
-
-  const hasOptions = Boolean(
-    product.priceDouble ||
-    product.priceMedium ||
-    /burg|hamb|lanche|artesanal/i.test(categoryName) ||
-    /smash|salad|bacon|aloha|batata|fritas/i.test(productName)
-  );
-
-  // ============================================================
-  // PREÇO EXIBIDO NO CARD (CARDÁPIO OFICIAL)
-  // ============================================================
-
-  let displayPrice = product.price;
-
-  if (/smash/i.test(productName)) {
-    displayPrice = 19;
-  } else if (/salad|bacon|aloha/i.test(productName)) {
-    displayPrice = 25;
-  } else if (/cheddar|farofa/i.test(productName)) {
-    displayPrice = 15;
-  } else if (/batata|fritas/i.test(productName)) {
-    displayPrice = 9;
-  }
-
   return (
     <article
       className="product-card animate-fade-in-up"
       onClick={() => onClick(product)}
       role="button"
       tabIndex={0}
-      aria-label={`Ver detalhes de ${product.name} — ${fmt(displayPrice)}`}
+      aria-label={`Ver detalhes de ${product.name} — ${fmt(product.price)}`}
       onKeyDown={(e) => e.key === 'Enter' && onClick(product)}
     >
       <div className="product-image">
@@ -182,24 +156,7 @@ export const ProductCard = React.memo(({ product, onClick, isBestseller = false 
 
         <div className="product-footer">
           <span className="price">
-            {hasOptions && (
-              <span
-                style={{
-                  fontSize: '0.6rem',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.06em',
-                  color: 'var(--text-muted)',
-                  display: 'block',
-                  marginBottom: '1px',
-                  fontFamily: 'var(--sans)',
-                  fontWeight: 400,
-                }}
-              >
-                A PARTIR DE
-              </span>
-            )}
-
-            {fmt(displayPrice)}
+            {fmt(product.price)}
           </span>
 
           <button
