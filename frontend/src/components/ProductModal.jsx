@@ -400,15 +400,26 @@ else if (/batata|fritas/i.test(productName)) {
           min-height: 560px;
         }
 
+        /* Container de imagem: altura NUNCA depende da proporção da foto.
+           A imagem fica position:absolute preenchendo o container via
+           object-fit:cover, então ela não influencia mais a altura do
+           grid — quem manda na altura é o conteúdo de .modal-details
+           (ou o min-height abaixo, o que for maior). Isso garante que
+           produtos com fotos bem diferentes (garrafa alta x cesta de
+           batata larga) rendem cards com a MESMA altura. */
         .modal-image-container {
           background: var(--bg-3);
           position: relative;
+          overflow: hidden;
           display: flex;
           align-items: center;
           justify-content: center;
           border-right: 1px solid var(--border);
+          min-height: 560px;
         }
         .modal-image-container img {
+          position: absolute;
+          inset: 0;
           width: 100%;
           height: 100%;
           object-fit: cover;
@@ -635,7 +646,7 @@ else if (/batata|fritas/i.test(productName)) {
         @media (max-width: 900px) {
           .modal-content { max-width: 500px; max-height: 90vh; overflow-y: auto; }
           .modal-body { grid-template-columns: 1fr; min-height: auto; }
-          .modal-image-container { height: 240px; border-right: none; border-bottom: 1px solid var(--border); }
+          .modal-image-container { height: 220px; min-height: 0; border-right: none; border-bottom: 1px solid var(--border); }
           .modal-details { padding: 1.5rem; gap: 1.2rem; max-height: none; }
           .modal-header-group h2 { font-size: 1.7rem; }
           .modal-footer { flex-direction: column; gap: 1rem; }
