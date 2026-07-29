@@ -55,6 +55,7 @@ export const ProductCard = React.memo(({ product, onClick, isBestseller = false 
             alt={product.name}
             loading="lazy"
             decoding="async"
+            style={{ objectFit: 'contain', padding: '0.9rem' }}
           />
         ) : (
           <div
