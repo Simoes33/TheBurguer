@@ -303,7 +303,6 @@ export const Home = () => {
               <ul className="footer-links">
                 <li><a href="#home">Início</a></li>
                 <li><a href="#menu">Cardápio</a></li>
-                <li><a href="#sobre">Nossa História</a></li>
                 <li><a href="/login">Área do Cliente</a></li>
               </ul>
             </div>

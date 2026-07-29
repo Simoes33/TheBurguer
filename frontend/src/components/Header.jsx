@@ -38,7 +38,6 @@ export const Header = () => {
           <ul className="nav-links">
             <li><a href="/#home">Início</a></li>
             <li><a href="/#menu">Cardápio</a></li>
-            <li><a href="/#sobre">Sobre</a></li>
             {user?.role === 'ADMIN' || user?.role === 'EMPLOYEE' ? (
               <li><NavLink to="/admin">Painel</NavLink></li>
             ) : null}
@@ -93,7 +92,6 @@ export const Header = () => {
           <ul className="mobile-nav-links">
             <li><a href="/#home" onClick={closeMenu}>Início</a></li>
             <li><a href="/#menu" onClick={closeMenu}>Cardápio</a></li>
-            <li><a href="/#sobre" onClick={closeMenu}>Sobre</a></li>
             {user?.role === 'ADMIN' || user?.role === 'EMPLOYEE' ? (
               <li><NavLink to="/admin" onClick={closeMenu}>Painel Admin</NavLink></li>
             ) : null}
