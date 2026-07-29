@@ -6,7 +6,7 @@ import { ProductModal } from '../components/ProductModal';
 import api from '../api/axios';
 import { ArrowDown, MagnifyingGlass, X, Flame, InstagramLogo, WhatsappLogo, MapPin, Clock } from '@phosphor-icons/react';
 
-// ── DEFINIÇÃO OFICIAL DO CARDÁPIO THE BURGUER ──────────────────
+// ── DEFINIÇÃO DE BACKUP LOCAL (Usado apenas se a API estiver offline/vazia) ──
 const OFFICIAL_MENU = [
   {
     id: '1',
@@ -82,99 +82,66 @@ const OFFICIAL_MENU = [
     imageUrl: 'https://images.unsplash.com/photo-1639024471283-03518883512d?auto=format&fit=crop&q=80&w=800',
     category: { id: 'c2', name: 'Batatas' },
   },
-  {
-    id: '7',
-    name: 'Soda Italiana (300ml)',
-    description: 'Refrescante e exclusiva. Escolha entre nossos sabores artesanais.',
-    ingredients: 'Limão, Morango e Manjericão OU Limão, Maçã Verde e Hortelã.',
-    price: 9.00,
-    stock: 50,
-    imageUrl: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&q=80&w=800',
-    category: { id: 'c3', name: 'Bebidas' },
-  },
-  {
-    id: '8',
-    name: 'Refri / Suco / Mate',
-    description: 'Bebidas geladas para acompanhar seu burger.',
-    ingredients: 'Refrigerantes garrafinha, sucos de frasco ou mate gelado.',
-    price: 7.00,
-    stock: 50,
-    imageUrl: 'https://images.unsplash.com/photo-1629203432180-71e9b18d3e5e?auto=format&fit=crop&q=80&w=800',
-    category: { id: 'c3', name: 'Bebidas' },
-  },
-  {
-    id: '9',
-    name: 'Guaracamp',
-    description: 'O sabor do Rio geladinho.',
-    ingredients: 'Guaracamp tradicional 355ml.',
-    price: 3.00,
-    stock: 50,
-    imageUrl: 'https://images.unsplash.com/photo-1624517452488-04869289c4ca?auto=format&fit=crop&q=80&w=800',
-    category: { id: 'c3', name: 'Bebidas' },
-  },
-  {
-    id: '10',
-    name: 'Água Mineral',
-    description: 'Água mineral sem gás ou com gás 500ml.',
-    ingredients: 'Água mineral 500ml.',
-    price: 4.00,
-    stock: 50,
-    imageUrl: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?auto=format&fit=crop&q=80&w=800',
-    category: { id: 'c3', name: 'Bebidas' },
-  },
 ];
 
-// Função que normaliza e enriquece qualquer lista de produtos (da API ou local)
-const normalizeProducts = (apiProducts = []) => {
-  const mergedMap = new Map();
+// Enriquece o produto individualmente com as configurações de preço/opções
+const enrichProduct = (p) => {
+  if (!p) return p;
 
-  // Primeiro coloca todos os itens oficiais do cardápio
-  OFFICIAL_MENU.forEach(item => {
-    mergedMap.set(item.name.toLowerCase().trim(), { ...item });
-  });
+  const catName  = (p.category?.name || '').toLowerCase();
+  const prodName = (p.name || '').toLowerCase();
 
-  // Sobrescreve/enriquece com dados da API quando disponíveis
-  if (Array.isArray(apiProducts)) {
-    apiProducts.forEach(apiProd => {
-      if (!apiProd || !apiProd.name) return;
-      const key = apiProd.name.toLowerCase().trim();
-      const match = OFFICIAL_MENU.find(m =>
-        m.name.toLowerCase().trim() === key ||
-        key.includes(m.name.toLowerCase().trim()) ||
-        m.name.toLowerCase().trim().includes(key)
-      );
+  // Batatas NUNCA são consideradas hambúrgueres
+  const isP = /batata|fritas|porç|acompanh/i.test(catName) || /batata|fritas/i.test(prodName);
+  const isB = !isP && (/burg|hamb|lanche|artesanal/i.test(catName) || /smash|salad|bacon|aloha|burg|classic/i.test(prodName));
 
-      if (match) {
-        mergedMap.set(match.name.toLowerCase().trim(), {
-          ...match,
-          id: apiProd.id || match.id,
-          stock: typeof apiProd.stock === 'number' ? apiProd.stock : match.stock,
-          imageUrl: apiProd.imageUrl || match.imageUrl,
-          category: apiProd.category || match.category,
-        });
-      } else {
-        // Produto customizado criado no backend
-        const catName = apiProd.category?.name || '';
-        const isB = /burg|hamb|lanche|artesanal/i.test(catName) || /smash|salad|bacon|aloha/i.test(apiProd.name);
-        const isP = /batata|fritas|porç/i.test(catName) || /batata|fritas/i.test(apiProd.name);
+  let singlePrice = p.price;
+  let doublePrice = p.priceDouble;
 
-        mergedMap.set(key, {
-          ...apiProd,
-          isburger: isB,
-          hasSizes: isP,
-          priceDouble: isB ? (apiProd.priceDouble || (apiProd.name.toLowerCase().includes('smash') ? 29 : apiProd.price + 7)) : undefined,
-          priceMedium: isP ? (apiProd.priceMedium || apiProd.price + 3) : undefined,
-          priceLarge: isP ? (apiProd.priceLarge || apiProd.price + 6) : undefined,
-        });
-      }
-    });
+  if (isB && !doublePrice) {
+    if (prodName.includes('smash')) doublePrice = 29.00;
+    else if (prodName.includes('salad') || prodName.includes('bacon') || prodName.includes('aloha')) doublePrice = 32.00;
+    else doublePrice = singlePrice + 7.00;
   }
 
-  return Array.from(mergedMap.values());
+  let smallPrice  = p.price;
+  let mediumPrice = p.priceMedium;
+  let largePrice  = p.priceLarge;
+
+  if (isP && (!mediumPrice || !largePrice)) {
+    if (prodName.includes('cheddar') || prodName.includes('bacon')) {
+      smallPrice  = 15.00;
+      mediumPrice = 19.00;
+      largePrice  = 23.00;
+    } else {
+      smallPrice  = 9.00;
+      mediumPrice = 12.00;
+      largePrice  = 15.00;
+    }
+  }
+
+  return {
+    ...p,
+    price: isP ? smallPrice : singlePrice,
+    isburger: isB,
+    hasSizes: isP,
+    priceDouble: isB ? doublePrice : undefined,
+    priceMedium: isP ? mediumPrice : undefined,
+    priceLarge: isP ? largePrice : undefined,
+  };
+};
+
+// Retorna EXCLUSIVAMENTE os produtos cadastrados no banco (quando existirem)
+const normalizeProducts = (apiProducts = []) => {
+  if (Array.isArray(apiProducts) && apiProducts.length > 0) {
+    return apiProducts.map(enrichProduct);
+  }
+  // Se a API estiver offline ou sem produtos, usa a lista local
+  return OFFICIAL_MENU.map(enrichProduct);
 };
 
 export const Home = () => {
-  const [products, setProducts]             = useState(() => normalizeProducts([]));
+  const [products, setProducts]             = useState([]);
   const [activeCategory, setActiveCategory]   = useState('Todos');
   const [searchQuery, setSearchQuery]       = useState('');
   const [isLoading, setIsLoading]           = useState(true);

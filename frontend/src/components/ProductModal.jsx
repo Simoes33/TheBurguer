@@ -49,15 +49,7 @@ export const ProductModal = ({ product, onClose }) => {
   const categoryName = (product?.category?.name || '').toLowerCase();
   const productName  = (product?.name || '').toLowerCase();
 
-  // Detecção robusta de burger (funciona tanto para API quanto local)
-  const isBurger = Boolean(
-    product?.isburger ||
-    product?.priceDouble ||
-    /burg|hamb|lanche|artesanal/i.test(categoryName) ||
-    /smash|salad|bacon|aloha|burg|classic/i.test(productName)
-  );
-
-  // Detecção robusta de batata / porção
+  // Deteccao rigorosa de batatas/porcoes (JAMAIS considera hamburguer)
   const isPotato = Boolean(
     product?.hasSizes ||
     product?.priceMedium ||
@@ -65,7 +57,15 @@ export const ProductModal = ({ product, onClose }) => {
     /batata|fritas/i.test(productName)
   );
 
-  // Preços adaptados conforme o cardápio oficial
+  // Deteccao rigorosa de hamburguer (EXCLUI batatas explicitamente)
+  const isBurger = !isPotato && Boolean(
+    product?.isburger ||
+    product?.priceDouble ||
+    /burg|hamb|lanche|artesanal/i.test(categoryName) ||
+    /smash|salad|bacon|aloha|burg|classic/i.test(productName)
+  );
+
+  // Precos adaptados conforme o cardapio oficial
   const singlePrice = product.price;
   const doublePrice = product.priceDouble ?? (
     /smash/i.test(productName) ? 29.00 :
@@ -82,7 +82,7 @@ export const ProductModal = ({ product, onClose }) => {
     (/batata|fritas/i.test(productName) ? 15.00 : smallPrice + 6.00)
   );
 
-  // ── Cálculo dinâmico do preço unitário ──────────────────────
+  // ── Calculo dinamico do preco unitario ──────────────────────
   const getUnitPrice = () => {
     let base = singlePrice;
 
@@ -109,7 +109,7 @@ export const ProductModal = ({ product, onClose }) => {
     const opts = [];
     if (isBurger) opts.push(burgerVariant === 'double' ? 'Duplo' : 'Simples');
     if (isPotato) opts.push({ small: 'P', medium: 'M', large: 'G' }[potatoSize]);
-    if (isCombo)  opts.push('Combo (+batata M + bebida)');
+    if (isBurger && isCombo) opts.push('Combo (+batata M + bebida)');
     return opts.join(' • ');
   };
 
@@ -119,7 +119,7 @@ export const ProductModal = ({ product, onClose }) => {
     addToCart({ ...product, price: unitPrice }, quantity, finalObservation, {
       variant: isBurger ? burgerVariant : null,
       size: isPotato ? potatoSize : null,
-      isCombo,
+      isCombo: isBurger ? isCombo : false,
       basePrice: unitPrice,
     });
     onClose();
@@ -157,7 +157,7 @@ export const ProductModal = ({ product, onClose }) => {
               )}
             </div>
 
-            {/* ── Seleção Simples / Duplo (Burgers) ── */}
+            {/* ── Selecao Simples / Duplo (EXCLUSIVO para Burgers) ── */}
             {isBurger && (
               <div className="option-section">
                 <span className="option-label">Opção do Hamburguer</span>
@@ -180,7 +180,7 @@ export const ProductModal = ({ product, onClose }) => {
               </div>
             )}
 
-            {/* ── Seleção de Tamanho (Batatas) ── */}
+            {/* ── Selecao de Tamanho (EXCLUSIVO para Batatas) ── */}
             {isPotato && (
               <div className="option-section">
                 <span className="option-label">Tamanho da Porção</span>
@@ -210,7 +210,7 @@ export const ProductModal = ({ product, onClose }) => {
               </div>
             )}
 
-            {/* ── Combo (apenas para Burgers) ── */}
+            {/* ── Combo (EXCLUSIVO para Burgers) ── */}
             {isBurger && (
               <button
                 className={`combo-toggle ${isCombo ? 'active' : ''}`}
@@ -233,14 +233,19 @@ export const ProductModal = ({ product, onClose }) => {
               </button>
             )}
             
-            {/* ── Preço dinâmico ── */}
+            {/* ── Preco dinamico ── */}
             <div className="modal-price-tag">
               {fmt(unitPrice)}
               {isBurger && burgerVariant === 'double' && (
                 <span className="price-badge">Duplo</span>
               )}
-              {isCombo && (
+              {isBurger && isCombo && (
                 <span className="price-badge combo">Combo</span>
+              )}
+              {isPotato && (
+                <span className="price-badge" style={{ background: 'rgba(191,160,106,0.15)', color: 'var(--gold)', borderColor: 'rgba(191,160,106,0.3)' }}>
+                  {{ small: 'Tamanho P', medium: 'Tamanho M', large: 'Tamanho G' }[potatoSize]}
+                </span>
               )}
             </div>
 
