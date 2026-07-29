@@ -98,36 +98,51 @@ else if (/batata|fritas/i.test(productName)) {
   largePrice = 15;
 }
   // ── Calculo dinamico do preco unitario ──────────────────────
-  const getUnitPrice = () => {
-    let base = singlePrice;
+ const getUnitPrice = () => {
+  console.log("ENTROU", {
+    singlePrice,
+    smallPrice,
+    mediumPrice,
+    largePrice,
+    potatoSize,
+  });
 
-    if (isBurger && burgerVariant === 'double') {
-      base = doublePrice;
+  if (isPotato) {
+    console.log("RETORNANDO BATATA");
+
+    switch (potatoSize) {
+      case "medium":
+        return mediumPrice;
+      case "large":
+        return largePrice;
+      default:
+        return smallPrice;
     }
+  }
 
-    if (isPotato) {
-      if (potatoSize === 'medium') base = mediumPrice;
-      if (potatoSize === 'large')  base = largePrice;
-    }
+  let base = burgerVariant === "double"
+    ? doublePrice
+    : singlePrice;
 
-    if (isBurger && isCombo) base += COMBO_PRICE;
+  if (isCombo) {
+    base += COMBO_PRICE;
+  }
 
-    return base;
-  };
-
+  return base;
+};
   const unitPrice = getUnitPrice();
 
     console.log({
-  productName,
-  categoryName,
-  isPotato,
-  isBurger,
-  potatoSize,
+  productPrice: product.price,
+  singlePrice,
+  doublePrice,
   smallPrice,
   mediumPrice,
   largePrice,
+  potatoSize,
+  isPotato,
+  isBurger,
   unitPrice,
-  product,
 });
 
   const fmt = (n) => `R$ ${Number(n).toFixed(2).replace('.', ',')}`;
