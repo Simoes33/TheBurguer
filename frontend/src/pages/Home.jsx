@@ -7,16 +7,110 @@ import api from '../api/axios';
 import { ArrowDown, MagnifyingGlass, X, Flame, InstagramLogo, WhatsappLogo, MapPin, Clock } from '@phosphor-icons/react';
 
 const FALLBACK_PRODUCTS = [
-  { id: '1', name: 'The Classic', description: 'O clássico que nunca erra.', ingredients: 'Blend 180g de Angus, queijo prato, alface americana, tomate e molho especial no brioche.', price: 32.90, imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&q=80&w=800', category: { name: 'Burgers' } },
-  { id: '2', name: 'Double Smash Bacon', description: 'Para quem tem fome de verdade.', ingredients: 'Dois smashs de 90g, duplo cheddar, bacon artesanal e cebola caramelizada.', price: 39.90, imageUrl: 'https://images.unsplash.com/photo-1594212691516-069e8f8ddce8?auto=format&fit=crop&q=80&w=800', category: { name: 'Burgers' } },
-  { id: '3', name: 'Truffle Mushroom', description: 'Uma explosão de sabores terrosos.', ingredients: 'Blend 180g, mix de cogumelos salteados, queijo gruyère e maionese trufada.', price: 45.90, imageUrl: 'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&q=80&w=800', category: { name: 'Burgers' } },
-  { id: '4', name: 'Crispy Chicken', description: 'Frango crocante e suculento.', ingredients: 'Sobrecoxa empanada crocante, coleslaw, picles e maionese de limão siciliano.', price: 29.90, imageUrl: 'https://images.unsplash.com/photo-1615887023516-9dfbc8f117ce?auto=format&fit=crop&q=80&w=800', category: { name: 'Burgers' } },
-  { id: '5', name: 'Veggie Supreme', description: 'Saboroso e 100% vegetal.', ingredients: 'Hambúrguer de grão de bico, rúcula, tomate confit e creme de queijo vegano no pão rústico.', price: 34.90, imageUrl: 'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&q=80&w=800', category: { name: 'Burgers' } },
-  { id: '6', name: 'Fritas Rústicas', description: 'O acompanhamento perfeito.', ingredients: 'Batatas rústicas com páprica, alecrim e sal marinho. Acompanha maionese da casa.', price: 18.90, imageUrl: 'https://images.unsplash.com/photo-1576107232684-1279f3908594?auto=format&fit=crop&q=80&w=800', category: { name: 'Porções' } },
-  { id: '7', name: 'Onion Rings', description: 'Crocantes por fora, macias por dentro.', ingredients: 'Anéis de cebola empanados e crocantes. Servidos com molho barbecue artesanal.', price: 22.90, imageUrl: 'https://images.unsplash.com/photo-1639024471283-03518883512d?auto=format&fit=crop&q=80&w=800', category: { name: 'Porções' } },
-  { id: '8', name: 'Nuggets Artesanais', description: 'Feitos com frango de verdade.', ingredients: 'Pedaços de peito de frango empanados em farinha panko. (10 unidades)', price: 24.90, imageUrl: 'https://images.unsplash.com/photo-1562967914-01efa7e87832?auto=format&fit=crop&q=80&w=800', category: { name: 'Porções' } },
-  { id: '9', name: 'Milkshake de Nutella', description: 'Doce na medida certa.', ingredients: 'Sorvete de creme batido com muita Nutella e chantilly fresco.', price: 26.90, imageUrl: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&q=80&w=800', category: { name: 'Bebidas' } },
-  { id: '10', name: 'Pink Lemonade', description: 'Refrescância total.', ingredients: 'Limonada com xarope de frutas vermelhas e hortelã fresca.', price: 14.90, imageUrl: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&q=80&w=800', category: { name: 'Bebidas' } },
+  {
+    id: '1',
+    name: 'The Smash',
+    description: 'O clássico irresistível com toque de goiabada.',
+    ingredients: 'Pão de brioche + maionese de alho + carne + queijo + cebola crispy + ketchup de goiabada.',
+    price: 19.00,
+    priceDouble: 29.00,
+    isburger: true,
+    imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&q=80&w=800',
+    category: { name: 'Burgers' },
+  },
+  {
+    id: '2',
+    name: 'The Salad',
+    description: 'Frescor e sabor numa mordida só.',
+    ingredients: 'Pão de brioche + maionese de alho + carne + queijo + alface americana + tomate + cebola rosa + cebola crispy + molho mostarda e mel.',
+    price: 25.00,
+    priceDouble: 32.00,
+    isburger: true,
+    imageUrl: 'https://images.unsplash.com/photo-1594212691516-069e8f8ddce8?auto=format&fit=crop&q=80&w=800',
+    category: { name: 'Burgers' },
+  },
+  {
+    id: '3',
+    name: 'The Bacon',
+    description: 'Para os amantes do bacon artesanal.',
+    ingredients: 'Pão de brioche + maionese de alho + carne + queijo + geleia de bacon + cebola crispy + ketchup de goiabada.',
+    price: 25.00,
+    priceDouble: 32.00,
+    isburger: true,
+    imageUrl: 'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&q=80&w=800',
+    category: { name: 'Burgers' },
+  },
+  {
+    id: '4',
+    name: 'The Aloha',
+    description: 'A combinação tropical que vai surpreender.',
+    ingredients: 'Pão de brioche + maionese de alho + carnes + queijo + abacaxi + cebola crispy + melado de cana.',
+    price: 25.00,
+    priceDouble: 32.00,
+    isburger: true,
+    imageUrl: 'https://images.unsplash.com/photo-1615887023516-9dfbc8f117ce?auto=format&fit=crop&q=80&w=800',
+    category: { name: 'Burgers' },
+  },
+  {
+    id: '5',
+    name: 'Batata Tradicional',
+    description: 'Crocante por fora, macia por dentro.',
+    ingredients: 'Batata frita crocante no ponto certo. Disponível em três tamanhos: P, M e G.',
+    price: 9.00,
+    priceMedium: 12.00,
+    priceLarge: 15.00,
+    hasSizes: true,
+    imageUrl: 'https://images.unsplash.com/photo-1576107232684-1279f3908594?auto=format&fit=crop&q=80&w=800',
+    category: { name: 'Batatas' },
+  },
+  {
+    id: '6',
+    name: 'Batata Cheddar & Farofa de Bacon',
+    description: 'A mais pedida da casa, com muito cheddar.',
+    ingredients: 'Batata frita coberta com cheddar cremoso e farofa de bacon crocante. Disponível em P, M e G.',
+    price: 15.00,
+    priceMedium: 19.00,
+    priceLarge: 23.00,
+    hasSizes: true,
+    imageUrl: 'https://images.unsplash.com/photo-1639024471283-03518883512d?auto=format&fit=crop&q=80&w=800',
+    category: { name: 'Batatas' },
+  },
+  {
+    id: '7',
+    name: 'Soda Italiana',
+    description: 'Refrescante e exclusiva (300ml).',
+    ingredients: 'Sabores disponíveis: Limão + Morango + Manjericão | Limão + Maçã Verde + Hortelã.',
+    price: 9.00,
+    imageUrl: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&q=80&w=800',
+    category: { name: 'Bebidas' },
+  },
+  {
+    id: '8',
+    name: 'Refri / Suco / Mate',
+    description: 'Bebidas clássicas para acompanhar.',
+    ingredients: 'Refrigerante, suco natural ou mate gelado.',
+    price: 7.00,
+    imageUrl: 'https://images.unsplash.com/photo-1629203432180-71e9b18d3e5e?auto=format&fit=crop&q=80&w=800',
+    category: { name: 'Bebidas' },
+  },
+  {
+    id: '9',
+    name: 'Guaracamp',
+    description: 'O energético favorito da galera.',
+    ingredients: 'Guaracamp gelado, 355ml.',
+    price: 3.00,
+    imageUrl: 'https://images.unsplash.com/photo-1624517452488-04869289c4ca?auto=format&fit=crop&q=80&w=800',
+    category: { name: 'Bebidas' },
+  },
+  {
+    id: '10',
+    name: 'Água',
+    description: 'Hidratação garantida.',
+    ingredients: 'Água mineral sem gás ou com gás.',
+    price: 4.00,
+    imageUrl: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?auto=format&fit=crop&q=80&w=800',
+    category: { name: 'Bebidas' },
+  },
 ];
 
 export const Home = () => {
@@ -240,7 +334,7 @@ export const Home = () => {
                   key={product.id}
                   product={product}
                   onClick={setSelectedProduct}
-                  isBestseller={product.id === '1' || product.id === '2'}
+                  isBestseller={product.id === '1' || product.id === '3'}
                 />
               ))}
             </div>

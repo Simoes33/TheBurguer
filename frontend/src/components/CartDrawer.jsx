@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { X, Minus, Plus, ShoppingBag, Trash, Money, CreditCard, Bank } from '@phosphor-icons/react';
+import { X, Minus, Plus, ShoppingBag, Trash, Money, CreditCard, Bank, Lightning } from '@phosphor-icons/react';
 import { useCart } from '../contexts/CartContext';
 import { AuthContext } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
@@ -37,10 +37,24 @@ export const CartDrawer = () => {
 
       // Monta mensagem do WhatsApp
       const orderSummary = cart.map(item => {
-        let line = `▪ ${item.quantity}x ${item.name} — ${fmt(item.price * item.quantity)}`;
+        const unitPrice = item.options?.basePrice ?? item.price;
+        let line = `▪ ${item.quantity}x ${item.name}`;
+
+        // Adiciona detalhes das opções
+        const details = [];
+        if (item.options?.variant === 'double') details.push('Duplo');
+        else if (item.options?.variant === 'single') details.push('Simples');
+        if (item.options?.size === 'medium') details.push('Tamanho M');
+        else if (item.options?.size === 'large') details.push('Tamanho G');
+        else if (item.options?.size === 'small') details.push('Tamanho P');
+        if (item.options?.isCombo) details.push('🔥 COMBO (+batata M + bebida)');
+        if (details.length) line += ` (${details.join(', ')})`;
+
+        line += ` — ${fmt(unitPrice * item.quantity)}`;
         if (item.observation) line += `\n   _(Obs: ${item.observation})_`;
         return line;
       }).join('\n');
+
       const addressInfo = user.address
         ? `${user.address}, ${user.number || 'S/N'}${user.complement ? ` (${user.complement})` : ''} - ${user.neighborhood}\nCEP: ${user.cep}`
         : 'Retirada no local / Não informado';
@@ -98,45 +112,85 @@ export const CartDrawer = () => {
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               <div role="list">
-                {cart.map(item => (
-                  <div key={`${item.id}-${item.observation}`} className="cart-item-row" style={{
-                    display: 'flex', alignItems: 'center', gap: '0.8rem',
-                    padding: '1rem 0', borderBottom: '1px solid var(--border)',
-                  }}>
-                    {item.imageUrl && (
-                      <img src={item.imageUrl} alt={item.name}
-                        style={{ width: 56, height: 56, objectFit: 'cover', flexShrink: 0, borderRadius: '4px' }} />
-                    )}
+                {cart.map(item => {
+                  const unitPrice = item.options?.basePrice ?? item.price;
 
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{ fontWeight: 500, fontSize: '0.95rem', marginBottom: '0.2rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                        {item.name}
-                      </p>
-                      <span style={{ color: 'var(--ember)', fontFamily: 'var(--serif)', fontSize: '1rem', fontWeight: 600 }}>
-                        {fmt(item.price)}
-                      </span>
-                      {item.observation && (
-                        <p style={{ fontSize: '0.75rem', color: 'var(--gold)', marginTop: '0.2rem', fontStyle: 'italic' }}>
-                          Obs: {item.observation}
-                        </p>
+                  // Tags das opções para exibição
+                  const optionTags = [];
+                  if (item.options?.variant === 'double') optionTags.push('Duplo');
+                  else if (item.options?.variant === 'single') optionTags.push('Simples');
+                  if (item.options?.size === 'medium') optionTags.push('Tamanho M');
+                  else if (item.options?.size === 'large') optionTags.push('Tamanho G');
+                  else if (item.options?.size === 'small') optionTags.push('Tamanho P');
+
+                  return (
+                    <div key={item._key} className="cart-item-row" style={{
+                      display: 'flex', alignItems: 'flex-start', gap: '0.8rem',
+                      padding: '1rem 0', borderBottom: '1px solid var(--border)',
+                    }}>
+                      {item.imageUrl && (
+                        <img src={item.imageUrl} alt={item.name}
+                          style={{ width: 56, height: 56, objectFit: 'cover', flexShrink: 0, borderRadius: '4px', marginTop: '2px' }} />
                       )}
-                    </div>
 
-                    <div className="qty-controls">
-                      <button onClick={() => updateQuantity(item.id, -1, item.observation)} aria-label="Diminuir">
-                        <Minus size={14} />
-                      </button>
-                      <span>{item.quantity}</span>
-                      <button onClick={() => updateQuantity(item.id, 1, item.observation)} aria-label="Aumentar">
-                        <Plus size={14} />
-                      </button>
-                    </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p style={{ fontWeight: 500, fontSize: '0.95rem', marginBottom: '0.2rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {item.name}
+                        </p>
 
-                    <button className="remove-btn" onClick={() => removeFromCart(item.id, item.observation)} aria-label="Remover item">
-                      <Trash size={18} />
-                    </button>
-                  </div>
-                ))}
+                        {/* Tags de opções */}
+                        {(optionTags.length > 0 || item.options?.isCombo) && (
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem', marginBottom: '0.3rem' }}>
+                            {optionTags.map(tag => (
+                              <span key={tag} style={{
+                                fontSize: '0.65rem', padding: '1px 6px',
+                                background: 'rgba(200,64,26,0.12)', color: 'var(--ember)',
+                                border: '1px solid rgba(200,64,26,0.25)', borderRadius: '2px',
+                                textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600,
+                              }}>{tag}</span>
+                            ))}
+                            {item.options?.isCombo && (
+                              <span style={{
+                                fontSize: '0.65rem', padding: '1px 6px',
+                                background: 'rgba(191,160,106,0.12)', color: 'var(--gold)',
+                                border: '1px solid rgba(191,160,106,0.25)', borderRadius: '2px',
+                                textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600,
+                                display: 'flex', alignItems: 'center', gap: '3px',
+                              }}>
+                                <Lightning size={10} weight="fill" /> Combo
+                              </span>
+                            )}
+                          </div>
+                        )}
+
+                        <span style={{ color: 'var(--ember)', fontFamily: 'var(--serif)', fontSize: '1rem', fontWeight: 600 }}>
+                          {fmt(unitPrice)}
+                        </span>
+                        {item.observation && (
+                          <p style={{ fontSize: '0.72rem', color: 'var(--gold)', marginTop: '0.2rem', fontStyle: 'italic', lineHeight: 1.4 }}>
+                            Obs: {item.observation}
+                          </p>
+                        )}
+                      </div>
+
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem', flexShrink: 0 }}>
+                        <div className="qty-controls">
+                          <button onClick={() => updateQuantity(item._key, -1)} aria-label="Diminuir">
+                            <Minus size={14} />
+                          </button>
+                          <span>{item.quantity}</span>
+                          <button onClick={() => updateQuantity(item._key, 1)} aria-label="Aumentar">
+                            <Plus size={14} />
+                          </button>
+                        </div>
+
+                        <button className="remove-btn" onClick={() => removeFromCart(item._key)} aria-label="Remover item">
+                          <Trash size={18} />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
 
               <div className="payment-section">
@@ -180,4 +234,3 @@ export const CartDrawer = () => {
     </>
   );
 };
-

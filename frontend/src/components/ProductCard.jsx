@@ -90,7 +90,7 @@ export const ProductCard = React.memo(({ product, onClick, isBestseller = false 
         </button>
       </div>
 
-      <div className="product-info">
+        <div className="product-info">
         {/* Rating médio */}
         {avgRating && (
           <div className="product-rating">
@@ -106,7 +106,14 @@ export const ProductCard = React.memo(({ product, onClick, isBestseller = false 
         <h3>{product.name}</h3>
         <p className="description">{product.description}</p>
         <div className="product-footer">
-          <span className="price">{fmt(product.price)}</span>
+          <span className="price">
+            {(product.priceDouble || product.priceMedium) && (
+              <span style={{ fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', display: 'block', marginBottom: '1px', fontFamily: 'var(--sans)', fontWeight: 400 }}>
+                a partir de
+              </span>
+            )}
+            {fmt(product.price)}
+          </span>
           <button
             className="add-to-cart"
             onClick={(e) => { e.stopPropagation(); onClick(product); }}

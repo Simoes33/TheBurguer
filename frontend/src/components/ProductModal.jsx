@@ -1,14 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import { X, Plus, Minus, ChatText, Star } from '@phosphor-icons/react';
+import { X, Plus, Minus, ChatText, Star, HamburgerIcon, Lightning } from '@phosphor-icons/react';
 import api from '../api/axios';
 import { useCart } from '../contexts/CartContext';
 
+const COMBO_PRICE = 15.00;
+
 export const ProductModal = ({ product, onClose }) => {
   const { addToCart } = useCart();
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity]     = useState(1);
   const [observation, setObservation] = useState('');
-  const [reviews, setReviews] = useState([]);
+  const [reviews, setReviews]       = useState([]);
   const [isStoreOpen, setIsStoreOpen] = useState(true);
+
+  // Variante para hamburguer: 'single' | 'double'
+  const [burgerVariant, setBurgerVariant] = useState('single');
+
+  // Tamanho para batatas: 'small' | 'medium' | 'large'
+  const [potatoSize, setPotatoSize] = useState('small');
+
+  // Combo (apenas para burgers)
+  const [isCombo, setIsCombo] = useState(false);
+
+  const isBurger  = product?.category?.name === 'Burgers' || product?.isburger;
+  const isPotato  = product?.hasSizes;
 
   useEffect(() => {
     api.get('/settings/store-status')
@@ -24,14 +38,59 @@ export const ProductModal = ({ product, onClose }) => {
     }
   }, [product]);
 
+  // Reset options when product changes
+  useEffect(() => {
+    setBurgerVariant('single');
+    setPotatoSize('small');
+    setIsCombo(false);
+    setQuantity(1);
+    setObservation('');
+  }, [product?.id]);
+
   if (!product) return null;
 
-  const handleAdd = () => {
-    addToCart(product, quantity, observation);
-    onClose();
+  // ── Cálculo dinâmico do preço unitário ──────────────────────
+  const getUnitPrice = () => {
+    let base = product.price;
+
+    if (isBurger && burgerVariant === 'double' && product.priceDouble) {
+      base = product.priceDouble;
+    }
+
+    if (isPotato) {
+      if (potatoSize === 'medium' && product.priceMedium) base = product.priceMedium;
+      if (potatoSize === 'large'  && product.priceLarge)  base = product.priceLarge;
+    }
+
+    if (isBurger && isCombo) base += COMBO_PRICE;
+
+    return base;
   };
 
+  const unitPrice = getUnitPrice();
+
   const fmt = (n) => `R$ ${Number(n).toFixed(2).replace('.', ',')}`;
+
+  // ── Labels para o carrinho ───────────────────────────────────
+  const buildCartOptions = () => {
+    const opts = [];
+    if (isBurger) opts.push(burgerVariant === 'double' ? 'Duplo' : 'Simples');
+    if (isPotato) opts.push({ small: 'P', medium: 'M', large: 'G' }[potatoSize]);
+    if (isCombo)  opts.push('Combo (+batata M + bebida)');
+    return opts.join(' • ');
+  };
+
+  const handleAdd = () => {
+    const cartOptions = buildCartOptions();
+    const finalObservation = [cartOptions, observation].filter(Boolean).join(' | ');
+    addToCart({ ...product, price: unitPrice }, quantity, finalObservation, {
+      variant: isBurger ? burgerVariant : null,
+      size: isPotato ? potatoSize : null,
+      isCombo,
+      basePrice: unitPrice,
+    });
+    onClose();
+  };
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -64,9 +123,98 @@ export const ProductModal = ({ product, onClose }) => {
                 </div>
               )}
             </div>
+
+            {/* ── Seleção Simples / Duplo (Burgers) ── */}
+            {isBurger && (
+              <div className="option-section">
+                <span className="option-label">Tamanho do Hamburguer</span>
+                <div className="option-pills">
+                  <button
+                    className={`pill ${burgerVariant === 'single' ? 'active' : ''}`}
+                    onClick={() => setBurgerVariant('single')}
+                  >
+                    <span className="pill-title">Simples</span>
+                    <span className="pill-price">{fmt(product.price)}</span>
+                  </button>
+                  {product.priceDouble && (
+                    <button
+                      className={`pill ${burgerVariant === 'double' ? 'active' : ''}`}
+                      onClick={() => setBurgerVariant('double')}
+                    >
+                      <span className="pill-title">Duplo</span>
+                      <span className="pill-price">{fmt(product.priceDouble)}</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* ── Seleção de Tamanho (Batatas) ── */}
+            {isPotato && (
+              <div className="option-section">
+                <span className="option-label">Tamanho</span>
+                <div className="option-pills">
+                  <button
+                    className={`pill ${potatoSize === 'small' ? 'active' : ''}`}
+                    onClick={() => setPotatoSize('small')}
+                  >
+                    <span className="pill-title">Pequena</span>
+                    <span className="pill-price">{fmt(product.price)}</span>
+                  </button>
+                  {product.priceMedium && (
+                    <button
+                      className={`pill ${potatoSize === 'medium' ? 'active' : ''}`}
+                      onClick={() => setPotatoSize('medium')}
+                    >
+                      <span className="pill-title">Média</span>
+                      <span className="pill-price">{fmt(product.priceMedium)}</span>
+                    </button>
+                  )}
+                  {product.priceLarge && (
+                    <button
+                      className={`pill ${potatoSize === 'large' ? 'active' : ''}`}
+                      onClick={() => setPotatoSize('large')}
+                    >
+                      <span className="pill-title">Grande</span>
+                      <span className="pill-price">{fmt(product.priceLarge)}</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* ── Combo (apenas para Burgers) ── */}
+            {isBurger && (
+              <button
+                className={`combo-toggle ${isCombo ? 'active' : ''}`}
+                onClick={() => setIsCombo(v => !v)}
+                type="button"
+              >
+                <div className="combo-toggle-left">
+                  <Lightning size={20} weight="fill" />
+                  <div>
+                    <span className="combo-title">Transformar em Combo</span>
+                    <span className="combo-sub">+ Batata Média + Refri ou Guaracamp</span>
+                  </div>
+                </div>
+                <div className="combo-toggle-right">
+                  <span className="combo-add-price">+ {fmt(COMBO_PRICE)}</span>
+                  <div className={`combo-check ${isCombo ? 'checked' : ''}`}>
+                    {isCombo && <span>✓</span>}
+                  </div>
+                </div>
+              </button>
+            )}
             
+            {/* ── Preço dinâmico ── */}
             <div className="modal-price-tag">
-              {fmt(product.price)}
+              {fmt(unitPrice)}
+              {isBurger && burgerVariant === 'double' && (
+                <span className="price-badge">Duplo</span>
+              )}
+              {isCombo && (
+                <span className="price-badge combo">Combo</span>
+              )}
             </div>
 
             <div className="observation-section">
@@ -75,7 +223,7 @@ export const ProductModal = ({ product, onClose }) => {
                 <span>Observações</span>
               </label>
               <textarea 
-                placeholder="Ex: Ponto da carne, tirar cebola, etc..."
+                placeholder="Ex: Ponto da carne, tirar cebola, sabor da soda italiana, etc..."
                 value={observation}
                 onChange={e => setObservation(e.target.value)}
                 rows={3}
@@ -120,12 +268,11 @@ export const ProductModal = ({ product, onClose }) => {
                 disabled={!isStoreOpen}
                 style={!isStoreOpen ? { background: 'var(--border)', color: 'var(--text-muted)', cursor: 'not-allowed', opacity: 0.7 } : {}}
               >
-                {isStoreOpen ? `Adicionar • ${fmt(product.price * quantity)}` : 'Loja Fechada'}
+                {isStoreOpen ? `Adicionar • ${fmt(unitPrice * quantity)}` : 'Loja Fechada'}
               </button>
             </footer>
           </div>
         </div>
-      </div>
 
       <style>{`
         .modal-overlay {
@@ -144,7 +291,7 @@ export const ProductModal = ({ product, onClose }) => {
         .modal-content {
           background: var(--bg-2);
           width: 100%;
-          max-width: 940px;
+          max-width: 960px;
           border-radius: 4px;
           border: 1px solid var(--border);
           position: relative;
@@ -175,7 +322,7 @@ export const ProductModal = ({ product, onClose }) => {
         .modal-body {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          min-height: 540px;
+          min-height: 560px;
         }
 
         .modal-image-container {
@@ -194,17 +341,19 @@ export const ProductModal = ({ product, onClose }) => {
         .image-placeholder { color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.8rem; }
 
         .modal-details {
-          padding: 3.5rem;
+          padding: 2.5rem 3rem;
           display: flex;
           flex-direction: column;
-          gap: 2rem;
+          gap: 1.4rem;
           background: var(--bg-2);
+          overflow-y: auto;
+          max-height: 90vh;
         }
 
         .modal-header-group h2 {
-          font-size: 2.4rem;
+          font-size: 2.2rem;
           line-height: 1.1;
-          margin: 0.4rem 0 1rem;
+          margin: 0.4rem 0 0.8rem;
           font-family: var(--serif);
         }
 
@@ -218,22 +367,129 @@ export const ProductModal = ({ product, onClose }) => {
         .ingredients-box {
           background: var(--surface);
           border: 1px solid var(--border);
-          padding: 1.2rem;
+          padding: 1rem 1.2rem;
           border-radius: 2px;
-          margin-bottom: 0.5rem;
         }
         .ingredients-box p {
-          font-size: 0.9rem;
+          font-size: 0.88rem;
           color: var(--text);
           line-height: 1.5;
           font-weight: 400;
         }
 
+        /* ── Option sections ── */
+        .option-section { display: flex; flex-direction: column; gap: 0.6rem; }
+        .option-label {
+          font-size: 0.68rem;
+          text-transform: uppercase;
+          letter-spacing: 0.12em;
+          color: var(--text-muted);
+          font-weight: 600;
+        }
+        .option-pills {
+          display: flex;
+          gap: 0.6rem;
+          flex-wrap: wrap;
+        }
+        .pill {
+          flex: 1;
+          min-width: 90px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0.25rem;
+          padding: 0.75rem 1rem;
+          background: var(--bg-3);
+          border: 1px solid var(--border);
+          border-radius: 4px;
+          cursor: pointer;
+          transition: all 0.2s;
+          color: var(--text-muted);
+        }
+        .pill:hover { border-color: var(--ember); color: var(--text); }
+        .pill.active {
+          border-color: var(--ember);
+          background: rgba(200, 64, 26, 0.12);
+          color: #fff;
+        }
+        .pill-title { font-size: 0.85rem; font-weight: 600; }
+        .pill-price { font-size: 0.78rem; color: var(--gold); font-family: var(--serif); }
+        .pill.active .pill-price { color: var(--ember-light); }
+
+        /* ── Combo toggle ── */
+        .combo-toggle {
+          width: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 1rem;
+          padding: 1rem 1.2rem;
+          background: var(--bg-3);
+          border: 1px dashed var(--border);
+          border-radius: 4px;
+          cursor: pointer;
+          transition: all 0.2s;
+          text-align: left;
+          color: var(--text-muted);
+        }
+        .combo-toggle:hover { border-color: var(--gold); color: var(--text); }
+        .combo-toggle.active {
+          border-color: var(--gold);
+          border-style: solid;
+          background: rgba(191, 160, 106, 0.08);
+          color: var(--text);
+        }
+        .combo-toggle-left {
+          display: flex;
+          align-items: center;
+          gap: 0.8rem;
+        }
+        .combo-toggle-left svg { color: var(--gold); flex-shrink: 0; }
+        .combo-title { display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 0.15rem; }
+        .combo-sub { display: block; font-size: 0.72rem; color: var(--text-muted); }
+        .combo-toggle-right { display: flex; align-items: center; gap: 0.8rem; flex-shrink: 0; }
+        .combo-add-price { font-family: var(--serif); font-size: 0.95rem; color: var(--gold); font-weight: 600; white-space: nowrap; }
+        .combo-check {
+          width: 22px;
+          height: 22px;
+          border-radius: 50%;
+          border: 2px solid var(--border);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 0.7rem;
+          transition: all 0.2s;
+          flex-shrink: 0;
+        }
+        .combo-check.checked { background: var(--gold); border-color: var(--gold); color: #000; font-weight: 700; }
+
+        /* ── Price tag ── */
         .modal-price-tag {
           font-family: var(--serif);
-          font-size: 1.8rem;
+          font-size: 1.9rem;
           font-weight: 600;
           color: var(--ember-light);
+          display: flex;
+          align-items: center;
+          gap: 0.8rem;
+          flex-wrap: wrap;
+        }
+        .price-badge {
+          font-family: var(--sans);
+          font-size: 0.65rem;
+          text-transform: uppercase;
+          letter-spacing: 0.1em;
+          padding: 0.2rem 0.6rem;
+          border-radius: 2px;
+          background: rgba(200,64,26,0.15);
+          color: var(--ember);
+          border: 1px solid rgba(200,64,26,0.3);
+          font-weight: 700;
+        }
+        .price-badge.combo {
+          background: rgba(191,160,106,0.15);
+          color: var(--gold);
+          border-color: rgba(191,160,106,0.3);
         }
 
         .observation-section {
@@ -262,6 +518,7 @@ export const ProductModal = ({ product, onClose }) => {
           resize: none;
           outline: none;
           transition: all 0.2s;
+          font-size: 0.88rem;
         }
         .observation-section textarea:focus { border-color: var(--ember); background: rgba(255,255,255,0.05); }
 
@@ -269,7 +526,7 @@ export const ProductModal = ({ product, onClose }) => {
           margin-top: auto;
           display: flex;
           gap: 1.5rem;
-          padding-top: 1.5rem;
+          padding-top: 1.2rem;
           border-top: 1px solid var(--border);
         }
 
@@ -303,13 +560,14 @@ export const ProductModal = ({ product, onClose }) => {
         @media (max-width: 900px) {
           .modal-content { max-width: 500px; max-height: 90vh; overflow-y: auto; }
           .modal-body { grid-template-columns: 1fr; min-height: auto; }
-          .modal-image-container { height: 260px; border-right: none; border-bottom: 1px solid var(--border); }
-          .modal-details { padding: 2rem; gap: 1.5rem; }
-          .modal-details h2 { font-size: 1.8rem; }
+          .modal-image-container { height: 240px; border-right: none; border-bottom: 1px solid var(--border); }
+          .modal-details { padding: 1.5rem; gap: 1.2rem; max-height: none; }
+          .modal-header-group h2 { font-size: 1.7rem; }
           .modal-footer { flex-direction: column; gap: 1rem; }
           .qty-selector { justify-content: space-between; padding: 0.8rem 1.5rem; }
         }
       `}</style>
+      </div>
     </div>
   );
 };

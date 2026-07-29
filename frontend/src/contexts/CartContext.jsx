@@ -12,34 +12,46 @@ const getInitialCart = () => {
   }
 };
 
+// Gera uma chave única por item levando em conta variante, tamanho, combo e observação
+const itemKey = (id, observation, options = {}) =>
+  `${id}|${options.variant ?? ''}|${options.size ?? ''}|${options.isCombo ? '1' : '0'}|${observation ?? ''}`;
+
 const initialState = { cart: getInitialCart(), isCartOpen: false };
 
 function cartReducer(state, action) {
   switch (action.type) {
-    case 'OPEN':  return { ...state, isCartOpen: true };
-    case 'CLOSE': return { ...state, isCartOpen: false };
+    case 'OPEN':   return { ...state, isCartOpen: true };
+    case 'CLOSE':  return { ...state, isCartOpen: false };
     case 'TOGGLE': return { ...state, isCartOpen: !state.isCartOpen };
 
     case 'ADD': {
-      const exists = state.cart.find(i => i.id === action.product.id && i.observation === action.observation);
+      const key = itemKey(action.product.id, action.observation, action.options);
+      const exists = state.cart.find(i => i._key === key);
+      const newItem = {
+        ...action.product,
+        quantity: action.quantity,
+        observation: action.observation,
+        options: action.options || {},
+        _key: key,
+      };
       return {
         ...state,
         isCartOpen: true,
         cart: exists
-          ? state.cart.map(i => (i.id === action.product.id && i.observation === action.observation) ? { ...i, quantity: i.quantity + action.quantity } : i)
-          : [...state.cart, { ...action.product, quantity: action.quantity, observation: action.observation }],
+          ? state.cart.map(i => i._key === key ? { ...i, quantity: i.quantity + action.quantity } : i)
+          : [...state.cart, newItem],
       };
     }
 
     case 'UPDATE_QTY': {
       const updated = state.cart
-        .map(i => (i.id === action.id && (i.observation || '') === (action.observation || '')) ? { ...i, quantity: i.quantity + action.delta } : i)
+        .map(i => i._key === action.key ? { ...i, quantity: i.quantity + action.delta } : i)
         .filter(i => i.quantity > 0);
       return { ...state, cart: updated };
     }
 
     case 'REMOVE':
-      return { ...state, cart: state.cart.filter(i => !(i.id === action.id && i.observation === action.observation)) };
+      return { ...state, cart: state.cart.filter(i => i._key !== action.key) };
 
     case 'CLEAR':
       return { ...state, cart: [] };
@@ -61,17 +73,19 @@ export const CartProvider = ({ children }) => {
   const toggleCart  = useCallback(() => dispatch({ type: 'TOGGLE' }), []);
   const openCart    = useCallback(() => dispatch({ type: 'OPEN' }), []);
   const closeCart   = useCallback(() => dispatch({ type: 'CLOSE' }), []);
-  
-  const addToCart   = useCallback((product, quantity = 1, observation = '') => {
-    dispatch({ type: 'ADD', product, quantity, observation });
+
+  // options: { variant, size, isCombo, basePrice }
+  const addToCart = useCallback((product, quantity = 1, observation = '', options = {}) => {
+    dispatch({ type: 'ADD', product, quantity, observation, options });
   }, []);
 
-  const removeFromCart = useCallback((id, observation = '') => dispatch({ type: 'REMOVE', id, observation }), []);
-  const updateQuantity = useCallback((id, delta, observation = '') => dispatch({ type: 'UPDATE_QTY', id, delta, observation }), []);
-  const clearCart   = useCallback(() => dispatch({ type: 'CLEAR' }), []);
+  const removeFromCart = useCallback((key) => dispatch({ type: 'REMOVE', key }), []);
+  const updateQuantity = useCallback((key, delta) => dispatch({ type: 'UPDATE_QTY', key, delta }), []);
+  const clearCart      = useCallback(() => dispatch({ type: 'CLEAR' }), []);
 
   const totalItems = state.cart.reduce((acc, i) => acc + i.quantity, 0);
-  const totalPrice = state.cart.reduce((acc, i) => acc + i.price * i.quantity, 0);
+  // price já está no item com todas as opções aplicadas (basePrice do modal)
+  const totalPrice = state.cart.reduce((acc, i) => acc + (i.options?.basePrice ?? i.price) * i.quantity, 0);
 
   return (
     <CartContext.Provider value={{
