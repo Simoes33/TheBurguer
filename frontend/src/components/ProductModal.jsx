@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Plus, Minus, ChatText, Star, HamburgerIcon, Lightning } from '@phosphor-icons/react';
+import { X, Plus, Minus, ChatText, Star, Lightning } from '@phosphor-icons/react';
 import api from '../api/axios';
 import { useCart } from '../contexts/CartContext';
 
@@ -20,9 +20,6 @@ export const ProductModal = ({ product, onClose }) => {
 
   // Combo (apenas para burgers)
   const [isCombo, setIsCombo] = useState(false);
-
-  const isBurger  = product?.category?.name === 'Burgers' || product?.isburger;
-  const isPotato  = product?.hasSizes;
 
   useEffect(() => {
     api.get('/settings/store-status')
@@ -49,17 +46,53 @@ export const ProductModal = ({ product, onClose }) => {
 
   if (!product) return null;
 
+  const categoryName = (product?.category?.name || '').toLowerCase();
+  const productName  = (product?.name || '').toLowerCase();
+
+  // Detecção robusta de burger (funciona tanto para API quanto local)
+  const isBurger = Boolean(
+    product?.isburger ||
+    product?.priceDouble ||
+    /burg|hamb|lanche|artesanal/i.test(categoryName) ||
+    /smash|salad|bacon|aloha|burg|classic/i.test(productName)
+  );
+
+  // Detecção robusta de batata / porção
+  const isPotato = Boolean(
+    product?.hasSizes ||
+    product?.priceMedium ||
+    /batata|fritas|porç|acompanh/i.test(categoryName) ||
+    /batata|fritas/i.test(productName)
+  );
+
+  // Preços adaptados conforme o cardápio oficial
+  const singlePrice = product.price;
+  const doublePrice = product.priceDouble ?? (
+    /smash/i.test(productName) ? 29.00 :
+    (/salad|bacon|aloha/i.test(productName) ? 32.00 : singlePrice + 7.00)
+  );
+
+  const smallPrice  = product.price;
+  const mediumPrice = product.priceMedium ?? (
+    /cheddar|farofa/i.test(productName) ? 19.00 :
+    (/batata|fritas/i.test(productName) ? 12.00 : smallPrice + 3.00)
+  );
+  const largePrice  = product.priceLarge ?? (
+    /cheddar|farofa/i.test(productName) ? 23.00 :
+    (/batata|fritas/i.test(productName) ? 15.00 : smallPrice + 6.00)
+  );
+
   // ── Cálculo dinâmico do preço unitário ──────────────────────
   const getUnitPrice = () => {
-    let base = product.price;
+    let base = singlePrice;
 
-    if (isBurger && burgerVariant === 'double' && product.priceDouble) {
-      base = product.priceDouble;
+    if (isBurger && burgerVariant === 'double') {
+      base = doublePrice;
     }
 
     if (isPotato) {
-      if (potatoSize === 'medium' && product.priceMedium) base = product.priceMedium;
-      if (potatoSize === 'large'  && product.priceLarge)  base = product.priceLarge;
+      if (potatoSize === 'medium') base = mediumPrice;
+      if (potatoSize === 'large')  base = largePrice;
     }
 
     if (isBurger && isCombo) base += COMBO_PRICE;
@@ -111,7 +144,7 @@ export const ProductModal = ({ product, onClose }) => {
           <div className="modal-details">
             <div className="modal-header-group">
               <span className="label" style={{ color: 'var(--gold)', display: 'block', marginBottom: '0.5rem' }}>
-                {product.category?.name || 'Lanche'}
+                {product.category?.name || (isBurger ? 'Burguers Artesanais' : isPotato ? 'Batatas' : 'Cardápio')}
               </span>
               <h2>{product.name}</h2>
               <p className="description" style={{ marginBottom: '1.5rem' }}>{product.description}</p>
@@ -127,24 +160,22 @@ export const ProductModal = ({ product, onClose }) => {
             {/* ── Seleção Simples / Duplo (Burgers) ── */}
             {isBurger && (
               <div className="option-section">
-                <span className="option-label">Tamanho do Hamburguer</span>
+                <span className="option-label">Opção do Hamburguer</span>
                 <div className="option-pills">
                   <button
                     className={`pill ${burgerVariant === 'single' ? 'active' : ''}`}
                     onClick={() => setBurgerVariant('single')}
                   >
                     <span className="pill-title">Simples</span>
-                    <span className="pill-price">{fmt(product.price)}</span>
+                    <span className="pill-price">{fmt(singlePrice)}</span>
                   </button>
-                  {product.priceDouble && (
-                    <button
-                      className={`pill ${burgerVariant === 'double' ? 'active' : ''}`}
-                      onClick={() => setBurgerVariant('double')}
-                    >
-                      <span className="pill-title">Duplo</span>
-                      <span className="pill-price">{fmt(product.priceDouble)}</span>
-                    </button>
-                  )}
+                  <button
+                    className={`pill ${burgerVariant === 'double' ? 'active' : ''}`}
+                    onClick={() => setBurgerVariant('double')}
+                  >
+                    <span className="pill-title">Duplo</span>
+                    <span className="pill-price">{fmt(doublePrice)}</span>
+                  </button>
                 </div>
               </div>
             )}
@@ -152,33 +183,29 @@ export const ProductModal = ({ product, onClose }) => {
             {/* ── Seleção de Tamanho (Batatas) ── */}
             {isPotato && (
               <div className="option-section">
-                <span className="option-label">Tamanho</span>
+                <span className="option-label">Tamanho da Porção</span>
                 <div className="option-pills">
                   <button
                     className={`pill ${potatoSize === 'small' ? 'active' : ''}`}
                     onClick={() => setPotatoSize('small')}
                   >
-                    <span className="pill-title">Pequena</span>
-                    <span className="pill-price">{fmt(product.price)}</span>
+                    <span className="pill-title">Pequena (P)</span>
+                    <span className="pill-price">{fmt(smallPrice)}</span>
                   </button>
-                  {product.priceMedium && (
-                    <button
-                      className={`pill ${potatoSize === 'medium' ? 'active' : ''}`}
-                      onClick={() => setPotatoSize('medium')}
-                    >
-                      <span className="pill-title">Média</span>
-                      <span className="pill-price">{fmt(product.priceMedium)}</span>
-                    </button>
-                  )}
-                  {product.priceLarge && (
-                    <button
-                      className={`pill ${potatoSize === 'large' ? 'active' : ''}`}
-                      onClick={() => setPotatoSize('large')}
-                    >
-                      <span className="pill-title">Grande</span>
-                      <span className="pill-price">{fmt(product.priceLarge)}</span>
-                    </button>
-                  )}
+                  <button
+                    className={`pill ${potatoSize === 'medium' ? 'active' : ''}`}
+                    onClick={() => setPotatoSize('medium')}
+                  >
+                    <span className="pill-title">Média (M)</span>
+                    <span className="pill-price">{fmt(mediumPrice)}</span>
+                  </button>
+                  <button
+                    className={`pill ${potatoSize === 'large' ? 'active' : ''}`}
+                    onClick={() => setPotatoSize('large')}
+                  >
+                    <span className="pill-title">Grande (G)</span>
+                    <span className="pill-price">{fmt(largePrice)}</span>
+                  </button>
                 </div>
               </div>
             )}
@@ -194,7 +221,7 @@ export const ProductModal = ({ product, onClose }) => {
                   <Lightning size={20} weight="fill" />
                   <div>
                     <span className="combo-title">Transformar em Combo</span>
-                    <span className="combo-sub">+ Batata Média + Refri ou Guaracamp</span>
+                    <span className="combo-sub">+ Batata Média + Refri Garrafinha ou Guaracamp</span>
                   </div>
                 </div>
                 <div className="combo-toggle-right">
@@ -223,7 +250,7 @@ export const ProductModal = ({ product, onClose }) => {
                 <span>Observações</span>
               </label>
               <textarea 
-                placeholder="Ex: Ponto da carne, tirar cebola, sabor da soda italiana, etc..."
+                placeholder="Ex: Ponto da carne, tirar cebola, sabor do refrigerante ou soda italiana, etc..."
                 value={observation}
                 onChange={e => setObservation(e.target.value)}
                 rows={3}
@@ -239,7 +266,7 @@ export const ProductModal = ({ product, onClose }) => {
                   {reviews.map(r => (
                     <div key={r.id} style={{ padding: '1rem', background: 'var(--bg-3)', border: '1px solid var(--border)', borderRadius: '2px' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
-                        <span style={{ fontWeight: 600, fontSize: '0.85rem' }}>{r.user.name}</span>
+                        <span style={{ fontWeight: 600, fontSize: '0.85rem' }}>{r.user?.name || 'Cliente'}</span>
                         <div style={{ display: 'flex', gap: '2px' }}>
                           {[1,2,3,4,5].map(n => <Star key={n} size={12} weight={n <= r.rating ? 'fill' : 'thin'} color="var(--gold)" />)}
                         </div>

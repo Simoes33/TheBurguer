@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Plus, Star, Heart } from '@phosphor-icons/react';
 import { fmt } from '../utils/format';
 
@@ -29,6 +29,14 @@ export const ProductCard = React.memo(({ product, onClick, isBestseller = false 
   const avgRating = product.reviews?.length
     ? (product.reviews.reduce((a, r) => a + r.rating, 0) / product.reviews.length).toFixed(1)
     : null;
+
+  const categoryName = (product?.category?.name || '').toLowerCase();
+  const productName  = (product?.name || '').toLowerCase();
+  const hasOptions = Boolean(
+    product.priceDouble || product.priceMedium ||
+    /burg|hamb|lanche|artesanal/i.test(categoryName) ||
+    /smash|salad|bacon|aloha|batata|fritas/i.test(productName)
+  );
 
   return (
     <article
@@ -90,7 +98,7 @@ export const ProductCard = React.memo(({ product, onClick, isBestseller = false 
         </button>
       </div>
 
-        <div className="product-info">
+      <div className="product-info">
         {/* Rating médio */}
         {avgRating && (
           <div className="product-rating">
@@ -107,7 +115,7 @@ export const ProductCard = React.memo(({ product, onClick, isBestseller = false 
         <p className="description">{product.description}</p>
         <div className="product-footer">
           <span className="price">
-            {(product.priceDouble || product.priceMedium) && (
+            {hasOptions && (
               <span style={{ fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', display: 'block', marginBottom: '1px', fontFamily: 'var(--sans)', fontWeight: 400 }}>
                 a partir de
               </span>
