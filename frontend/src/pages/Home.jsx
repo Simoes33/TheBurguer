@@ -160,7 +160,7 @@ export const Home = () => {
           <div className="info-strip">
             {[
               { label: 'Segunda a Domingo', value: '19h às 23h' },
-              { label: 'Siga o Instagram para ficar por dentro das promoções', value: '@the.burguer' },
+              { label: 'Siga nosso Instagram', value: '@the.burguer' },
               { label: 'Fale Conosco', value: '(21) 98507-5154' },
             ].map(({ label, value }) => (
               <div key={label} className="info-strip-item">
