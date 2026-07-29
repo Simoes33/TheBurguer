@@ -135,7 +135,6 @@ export const Home = () => {
             </p>
             <div className="hero-actions">
               <a href="#menu" className="btn-primary">Ver Cardápio</a>
-              <a href="#sobre" className="btn-outline">Nossa História</a>
             </div>
           </div>
           <div className="hero-scroll" aria-hidden="true">
@@ -159,38 +158,12 @@ export const Home = () => {
           </div>
         </section>
 
-        {/* ── SOBRE ───────────────────────── */}
-        <section className="manifesto" id="sobre" aria-label="Sobre nós">
-          <div className="manifesto-img">
-            <img
-              src="https://images.unsplash.com/photo-1550317138-10000687a72b?auto=format&fit=crop&q=80&w=900"
-              alt="Hambúrguer artesanal preparado na brasa"
-              loading="lazy"
-            />
-          </div>
-          <div className="manifesto-text">
-            <span className="label">Nossa filosofia</span>
-            <h2>Onde o fogo guia,<br />o tempo desacelera.</h2>
-            <div className="manifesto-divider" />
-            <p>
-              Nascemos da paixão pelo fogo e pelo encontro. Cada hambúrguer que sai
-              da nossa cozinha carrega o cuidado de quem acredita que uma boa refeição
-              conecta pessoas.
-            </p>
-            <p>
-              Usamos apenas carne 100% Angus, pão brioche feito diariamente e
-              ingredientes frescos escolhidos com rigor.
-            </p>
-          </div>
-        </section>
-
         {/* ── HORÁRIOS ────────────────────── */}
         <div role="complementary" aria-label="Horários de funcionamento" style={{ background: 'var(--bg-3)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)', padding: '3.5rem 5%' }}>
           <div className="info-strip">
             {[
-              { label: 'Terça a Sábado', value: '12h às 00h' },
-              { label: 'Domingo',         value: '12h às 19h' },
-              { label: 'Reservas & Suporte', value: '(21) 98507-5154' },
+              { label: 'Segunda a Domingo', value: '19h às 23h' },
+              { label: 'Contato', value: '(21) 98507-5154' },
             ].map(({ label, value }) => (
               <div key={label} className="info-strip-item">
                 <span className="label">{label}</span>
@@ -332,7 +305,6 @@ export const Home = () => {
               <ul className="footer-links">
                 <li><a href="#home">Início</a></li>
                 <li><a href="#menu">Cardápio</a></li>
-                <li><a href="#sobre">Nossa História</a></li>
                 <li><a href="/login">Área do Cliente</a></li>
               </ul>
             </div>
@@ -341,7 +313,7 @@ export const Home = () => {
               <h4>Atendimento</h4>
               <ul className="footer-links">
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <Clock size={16} color="var(--gold)" /> Ter a Sáb: 12h - 00h
+                  <Clock size={16} color="var(--gold)" /> Segunda a Domingo: 19h - 23h
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <MapPin size={16} color="var(--gold)" /> Rio de Janeiro, RJ
