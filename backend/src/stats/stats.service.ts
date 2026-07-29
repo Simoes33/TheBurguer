@@ -5,6 +5,17 @@ import { PrismaService } from '../prisma/prisma.service';
 export class StatsService {
   constructor(private prisma: PrismaService) {}
 
+  async getBestsellerIds(limit = 2): Promise<string[]> {
+  const popular = await this.prisma.orderItem.groupBy({
+    by: ['productId'],
+    _sum: { quantity: true },
+    orderBy: { _sum: { quantity: 'desc' } },
+    take: limit,
+  });
+
+  return popular.map((p) => p.productId);
+}
+
   async getDashboardStats() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
