@@ -69,6 +69,7 @@ export const ProductCard = React.memo(({ product, onClick, isBestseller = false 
               fontSize: '0.78rem',
               letterSpacing: '0.1em',
               textTransform: 'uppercase',
+              gap: '5px',
             }}
           >
             Sem imagem
