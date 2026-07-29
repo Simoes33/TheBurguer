@@ -15,6 +15,15 @@ const saveFavorites = (favSet) => {
   localStorage.setItem('@TheBurguer:favorites', JSON.stringify([...favSet]));
 };
 
+// Padding da imagem menor no mobile (o style inline do <img> cobre o
+// desktop; esse !important só entra em telas pequenas, via media query
+// real, já que style inline não suporta @media).
+const RESPONSIVE_IMG_STYLE = `
+  @media (max-width: 640px) {
+    .pc-img { padding: 0.3rem !important; }
+  }
+`;
+
 export const ProductCard = React.memo(({ product, onClick, isBestseller = false }) => {
   const [isFav, setIsFav] = useState(() => getFavorites().has(product.id));
 
@@ -48,6 +57,7 @@ export const ProductCard = React.memo(({ product, onClick, isBestseller = false 
       aria-label={`Ver detalhes de ${product.name} — ${fmt(product.price)}`}
       onKeyDown={(e) => e.key === 'Enter' && onClick(product)}
     >
+      <style>{RESPONSIVE_IMG_STYLE}</style>
       <div className="product-image">
         {product.imageUrl ? (
           <img
@@ -55,6 +65,7 @@ export const ProductCard = React.memo(({ product, onClick, isBestseller = false 
             alt={product.name}
             loading="lazy"
             decoding="async"
+            className="pc-img"
             style={{ objectFit: 'contain', padding: '0.9rem' }}
           />
         ) : (

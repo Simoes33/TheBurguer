@@ -648,6 +648,7 @@ else if (/batata|fritas/i.test(productName)) {
           .modal-content { max-width: 500px; max-height: 90vh; overflow-y: auto; }
           .modal-body { grid-template-columns: 1fr; min-height: auto; }
           .modal-image-container { height: 220px; min-height: 0; border-right: none; border-bottom: 1px solid var(--border); }
+          .modal-image-container img { padding: 0.6rem; }
           .modal-details { padding: 1.5rem; gap: 1.2rem; max-height: none; }
           .modal-header-group h2 { font-size: 1.7rem; }
           .modal-footer { flex-direction: column; gap: 1rem; }
