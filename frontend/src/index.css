@@ -426,7 +426,7 @@ header {
 /* Product Grid */
 .products-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
   gap: 2px;
   max-width: 1200px;
   margin: 0 auto;
@@ -450,7 +450,7 @@ header {
 }
 
 .product-image {
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 1 / 1;
   overflow: hidden;
   background: var(--bg-3);
   position: relative;
@@ -470,24 +470,24 @@ header {
 }
 
 .product-info {
-  padding: 1.5rem 1.6rem 1.8rem;
+  padding: 1rem 1.1rem 1.3rem;
   display: flex;
   flex-direction: column;
   flex: 1;
 }
 
 .product-info h3 {
-  font-size: 1.25rem;
+  font-size: 1.05rem;
   font-weight: 600;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.3rem;
 }
 
 .product-info .description {
   color: var(--text-muted);
-  font-size: 0.88rem;
+  font-size: 0.8rem;
   font-weight: 300;
-  margin-bottom: 1.4rem;
-  line-height: 1.6;
+  margin-bottom: 1rem;
+  line-height: 1.5;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -505,7 +505,7 @@ header {
 
 .price {
   font-family: var(--serif);
-  font-size: 1.4rem;
+  font-size: 1.15rem;
   color: var(--text);
   font-weight: 600;
 }
@@ -514,14 +514,14 @@ header {
   background: var(--ember);
   border: none;
   color: #fff;
-  width: 38px; height: 38px;
+  width: 32px; height: 32px;
   border-radius: 2px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: background 0.25s, transform 0.2s;
-  font-size: 1rem;
+  font-size: 0.9rem;
 }
 .add-to-cart:hover {
   background: var(--ember-light);
@@ -806,25 +806,26 @@ header {
   }
 
   .product-info {
-    padding: 1rem 0.9rem 1.2rem;
+    padding: 0.8rem 0.7rem 1rem;
   }
 
   .product-info h3 {
-    font-size: 1rem;
+    font-size: 0.9rem;
   }
 
   .product-info .description {
-    font-size: 0.78rem;
-    margin-bottom: 0.8rem;
+    font-size: 0.72rem;
+    margin-bottom: 0.6rem;
+    -webkit-line-clamp: 1;
   }
 
   .price {
-    font-size: 1.1rem;
+    font-size: 0.95rem;
   }
 
   .add-to-cart {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
   }
 }
 
