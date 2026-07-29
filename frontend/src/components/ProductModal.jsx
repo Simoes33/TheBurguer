@@ -111,7 +111,12 @@ else if (/batata|fritas/i.test(productName)) {
     }
 
     if (isBurger && isCombo) base += COMBO_PRICE;
-    
+
+    return base;
+  };
+
+  const unitPrice = getUnitPrice();
+
     console.log({
   productName,
   categoryName,
@@ -124,11 +129,6 @@ else if (/batata|fritas/i.test(productName)) {
   unitPrice,
   product,
 });
-
-    return base;
-  };
-
-  const unitPrice = getUnitPrice();
 
   const fmt = (n) => `R$ ${Number(n).toFixed(2).replace('.', ',')}`;
 
