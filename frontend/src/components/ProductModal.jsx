@@ -422,7 +422,8 @@ else if (/batata|fritas/i.test(productName)) {
           inset: 0;
           width: 100%;
           height: 100%;
-          object-fit: cover;
+          object-fit: contain;
+          padding: 1.5rem;
         }
         .image-placeholder { color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.8rem; }
 
