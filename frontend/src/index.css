@@ -1623,14 +1623,44 @@ input:focus, textarea:focus, select:focus {
 }
 
 @media (max-width: 760px) {
-  .login-image-panel {
-    display: none;
+  .login-page {
+    flex-direction: column;
+    min-height: auto;
   }
+
+  .login-image-panel {
+    display: flex;
+    width: 100%;
+    height: 220px;
+    flex: none;
+
+    align-items: flex-end;
+    justify-content: flex-start;
+
+    padding: 1.5rem;
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
   .login-form-panel {
     width: 100%;
-    padding: 3rem 1.5rem;
+    padding: 2.5rem 1.5rem;
     justify-content: flex-start;
-    padding-top: 4rem;
+    border-left: none;
+    border-top: 1px solid var(--border);
+  }
+}
+
+@media (max-width: 420px) {
+  .login-image-panel {
+    height: 180px;
+    padding: 1.2rem;
+  }
+
+  .login-form-panel {
+    padding: 2rem 1.2rem;
   }
 }
 
