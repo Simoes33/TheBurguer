@@ -5,26 +5,7 @@ import { PrismaService } from '../prisma/prisma.service';
 export class StatsService {
   constructor(private prisma: PrismaService) {}
 
-  /*
-   * ========================================
-   * MAIS PEDIDOS
-   * ========================================
-   *
-   * Retorna os IDs dos produtos mais vendidos.
-   *
-   * Quando não existem pedidos, retorna [].
-   */
-
   async getBestsellerIds(limit = 3): Promise<string[]> {
-    const items = await this.prisma.orderItem.findMany({
-      select: {
-        productId: true,
-        quantity: true,
-      },
-    });
-  
-    console.log('ORDER ITEMS:', items);
-  
     const popular = await this.prisma.orderItem.groupBy({
       by: ['productId'],
       _sum: {
@@ -37,57 +18,11 @@ export class StatsService {
       },
       take: limit,
     });
-  
-    console.log('BESTSELLERS:', popular);
-  
-    return popular.map((p) => p.productId);
-  }
-  
-    const productIds = popular.map((item) => item.productId);
-  
-    const products = await this.prisma.product.findMany({
-      where: {
-        id: {
-          in: productIds,
-        },
-        category: {
-          name: {
-            contains: 'burger',
-            mode: 'insensitive',
-          },
-        },
-      },
-      include: {
-        category: true,
-      },
-    });
-  
-    const productMap = new Map(
-      products.map((product) => [product.id, product])
-    );
-  
-    return popular
-      .map((item) => {
-        const product = productMap.get(item.productId);
-  
-        if (!product) {
-          return null;
-        }
-  
-        return {
-          ...product,
-          orderCount: item._sum.quantity || 0,
-        };
-      })
-      .filter(Boolean)
-      .slice(0, limit);
-  }
 
-  /*
-   * ========================================
-   * DASHBOARD
-   * ========================================
-   */
+    console.log('BESTSELLERS:', popular);
+
+    return popular.map((item) => item.productId);
+  }
 
   async getDashboardStats() {
     const today = new Date();
@@ -156,14 +91,9 @@ export class StatsService {
       }),
     ]);
 
-    /*
-     * ========================================
-     * PRODUTOS POPULARES
-     * ========================================
-     */
-
+    // Busca os nomes dos produtos populares
     const productIds = popularProducts.map(
-      (p) => p.productId,
+      (product) => product.productId,
     );
 
     const products = await this.prisma.product.findMany({
@@ -179,110 +109,74 @@ export class StatsService {
     });
 
     const productMap = new Map(
-      products.map((p) => [p.id, p.name]),
+      products.map((product) => [product.id, product.name]),
     );
 
-    const popularProductsWithNames =
-      popularProducts.map((p) => ({
-        name:
-          productMap.get(p.productId) ||
-          'Desconhecido',
+    const popularProductsWithNames = popularProducts.map((product) => ({
+      name: productMap.get(product.productId) || 'Desconhecido',
+      quantity: product._sum.quantity || 0,
+    }));
 
-        quantity: p._sum.quantity,
-      }));
-
-    /*
-     * ========================================
-     * VENDAS DOS ÚLTIMOS 7 DIAS
-     * ========================================
-     */
-
+    // Vendas nos últimos 7 dias
     const startDate = new Date();
 
-    startDate.setDate(
-      startDate.getDate() - 6,
-    );
-
+    startDate.setDate(startDate.getDate() - 6);
     startDate.setHours(0, 0, 0, 0);
 
-    const orders =
-      await this.prisma.order.findMany({
-        where: {
-          createdAt: {
-            gte: startDate,
-          },
+    const orders = await this.prisma.order.findMany({
+      where: {
+        createdAt: {
+          gte: startDate,
         },
-
-        select: {
-          createdAt: true,
-          total: true,
-        },
-      });
+      },
+      select: {
+        createdAt: true,
+        total: true,
+      },
+    });
 
     const last7Days = [];
 
     for (let i = 6; i >= 0; i--) {
       const d = new Date();
 
-      d.setDate(
-        d.getDate() - i,
-      );
-
+      d.setDate(d.getDate() - i);
       d.setHours(0, 0, 0, 0);
 
       const nextD = new Date(d);
-
-      nextD.setDate(
-        d.getDate() + 1,
-      );
+      nextD.setDate(d.getDate() + 1);
 
       const dayRevenue = orders
         .filter(
-          (o) =>
-            o.createdAt >= d &&
-            o.createdAt < nextD,
+          (order) =>
+            order.createdAt >= d &&
+            order.createdAt < nextD,
         )
         .reduce(
-          (sum, o) => sum + o.total,
+          (sum, order) => sum + order.total,
           0,
         );
 
       last7Days.push({
-        date: d.toLocaleDateString(
-          'pt-BR',
-          {
-            weekday: 'short',
-          },
-        ),
-
+        date: d.toLocaleDateString('pt-BR', {
+          weekday: 'short',
+        }),
         revenue:
-          Math.round(
-            dayRevenue * 100,
-          ) / 100,
+          Math.round(dayRevenue * 100) / 100,
       });
     }
-
-    /*
-     * ========================================
-     * RETORNO
-     * ========================================
-     */
 
     return {
       overview: {
         totalOrders,
-
         todayOrders,
-
         totalRevenue:
           totalRevenue._sum.total || 0,
-
         todayRevenue:
           todayRevenue._sum.total || 0,
       },
 
-      popularProducts:
-        popularProductsWithNames,
+      popularProducts: popularProductsWithNames,
 
       salesChart: last7Days,
 
