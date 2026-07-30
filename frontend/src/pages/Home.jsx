@@ -28,6 +28,7 @@ export const Home = () => {
   const [instaPosts, setInstaPosts]         = useState([]);
   const [isStoreOpen, setIsStoreOpen]         = useState(true);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [instaIndex, setInstaIndex] = useState(0);
 
   useEffect(() => {
     const video = document.querySelector('.hero-video');
@@ -35,6 +36,18 @@ export const Home = () => {
       video.play().catch(e => console.log("Autoplay blocked", e));
     }
   }, []);
+
+  useEffect(() => {
+    if (instaPostsToShow.length <= 3) return;
+  
+    const interval = setInterval(() => {
+      setInstaIndex((prev) =>
+        prev >= instaPostsToShow.length - 3 ? 0 : prev + 1
+      );
+    }, 4000);
+  
+    return () => clearInterval(interval);
+  }, [instaPostsToShow.length]);
 
   useEffect(() => {
     let cancelled = false;
@@ -59,6 +72,17 @@ export const Home = () => {
 
   const handleCategoryChange = useCallback((cat) => setActiveCategory(cat), []);
 
+  const instaPostsToShow = instaPosts.length
+  ? instaPosts.slice(0, 6)
+  : [
+      'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=800&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1550547660-d9450f859349?q=80&w=800&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1561758033-d89a9ad46330?q=80&w=800&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?q=80&w=800&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1571091718767-18b5b1457add?q=80&w=800&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1551782450-a2132b4ba21d?q=80&w=800&auto=format&fit=crop',
+    ];
+  
   const categories = useMemo(() => {
     return ['Todos', ...new Set(products.map(p => p.category?.name).filter(Boolean))];
   }, [products]);
@@ -244,36 +268,86 @@ export const Home = () => {
           />
         )}
 
-        {/* ── INSTAGRAM FEED ─────────────── */}
-        <section className="instagram-section" aria-label="Nosso Instagram">
-          <div className="section-header">
-            <span className="label">Social</span>
-            <h2>Siga <em style={{ color: 'var(--ember)', fontStyle: 'italic' }}>@TheBurguer</em></h2>
-            <p>Acompanhe nossos bastidores e novidades em tempo real.</p>
-          </div>
+{/* ── INSTAGRAM FEED ─────────────── */}
+<section className="instagram-section" aria-label="Nosso Instagram">
+  <div className="section-header">
+    <span className="label">Social</span>
+    <h2>
+      Siga <em style={{ color: 'var(--ember)', fontStyle: 'italic' }}>
+        @TheBurguer
+      </em>
+    </h2>
+    <p>Acompanhe nossos bastidores e novidades em tempo real.</p>
+  </div>
 
-          <div className="insta-grid">
-            {(instaPosts.length ? instaPosts.slice(0, 6) : [
-              'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=800&auto=format&fit=crop',
-              'https://images.unsplash.com/photo-1550547660-d9450f859349?q=80&w=800&auto=format&fit=crop',
-              'https://images.unsplash.com/photo-1561758033-d89a9ad46330?q=80&w=800&auto=format&fit=crop',
-              'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?q=80&w=800&auto=format&fit=crop',
-              'https://images.unsplash.com/photo-1571091718767-18b5b1457add?q=80&w=800&auto=format&fit=crop',
-              'https://images.unsplash.com/photo-1551782450-a2132b4ba21d?q=80&w=800&auto=format&fit=crop',
-            ]).map((post, i) => {
-              const url = typeof post === 'string' ? post : post.url;
-              const permalink = typeof post === 'string' ? "https://www.instagram.com/hamburgueria.theburguer/" : post.permalink;
-              return (
-                <a key={i} href={permalink} target="_blank" rel="noopener noreferrer" className="insta-item">
-                  <img src={url} alt={`Instagram post ${i + 1}`} loading="lazy" />
-                  <div className="insta-overlay">
-                    <span>Ver no Instagram</span>
-                  </div>
-                </a>
-              );
-            })}
-          </div>
-        </section>
+  <div className="insta-carousel">
+    <button
+      type="button"
+      className="insta-arrow insta-arrow-prev"
+      onClick={() =>
+        setInstaIndex((prev) =>
+          prev === 0 ? instaPostsToShow.length - 1 : prev - 1
+        )
+      }
+      aria-label="Post anterior"
+    >
+      ‹
+    </button>
+
+    <div className="insta-viewport">
+      <div
+        className="insta-track"
+        style={{
+          transform: `translateX(-${instaIndex * (100 / 3)}%)`,
+        }}
+      >
+        {instaPostsToShow.map((post, i) => {
+          const url = typeof post === 'string' ? post : post.url;
+
+          const permalink =
+            typeof post === 'string'
+              ? "https://www.instagram.com/hamburgueria.theburguer/"
+              : post.permalink;
+
+          return (
+            <a
+              key={i}
+              href={permalink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="insta-item"
+            >
+              <img
+                src={url}
+                alt={`Instagram post ${i + 1}`}
+                loading="lazy"
+              />
+
+              <div className="insta-overlay">
+                <span>Ver no Instagram</span>
+              </div>
+            </a>
+          );
+        })}
+      </div>
+    </div>
+
+    <button
+      type="button"
+      className="insta-arrow insta-arrow-next"
+      onClick={() =>
+        setInstaIndex((prev) =>
+          prev >= instaPostsToShow.length - 3 ? 0 : prev + 1
+        )
+      }
+      aria-label="Próximo post"
+    >
+      ›
+    </button>
+  </div>
+</section>
+
+
 
         {/* ── FOOTER MODERNO COMPLETO ──────────────────────── */}
         <footer className="footer-main">
