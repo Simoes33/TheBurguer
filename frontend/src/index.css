@@ -1036,6 +1036,15 @@ header {
 
   .section-header { margin-bottom: 3rem; }
 
+  .info-strip {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+  }
+
+  .info-strip-item p {
+    font-size: 0.85rem;
+  }
+
   .cart-drawer {
     max-width: 100%;
     right: -100%;
