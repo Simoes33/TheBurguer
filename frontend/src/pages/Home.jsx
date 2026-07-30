@@ -1058,13 +1058,6 @@ export const Home = () => {
                 value:
                   '(21) 98507-5154'
               },
-
-              {
-                label:
-                  'Siga The Burguer',
-                value:
-                  '@the.burguer'
-              }
             ].map(
               ({
                 label,
