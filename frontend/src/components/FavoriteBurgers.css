@@ -157,6 +157,20 @@
     font-size: 0.9rem;
   }
   
+  /* Prata (2º) e bronze (3º) — reforça a hierarquia de pódio nas cores
+     das próprias badges, não só no tamanho do card. */
+  .favorite-burger-2 .favorite-burger-position {
+    background: rgba(192, 192, 192, 0.14);
+    border-color: rgba(192, 192, 192, 0.55);
+    color: #D6D6D6;
+  }
+  
+  .favorite-burger-3 .favorite-burger-position {
+    background: rgba(205, 127, 50, 0.14);
+    border-color: rgba(205, 127, 50, 0.55);
+    color: #D99A5B;
+  }
+  
   /* ========================================
      INFORMAÇÕES
      ======================================== */
@@ -222,6 +236,13 @@
     font-weight: 600;
   
     color: var(--text);
+  
+    /* Chip sutil: dá "peso" visual ao preço, equilibrando com o botão
+       do outro lado — o vão entre os dois passa a parecer intencional,
+       não um espaço vazio esquecido. */
+    background: rgba(255, 255, 255, 0.035);
+    padding: 0.35rem 0.65rem;
+    border-radius: 2px;
   }
   
   /* ========================================
@@ -258,29 +279,8 @@
     transform: scale(0.95);
   }
   
-  /* ========================================
-     DESTAQUE VISUAL DO PRIMEIRO
-     ======================================== */
-  
-  .favorite-burger-1::after {
-    content: 'CAMPEÃO DA CASA';
-  
-    position: absolute;
-    top: 0;
-    right: 0;
-  
-    padding: 0.45rem 0.75rem;
-  
-    background: var(--ember);
-    color: #fff;
-  
-    font-family: var(--sans);
-    font-size: 0.58rem;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-  
-    z-index: 3;
-  }
+  /* Faixa "CAMPEÃO DA CASA" removida — a badge de troféu (ember, maior,
+     com glow) já comunica isso sozinha; ter os dois era redundante. */
   
   /* ========================================
      TABLET
@@ -424,11 +424,6 @@
     .favorite-burger-1 .favorite-burger-position {
       width: 38px;
       height: 38px;
-    }
-  
-    .favorite-burger-1::after {
-      font-size: 0.5rem;
-      padding: 0.35rem 0.5rem;
     }
   }
   
