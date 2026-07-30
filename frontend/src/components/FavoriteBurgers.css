@@ -4,7 +4,7 @@
 
    .favorite-burgers-section {
     position: relative;
-    padding: 4.5rem 5%;
+    padding: 4.5rem 5% 7rem;
     background: var(--bg-2);
     overflow: hidden;
 
@@ -353,7 +353,7 @@
   
   @media (max-width: 768px) {
     .favorite-burgers-section {
-      padding: 3.25rem 4%;
+      padding: 3.25rem 4% 5rem;
     }
   
     .favorite-burgers-podium {
@@ -436,7 +436,7 @@
   
   @media (max-width: 480px) {
     .favorite-burgers-section {
-      padding: 2.75rem 4%;
+      padding: 2.75rem 4% 4.25rem;
     }
   
     .favorite-burgers-podium {
