@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import "./FavoriteBurgers.css";
 
 const FavoriteBurgers = ({
@@ -6,46 +6,24 @@ const FavoriteBurgers = ({
   bestsellerIds = [],
   onProductClick,
 }) => {
-  /*
-   * ========================================
-   * MAIS PEDIDOS — APENAS HAMBÚRGUERES
-   * ========================================
-   *
-   * bestsellerIds vem do backend na ordem:
-   * [1º, 2º, 3º]
-   *
-   * Como o backend retorna somente os IDs,
-   * usamos esses IDs para localizar os produtos.
-   */
 
-  const burgers = bestsellerIds
-    .map((id) =>
-      products.find(
-        (product) => String(product.id) === String(id)
+  const burgers = useMemo(() => {
+    if (!products.length || !bestsellerIds.length) {
+      return [];
+    }
+
+    // Pega somente os produtos que estão entre os mais vendidos
+    // e mantém a mesma ordem retornada pela API.
+    return bestsellerIds
+      .map((id) =>
+        products.find(
+          (product) => product.id === id
+        )
       )
-    )
-    .filter(Boolean)
-    .filter((product) => {
-      const category =
-        product.category?.name ||
-        product.category ||
-        "";
+      .filter(Boolean)
+      .slice(0, 3);
 
-      const name = product.name || "";
-
-      return (
-        /hamburg/i.test(category) ||
-        /burger/i.test(category) ||
-        /hamburg/i.test(name) ||
-        /burger/i.test(name)
-      );
-    })
-    .slice(0, 3);
-
-  /*
-   * Se não houver hambúrgueres suficientes,
-   * não renderiza a seção.
-   */
+  }, [products, bestsellerIds]);
 
   if (burgers.length === 0) {
     return null;
@@ -55,86 +33,64 @@ const FavoriteBurgers = ({
   const second = burgers[1];
   const third = burgers[2];
 
-  /*
-   * ========================================
-   * PREÇO
-   * ========================================
-   */
+  const BurgerCard = ({
+    product,
+    position,
+  }) => {
 
-  const formatPrice = (price) =>
-    Number(price || 0).toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    });
+    if (!product) {
+      return null;
+    }
 
-  /*
-   * ========================================
-   * IMAGEM
-   * ========================================
-   */
-
-  const getImage = (product) => {
-    return (
-      product.imageUrl ||
-      product.image ||
-      product.image_url ||
-      ""
-    );
-  };
-
-  /*
-   * ========================================
-   * CARD
-   * ========================================
-   */
-
-  const BurgerCard = ({ product, position }) => {
-    if (!product) return null;
+    const formatPrice = (price) =>
+      Number(price || 0).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      });
 
     return (
       <div
         className={`favorite-burger-card favorite-burger-${position}`}
-        onClick={() => onProductClick?.(product)}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(event) => {
-          if (
-            event.key === "Enter" ||
-            event.key === " "
-          ) {
-            event.preventDefault();
-            onProductClick?.(product);
-          }
-        }}
+        onClick={() =>
+          onProductClick?.(product)
+        }
       >
-        {/* IMAGEM */}
 
         <div className="favorite-burger-image">
+
           <img
-            src={getImage(product)}
+            src={
+              product.image ||
+              product.imageUrl
+            }
             alt={product.name}
           />
 
-          {/* POSIÇÃO */}
-
           <div className="favorite-burger-position">
+
             {position === 1 ? (
               <span>🏆</span>
             ) : (
-              <span>{position}º</span>
+              <span>
+                {position}º
+              </span>
             )}
-          </div>
-        </div>
 
-        {/* INFORMAÇÕES */}
+          </div>
+
+        </div>
 
         <div className="favorite-burger-info">
 
           <span className="favorite-burger-orders">
-            Mais pedido
+            {position === 1
+              ? "Mais pedido da casa"
+              : `${position}º mais pedido`}
           </span>
 
-          <h3>{product.name}</h3>
+          <h3>
+            {product.name}
+          </h3>
 
           <div className="favorite-burger-footer">
 
@@ -146,6 +102,7 @@ const FavoriteBurgers = ({
               type="button"
               onClick={(event) => {
                 event.stopPropagation();
+
                 onProductClick?.(product);
               }}
               aria-label={`Adicionar ${product.name} ao carrinho`}
@@ -156,20 +113,14 @@ const FavoriteBurgers = ({
           </div>
 
         </div>
+
       </div>
     );
   };
 
-  /*
-   * ========================================
-   * RENDER
-   * ========================================
-   */
-
   return (
     <section
       className="favorite-burgers-section"
-      aria-label="Hambúrgueres mais pedidos"
     >
 
       <div className="section-header">
@@ -180,11 +131,14 @@ const FavoriteBurgers = ({
 
         <h2>
           Os mais pedidos
-          <span className="highlight">.</span>
+          <span className="highlight">
+            .
+          </span>
         </h2>
 
         <p>
-          Os hambúrgueres que mais saem da nossa chapa.
+          Os hambúrgueres que mais saem
+          da nossa chapa.
         </p>
 
       </div>
@@ -202,10 +156,12 @@ const FavoriteBurgers = ({
 
         {/* 1º LUGAR */}
 
-        <BurgerCard
-          product={first}
-          position={1}
-        />
+        {first && (
+          <BurgerCard
+            product={first}
+            position={1}
+          />
+        )}
 
         {/* 3º LUGAR */}
 
