@@ -49,7 +49,7 @@ export const Login = () => {
       <div className="login-image-panel" style={{
         backgroundImage: [
           'linear-gradient(to right, rgba(8,8,8,0.1) 0%, rgba(8,8,8,0.75) 100%)',
-          "url('https://images.unsplash.com/photo-1558030006-450675393462?auto=format&fit=crop&q=80&w=1200')",
+          "url('https://unsplash.com/pt-br/fotografias/uma-pessoa-esta-grelhando-um-hamburguer-em-uma-grelha-QXxDAuqYcFg')",
         ].join(', '),
       }}>
         <div>
