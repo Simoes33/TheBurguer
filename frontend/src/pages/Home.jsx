@@ -767,69 +767,6 @@ export const Home = () => {
 
         </section>
 
-
-        {/* ==================================
-            HORÁRIOS / INFORMAÇÕES
-            ================================== */}
-
-        <div
-          role="complementary"
-          aria-label="Horários de funcionamento"
-          className="info-strip-wrapper"
-        >
-
-          <div className="info-strip">
-
-            {[
-              {
-                label:
-                  'Segunda a Domingo',
-                value:
-                  '19h às 23h'
-              },
-
-              {
-                label:
-                  'Contato',
-                value:
-                  '(21) 98507-5154'
-              },
-
-              {
-                label:
-                  'Siga The Burguer',
-                value:
-                  '@the.burguer'
-              }
-            ].map(
-              ({
-                label,
-                value
-              }) => (
-
-                <div
-                  key={label}
-                  className="info-strip-item"
-                >
-
-                  <span className="label">
-                    {label}
-                  </span>
-
-                  <p>
-                    {value}
-                  </p>
-
-                </div>
-
-              )
-            )}
-
-          </div>
-
-        </div>
-
-
         {/* ==================================
             CARDÁPIO
             ================================== */}
@@ -1094,6 +1031,67 @@ export const Home = () => {
           />
 
         )}
+
+         {/* ==================================
+            HORÁRIOS / INFORMAÇÕES
+            ================================== */}
+
+<div
+          role="complementary"
+          aria-label="Horários de funcionamento"
+          className="info-strip-wrapper"
+        >
+
+          <div className="info-strip">
+
+            {[
+              {
+                label:
+                  'Segunda a Domingo',
+                value:
+                  '19h às 23h'
+              },
+
+              {
+                label:
+                  'Contato',
+                value:
+                  '(21) 98507-5154'
+              },
+
+              {
+                label:
+                  'Siga The Burguer',
+                value:
+                  '@the.burguer'
+              }
+            ].map(
+              ({
+                label,
+                value
+              }) => (
+
+                <div
+                  key={label}
+                  className="info-strip-item"
+                >
+
+                  <span className="label">
+                    {label}
+                  </span>
+
+                  <p>
+                    {value}
+                  </p>
+
+                </div>
+
+              )
+            )}
+
+          </div>
+
+        </div>
 
 
         {/* ==================================
