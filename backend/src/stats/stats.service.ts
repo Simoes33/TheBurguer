@@ -15,7 +15,7 @@ export class StatsService {
    * Quando não existem pedidos, retorna [].
    */
 
-  async getBestsellerIds(limit = 3): Promise<string[]> {
+  async getBestsellerIds(limit = 3) {
     const popular = await this.prisma.orderItem.groupBy({
       by: ['productId'],
       _sum: {
@@ -28,8 +28,49 @@ export class StatsService {
       },
       take: limit,
     });
-
-    return popular.map((p) => p.productId);
+  
+    if (popular.length === 0) {
+      return [];
+    }
+  
+    const productIds = popular.map((item) => item.productId);
+  
+    const products = await this.prisma.product.findMany({
+      where: {
+        id: {
+          in: productIds,
+        },
+        category: {
+          name: {
+            contains: 'burger',
+            mode: 'insensitive',
+          },
+        },
+      },
+      include: {
+        category: true,
+      },
+    });
+  
+    const productMap = new Map(
+      products.map((product) => [product.id, product])
+    );
+  
+    return popular
+      .map((item) => {
+        const product = productMap.get(item.productId);
+  
+        if (!product) {
+          return null;
+        }
+  
+        return {
+          ...product,
+          orderCount: item._sum.quantity || 0,
+        };
+      })
+      .filter(Boolean)
+      .slice(0, limit);
   }
 
   /*

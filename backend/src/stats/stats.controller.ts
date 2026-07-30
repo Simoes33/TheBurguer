@@ -23,6 +23,7 @@ export class StatsController {
   @Get('bestsellers')
   getBestsellers(@Query('limit') limit?: string) {
     const parsedLimit = limit ? parseInt(limit, 10) : 3;
+  
     return this.statsService.getBestsellerIds(parsedLimit);
   }
 }
