@@ -3,9 +3,52 @@
    ======================================== */
 
    .favorite-burgers-section {
+    position: relative;
     padding: 7rem 5%;
     background: var(--bg-2);
     overflow: hidden;
+
+    /* Moldura em gradiente ember → gold, evocando brasa sem desenhar
+       chamas literais. */
+    border-top: 1px solid transparent;
+    border-bottom: 1px solid transparent;
+    border-image: linear-gradient(
+      90deg,
+      transparent 4%,
+      var(--ember) 32%,
+      var(--gold) 50%,
+      var(--ember) 68%,
+      transparent 96%
+    ) 1;
+  }
+
+  /* Brilho de brasa: irradia sutilmente das bordas pra dentro da seção.
+     Fica atrás de todo o conteúdo (z-index 0); header e pódio recebem
+     z-index 1 logo abaixo para ficarem sempre por cima. */
+  .favorite-burgers-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+
+    background:
+      radial-gradient(ellipse 60% 45% at 12% 100%, rgba(200, 64, 26, 0.16), transparent 70%),
+      radial-gradient(ellipse 60% 45% at 88% 100%, rgba(191, 160, 106, 0.12), transparent 70%),
+      radial-gradient(ellipse 70% 40% at 50% 0%, rgba(200, 64, 26, 0.10), transparent 70%);
+
+    animation: favorite-ember-glow 6s ease-in-out infinite;
+  }
+
+  @keyframes favorite-ember-glow {
+    0%, 100% { opacity: 0.75; }
+    50% { opacity: 1; }
+  }
+
+  .favorite-burgers-section .section-header,
+  .favorite-burgers-section .favorite-burgers-podium {
+    position: relative;
+    z-index: 1;
   }
   
   /* ========================================
@@ -439,7 +482,9 @@
   @media (prefers-reduced-motion: reduce) {
     .favorite-burger-card,
     .favorite-burger-image img,
-    .favorite-burger-footer button {
+    .favorite-burger-footer button,
+    .favorite-burgers-section::before {
       transition: none;
+      animation: none;
     }
   }
