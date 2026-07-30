@@ -173,6 +173,7 @@ const FavoriteBurgers = ({
         )}
 
       </div>
+      </div>
 
     </section>
   );
