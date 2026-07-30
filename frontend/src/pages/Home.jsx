@@ -234,7 +234,7 @@ export const Home = () => {
         data: []
       })),
 
-      api.get('/stats/bestsellers').catch(() => ({
+      api.get('/stats/bestsellers?limit=3').catch(() => ({
         data: []
       })),
     ])

@@ -1,11 +1,36 @@
 import React from "react";
 import "./FavoriteBurgers.css";
 
-const FavoriteBurgers = ({ products = [], onProductClick }) => {
-  // Somente hambúrgueres
-  const burgers = products
+const FavoriteBurgers = ({
+  products = [],
+  bestsellerIds = [],
+  onProductClick,
+}) => {
+  /*
+   * ========================================
+   * MAIS PEDIDOS — APENAS HAMBÚRGUERES
+   * ========================================
+   *
+   * bestsellerIds vem do backend na ordem:
+   * [1º, 2º, 3º]
+   *
+   * Como o backend retorna somente os IDs,
+   * usamos esses IDs para localizar os produtos.
+   */
+
+  const burgers = bestsellerIds
+    .map((id) =>
+      products.find(
+        (product) => String(product.id) === String(id)
+      )
+    )
+    .filter(Boolean)
     .filter((product) => {
-      const category = product.category?.name || product.category || "";
+      const category =
+        product.category?.name ||
+        product.category ||
+        "";
+
       const name = product.name || "";
 
       return (
@@ -15,13 +40,12 @@ const FavoriteBurgers = ({ products = [], onProductClick }) => {
         /burger/i.test(name)
       );
     })
-    .filter((product) => Number(product.orderCount || product.ordersCount || 0) > 0)
-    .sort(
-      (a, b) =>
-        Number(b.orderCount || b.ordersCount || 0) -
-        Number(a.orderCount || a.ordersCount || 0)
-    )
     .slice(0, 3);
+
+  /*
+   * Se não houver hambúrgueres suficientes,
+   * não renderiza a seção.
+   */
 
   if (burgers.length === 0) {
     return null;
@@ -31,14 +55,38 @@ const FavoriteBurgers = ({ products = [], onProductClick }) => {
   const second = burgers[1];
   const third = burgers[2];
 
-  const getOrders = (product) =>
-    Number(product.orderCount || product.ordersCount || 0);
+  /*
+   * ========================================
+   * PREÇO
+   * ========================================
+   */
 
   const formatPrice = (price) =>
     Number(price || 0).toLocaleString("pt-BR", {
       style: "currency",
       currency: "BRL",
     });
+
+  /*
+   * ========================================
+   * IMAGEM
+   * ========================================
+   */
+
+  const getImage = (product) => {
+    return (
+      product.imageUrl ||
+      product.image ||
+      product.image_url ||
+      ""
+    );
+  };
+
+  /*
+   * ========================================
+   * CARD
+   * ========================================
+   */
 
   const BurgerCard = ({ product, position }) => {
     if (!product) return null;
@@ -47,52 +95,88 @@ const FavoriteBurgers = ({ products = [], onProductClick }) => {
       <div
         className={`favorite-burger-card favorite-burger-${position}`}
         onClick={() => onProductClick?.(product)}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(event) => {
+          if (
+            event.key === "Enter" ||
+            event.key === " "
+          ) {
+            event.preventDefault();
+            onProductClick?.(product);
+          }
+        }}
       >
+        {/* IMAGEM */}
+
         <div className="favorite-burger-image">
           <img
-            src={product.image}
+            src={getImage(product)}
             alt={product.name}
           />
 
+          {/* POSIÇÃO */}
+
           <div className="favorite-burger-position">
-          {position === 1 ? (
-  <span>🏆</span>
-) : (
-  <span>{position}º</span>
-)}
+            {position === 1 ? (
+              <span>🏆</span>
+            ) : (
+              <span>{position}º</span>
+            )}
           </div>
         </div>
 
+        {/* INFORMAÇÕES */}
+
         <div className="favorite-burger-info">
+
           <span className="favorite-burger-orders">
-            {getOrders(product)} pedidos
+            Mais pedido
           </span>
 
           <h3>{product.name}</h3>
 
           <div className="favorite-burger-footer">
-            <strong>{formatPrice(product.price)}</strong>
+
+            <strong>
+              {formatPrice(product.price)}
+            </strong>
 
             <button
-  type="button"
-  onClick={(event) => {
-    event.stopPropagation();
-    onProductClick?.(product);
-  }}
-  aria-label={`Adicionar ${product.name} ao carrinho`}
->
-  <span>+</span>
-</button>
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                onProductClick?.(product);
+              }}
+              aria-label={`Adicionar ${product.name} ao carrinho`}
+            >
+              <span>+</span>
+            </button>
+
           </div>
+
         </div>
       </div>
     );
   };
 
+  /*
+   * ========================================
+   * RENDER
+   * ========================================
+   */
+
   return (
-    <section className="favorite-burgers-section">
+    <section
+      className="favorite-burgers-section"
+      aria-label="Hambúrgueres mais pedidos"
+    >
+
       <div className="section-header">
-        <span className="label">Os favoritos da casa</span>
+
+        <span className="label">
+          Os favoritos da casa
+        </span>
 
         <h2>
           Os mais pedidos
@@ -102,10 +186,13 @@ const FavoriteBurgers = ({ products = [], onProductClick }) => {
         <p>
           Os hambúrgueres que mais saem da nossa chapa.
         </p>
+
       </div>
 
       <div className="favorite-burgers-podium">
-        {/* 2º lugar */}
+
+        {/* 2º LUGAR */}
+
         {second && (
           <BurgerCard
             product={second}
@@ -113,20 +200,24 @@ const FavoriteBurgers = ({ products = [], onProductClick }) => {
           />
         )}
 
-        {/* 1º lugar */}
+        {/* 1º LUGAR */}
+
         <BurgerCard
           product={first}
           position={1}
         />
 
-        {/* 3º lugar */}
+        {/* 3º LUGAR */}
+
         {third && (
           <BurgerCard
             product={third}
             position={3}
           />
         )}
+
       </div>
+
     </section>
   );
 };
