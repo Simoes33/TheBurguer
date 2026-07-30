@@ -36,8 +36,8 @@ export const MyOrders = () => {
     <div style={{ minHeight: '100vh', background: 'var(--bg)', paddingBottom: '4rem' }}>
       <Header />
       
-      <main style={{ maxWidth: '800px', margin: '8rem auto 0', padding: '0 5%' }}>
-        <div style={{ marginBottom: '3rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+      <main className="page-main">
+        <div style={{ marginBottom: '3rem', display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
           <Package size={32} color="var(--ember)" />
           <div>
             <h1 style={{ fontSize: '2rem' }}>Meus Pedidos</h1>

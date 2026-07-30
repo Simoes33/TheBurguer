@@ -23,7 +23,7 @@ export const Header = () => {
   return (
     <>
       <header>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <div className="header-left">
           <button className="mobile-menu-btn" onClick={() => setIsMobileMenuOpen(true)} aria-label="Abrir menu">
             <List size={24} />
           </button>
@@ -60,7 +60,7 @@ export const Header = () => {
           </ul>
         </nav>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+        <div className="header-actions">
           <button 
             className="cart-btn" 
             onClick={toggleTheme} 

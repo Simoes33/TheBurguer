@@ -41,25 +41,9 @@ export const ReviewModal = ({ products, onClose }) => {
   };
 
   return (
-    <div
-      className="modal-overlay"
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100vw',
-        height: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        overflowY: 'auto',
-        padding: '2rem 1rem',
-        zIndex: 2000,
-        background: 'rgba(0,0,0,0.92)'
-      }}
-    >
-      <div className="modal-content" style={{ maxWidth: '500px', width: '100%', maxHeight: '90vh', overflowY: 'auto', padding: '3rem' }}>
-        <button className="close-modal" onClick={onClose}><X size={24} /></button>
+    <div className="review-modal-overlay">
+      <div className="review-modal-content">
+        <button className="close-modal" onClick={onClose} aria-label="Fechar"><X size={24} /></button>
 
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <span className="label" style={{ color: 'var(--gold)' }}>Feedback</span>

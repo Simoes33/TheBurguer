@@ -88,20 +88,7 @@ export const Home = () => {
       <Header />
 
       {!isStoreOpen && (
-        <div style={{
-          background: 'var(--ember)',
-          color: '#fff',
-          textAlign: 'center',
-          padding: '0.8rem',
-          fontSize: '0.85rem',
-          fontWeight: 600,
-          textTransform: 'uppercase',
-          letterSpacing: '0.1em',
-          position: 'sticky',
-          top: '80px',
-          zIndex: 990,
-          boxShadow: '0 4px 10px rgba(0,0,0,0.2)'
-        }}>
+        <div className="store-closed-banner" role="status">
           ⚠️ Loja Fechada no momento. Aceitamos apenas consultas ao cardápio.
         </div>
       )}
@@ -159,7 +146,7 @@ export const Home = () => {
         </section>
 
         {/* ── HORÁRIOS ────────────────────── */}
-        <div role="complementary" aria-label="Horários de funcionamento" style={{ background: 'var(--bg-3)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)', padding: '3.5rem 5%' }}>
+        <div role="complementary" aria-label="Horários de funcionamento" className="info-strip-wrapper">
           <div className="info-strip">
             {[
               { label: 'Segunda a Domingo', value: '19h às 23h' },

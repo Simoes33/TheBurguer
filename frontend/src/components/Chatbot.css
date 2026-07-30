@@ -757,30 +757,42 @@ border-color:var(--gold);
 
 @media(max-width:500px){
 
-
 .chatbot-card{
-
-
-right:10px;
-
-bottom:10px;
-
-width:calc(100% - 20px);
-
-height:78vh;
-
-
+right:0;
+left:0;
+bottom:0;
+width:100%;
+height:min(78dvh, calc(100dvh - env(safe-area-inset-top) - 60px));
+border-radius:20px 20px 0 0;
+border-left:none;
+border-right:none;
+border-bottom:none;
 }
 
 
 .chatbot-fab{
+right:max(16px, env(safe-area-inset-right));
+bottom:max(16px, env(safe-area-inset-bottom));
+width:56px;
+height:56px;
+}
 
 
-right:20px;
+.chatbot-card{
+bottom:0;
+padding-bottom:env(safe-area-inset-bottom);
+}
 
-bottom:20px;
+
+.quick-actions{
+flex-wrap:wrap;
+}
 
 
+.quick-actions button{
+flex:1 1 calc(50% - 4px);
+min-width:0;
+white-space:normal;
 }
 
 
@@ -821,24 +833,6 @@ transition:none !important;
 .chatbot-card{
 
 width:min(370px, calc(100vw - 40px));
-
-}
-
-}
-
-
-@media(max-width:500px){
-
-.chatbot-fab{
-
-bottom:max(20px, env(safe-area-inset-bottom));
-
-}
-
-
-.chatbot-card{
-
-bottom:max(10px, env(safe-area-inset-bottom));
 
 }
 

@@ -645,14 +645,40 @@ else if (/batata|fritas/i.test(productName)) {
         @keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
         @media (max-width: 900px) {
-          .modal-content { max-width: 500px; max-height: 90vh; overflow-y: auto; }
+          .modal-overlay {
+            padding: 0;
+            align-items: flex-end;
+          }
+          .modal-content {
+            max-width: 100%;
+            max-height: 92dvh;
+            overflow-y: auto;
+            border-radius: 12px 12px 0 0;
+            animation: slideUpMobile 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+          }
           .modal-body { grid-template-columns: 1fr; min-height: auto; }
-          .modal-image-container { height: 220px; min-height: 0; border-right: none; border-bottom: 1px solid var(--border); }
-          .modal-image-container img { padding: 0.6rem; }
-          .modal-details { padding: 1.5rem; gap: 1.2rem; max-height: none; }
-          .modal-header-group h2 { font-size: 1.7rem; }
-          .modal-footer { flex-direction: column; gap: 1rem; }
-          .qty-selector { justify-content: space-between; padding: 0.8rem 1.5rem; }
+          .modal-image-container { height: 200px; min-height: 0; border-right: none; border-bottom: 1px solid var(--border); }
+          .modal-image-container img { padding: 0.5rem; object-fit: contain; }
+          .modal-details { padding: 1.25rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom)); gap: 1.1rem; max-height: none; }
+          .modal-header-group h2 { font-size: 1.55rem; }
+          .modal-footer { flex-direction: column; gap: 0.85rem; position: sticky; bottom: 0; background: var(--bg-2); margin: 0 -1.25rem -1.25rem; padding: 1rem 1.25rem calc(1rem + env(safe-area-inset-bottom)); border-top: 1px solid var(--border); }
+          .qty-selector { justify-content: space-between; padding: 0.75rem 1.25rem; width: 100%; }
+          .add-btn { width: 100%; font-size: 0.78rem; letter-spacing: 0.1em; }
+          .close-modal { top: 0.75rem; right: 0.75rem; width: 40px; height: 40px; }
+          .option-pills { flex-direction: column; }
+          .pill { min-width: 0; flex-direction: row; justify-content: space-between; padding: 0.85rem 1rem; }
+          .combo-toggle { flex-wrap: wrap; padding: 0.85rem 1rem; }
+          .combo-toggle-right { width: 100%; justify-content: space-between; margin-top: 0.25rem; }
+        }
+
+        @media (max-width: 480px) {
+          .modal-price-tag { font-size: 1.5rem; }
+          .observation-section textarea { font-size: 16px; }
+        }
+
+        @keyframes slideUpMobile {
+          from { transform: translateY(100%); opacity: 0.8; }
+          to { transform: translateY(0); opacity: 1; }
         }
       `}</style>
       </div>

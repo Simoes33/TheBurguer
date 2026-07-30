@@ -203,7 +203,7 @@ export const OrderTracking = () => {
     <div style={{ minHeight: '100vh', background: 'var(--bg)', paddingBottom: '4rem' }}>
       <Header />
       
-      <main style={{ maxWidth: '800px', margin: '8rem auto 0', padding: '0 5%' }}>
+      <main className="page-main">
         <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
           <span className="label" style={{ display: 'block', marginBottom: '0.5rem' }}>Acompanhamento</span>
           <h1 style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>
@@ -290,12 +290,12 @@ export const OrderTracking = () => {
           </div>
         )}
 
-        <div style={{ background: 'var(--bg-2)', border: '1px solid var(--border)', borderRadius: '4px', padding: '2rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+        <div className="order-detail-card" style={{ background: 'var(--bg-2)', border: '1px solid var(--border)', borderRadius: '4px', padding: '2rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
           <div>
             <h3 style={{ fontSize: '1.2rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.8rem' }}>Resumo dos Itens</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {order.items.map(item => (
-                <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div key={item.id} className="order-item-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.75rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <span style={{ color: 'var(--ember)', fontWeight: 600 }}>{item.quantity}x</span>
                     <span>{item.product.name}</span>
