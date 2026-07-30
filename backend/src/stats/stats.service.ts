@@ -15,7 +15,16 @@ export class StatsService {
    * Quando não existem pedidos, retorna [].
    */
 
-  async getBestsellerIds(limit = 3) {
+  async getBestsellerIds(limit = 3): Promise<string[]> {
+    const items = await this.prisma.orderItem.findMany({
+      select: {
+        productId: true,
+        quantity: true,
+      },
+    });
+  
+    console.log('ORDER ITEMS:', items);
+  
     const popular = await this.prisma.orderItem.groupBy({
       by: ['productId'],
       _sum: {
@@ -29,9 +38,10 @@ export class StatsService {
       take: limit,
     });
   
-    if (popular.length === 0) {
-      return [];
-    }
+    console.log('BESTSELLERS:', popular);
+  
+    return popular.map((p) => p.productId);
+  }
   
     const productIds = popular.map((item) => item.productId);
   
