@@ -1040,11 +1040,12 @@ header {
 
   /* INFO STRIP — HORIZONTAL NO MOBILE */
   .info-strip {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0;
-    width: 100%;
-    padding: 2rem 0;
-    align-items: stretch;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    text-align: center;
+    max-width: 900px;
+    margin: 0 auto;
   }
 
   .info-strip-item {
