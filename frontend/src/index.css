@@ -575,7 +575,7 @@ header {
   border-bottom: 1px solid var(--border);
   padding: 3.5rem 5%;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 2rem;
   text-align: center;
   max-width: 900px;
@@ -1020,7 +1020,7 @@ header {
   .manifesto { grid-template-columns: 1fr; gap: 3rem; }
   .manifesto-img img { height: 350px; }
   .info-strip {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .nav-links { display: none; }
 
@@ -1039,14 +1039,14 @@ header {
   .section-header { margin-bottom: 3rem; }
 
   /* INFO STRIP — HORIZONTAL NO MOBILE */
-  .info-strip {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 2rem;
-    text-align: center;
-    max-width: 900px;
-    margin: 0 auto;
-  }
+ .info-strip {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+  text-align: center;
+  max-width: 900px;
+  margin: 0 auto;
+}
 
   .info-strip-item {
     min-width: 0;
