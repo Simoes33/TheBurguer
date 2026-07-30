@@ -1019,7 +1019,7 @@ header {
 
   .manifesto { grid-template-columns: 1fr; gap: 3rem; }
   .manifesto-img img { height: 350px; }
-  .info-strip { grid-template-columns: 1fr; }
+  .info-strip { grid-template-columns: 1.5fr; }
   .nav-links { display: none; }
 
   .page-main {
