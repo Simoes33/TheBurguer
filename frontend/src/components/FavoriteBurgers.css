@@ -4,7 +4,7 @@
 
    .favorite-burgers-section {
     position: relative;
-    padding: 7rem 5%;
+    padding: 4.5rem 5%;
     background: var(--bg-2);
     overflow: hidden;
 
@@ -50,6 +50,13 @@
     position: relative;
     z-index: 1;
   }
+
+  /* Header mais compacto especificamente aqui — a regra global de
+     .section-header tem margin-bottom generoso pensado pra seções
+     maiores (hero, cardápio); aqui reduzimos só nesta seção. */
+  .favorite-burgers-section .section-header {
+    margin-bottom: 0;
+  }
   
   /* ========================================
      PÓDIO
@@ -57,7 +64,7 @@
   
   .favorite-burgers-podium {
     max-width: 1000px;
-    margin: 3.5rem auto 0;
+    margin: 2.25rem auto 0;
   
     display: flex;
     align-items: flex-end;
@@ -71,7 +78,7 @@
   
   .favorite-burger-card {
     position: relative;
-    width: 280px;
+    width: 260px;
   
     background: var(--bg);
     border: 1px solid var(--border);
@@ -98,7 +105,7 @@
   .favorite-burger-image {
     position: relative;
     width: 100%;
-    aspect-ratio: 1 / 1;
+    aspect-ratio: 4 / 3;
     overflow: hidden;
     background: var(--bg-3);
   }
@@ -149,7 +156,7 @@
      ======================================== */
   
   .favorite-burger-1 {
-    width: 320px;
+    width: 300px;
   
     border-color: var(--ember);
   
@@ -219,13 +226,13 @@
      ======================================== */
   
   .favorite-burger-info {
-    padding: 1.2rem 1.25rem 1.3rem;
+    padding: 1rem 1.1rem 1.1rem;
   }
   
   .favorite-burger-orders {
     display: block;
   
-    margin-bottom: 0.45rem;
+    margin-bottom: 0.4rem;
   
     font-family: var(--sans);
     font-size: 0.65rem;
@@ -237,10 +244,10 @@
   }
   
   .favorite-burger-info h3 {
-    margin-bottom: 1rem;
+    margin-bottom: 0.8rem;
   
     font-family: var(--serif);
-    font-size: 1.15rem;
+    font-size: 1.1rem;
     font-weight: 600;
     line-height: 1.2;
   
@@ -252,11 +259,11 @@
      ======================================== */
   
   .favorite-burger-1 .favorite-burger-info {
-    padding: 1.4rem 1.5rem 1.5rem;
+    padding: 1.15rem 1.3rem 1.3rem;
   }
   
   .favorite-burger-1 .favorite-burger-info h3 {
-    font-size: 1.4rem;
+    font-size: 1.3rem;
   }
   
   /* ========================================
@@ -268,7 +275,7 @@
     align-items: center;
     justify-content: space-between;
   
-    padding-top: 1rem;
+    padding-top: 0.85rem;
   
     border-top: 1px solid var(--border);
   }
@@ -322,9 +329,6 @@
     transform: scale(0.95);
   }
   
-  /* Faixa "CAMPEÃO DA CASA" removida — a badge de troféu (ember, maior,
-     com glow) já comunica isso sozinha; ter os dois era redundante. */
-  
   /* ========================================
      TABLET
      ======================================== */
@@ -335,11 +339,11 @@
     }
   
     .favorite-burger-card {
-      width: 240px;
+      width: 220px;
     }
   
     .favorite-burger-1 {
-      width: 280px;
+      width: 260px;
     }
   }
   
@@ -349,11 +353,11 @@
   
   @media (max-width: 768px) {
     .favorite-burgers-section {
-      padding: 5rem 4%;
+      padding: 3.25rem 4%;
     }
   
     .favorite-burgers-podium {
-      margin-top: 2.5rem;
+      margin-top: 1.75rem;
   
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -392,19 +396,20 @@
     }
   
     .favorite-burger-info {
-      padding: 0.9rem;
+      padding: 0.8rem;
     }
   
     .favorite-burger-info h3 {
-      font-size: 0.95rem;
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
     }
   
     .favorite-burger-1 .favorite-burger-info {
-      padding: 1.1rem;
+      padding: 1rem;
     }
   
     .favorite-burger-1 .favorite-burger-info h3 {
-      font-size: 1.15rem;
+      font-size: 1.1rem;
     }
   
     .favorite-burger-orders {
@@ -412,7 +417,7 @@
     }
   
     .favorite-burger-footer {
-      padding-top: 0.75rem;
+      padding-top: 0.65rem;
     }
   
     .favorite-burger-footer strong {
@@ -431,7 +436,7 @@
   
   @media (max-width: 480px) {
     .favorite-burgers-section {
-      padding: 4rem 4%;
+      padding: 2.75rem 4%;
     }
   
     .favorite-burgers-podium {
@@ -443,7 +448,7 @@
     }
   
     .favorite-burger-info {
-      padding: 0.75rem;
+      padding: 0.7rem;
     }
   
     .favorite-burger-info h3 {
@@ -451,7 +456,7 @@
     }
   
     .favorite-burger-1 .favorite-burger-info {
-      padding: 0.9rem;
+      padding: 0.85rem;
     }
   
     .favorite-burger-1 .favorite-burger-info h3 {
