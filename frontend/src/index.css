@@ -890,7 +890,7 @@ header {
   :root { --header-height: 64px; }
 
   .hero {
-    min-height: 70dvh;
+    min-height: 65dvh;
     padding: calc(var(--header-height) + 1rem) 4% calc(4rem + var(--safe-bottom));
     align-items: flex-end;
   }
@@ -915,7 +915,7 @@ header {
   .hero-actions .btn-primary,
   .hero-actions .btn-outline {
     width: 100%;
-    justify-content: flex-start;
+    justify-content: center;
   }
 
   header {
