@@ -1,0 +1,450 @@
+/* ========================================
+   FAVORITOS DA CASA — PÓDIO
+   ======================================== */
+
+   .favorite-burgers-section {
+    padding: 7rem 5%;
+    background: var(--bg-2);
+    overflow: hidden;
+  }
+  
+  /* ========================================
+     PÓDIO
+     ======================================== */
+  
+  .favorite-burgers-podium {
+    max-width: 1000px;
+    margin: 3.5rem auto 0;
+  
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 1.5rem;
+  }
+  
+  /* ========================================
+     CARD
+     ======================================== */
+  
+  .favorite-burger-card {
+    position: relative;
+    width: 280px;
+  
+    background: var(--bg);
+    border: 1px solid var(--border);
+  
+    overflow: hidden;
+    cursor: pointer;
+  
+    transition:
+      transform 0.3s ease,
+      border-color 0.3s ease,
+      box-shadow 0.3s ease;
+  }
+  
+  .favorite-burger-card:hover {
+    transform: translateY(-6px);
+    border-color: var(--border-warm);
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.3);
+  }
+  
+  /* ========================================
+     IMAGEM
+     ======================================== */
+  
+  .favorite-burger-image {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    background: var(--bg-3);
+  }
+  
+  .favorite-burger-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  
+    transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+  
+  .favorite-burger-card:hover .favorite-burger-image img {
+    transform: scale(1.06);
+  }
+  
+  /* ========================================
+     POSIÇÃO
+     ======================================== */
+  
+  .favorite-burger-position {
+    position: absolute;
+    top: 0.8rem;
+    left: 0.8rem;
+  
+    width: 40px;
+    height: 40px;
+  
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  
+    border-radius: 50%;
+  
+    background: rgba(8, 8, 8, 0.82);
+    border: 1px solid var(--border);
+  
+    color: var(--text);
+    font-family: var(--serif);
+    font-size: 1rem;
+    font-weight: 600;
+  
+    backdrop-filter: blur(8px);
+  }
+  
+  /* ========================================
+     PRIMEIRO LUGAR
+     ======================================== */
+  
+  .favorite-burger-1 {
+    width: 320px;
+  
+    border-color: var(--ember);
+  
+    box-shadow:
+      0 0 0 1px rgba(200, 64, 26, 0.12),
+      0 20px 55px rgba(200, 64, 26, 0.12);
+  
+    z-index: 2;
+  }
+  
+  .favorite-burger-1:hover {
+    border-color: var(--ember-light);
+  
+    box-shadow:
+      0 0 0 1px rgba(200, 64, 26, 0.2),
+      0 25px 65px rgba(200, 64, 26, 0.18);
+  }
+  
+  .favorite-burger-1 .favorite-burger-position {
+    width: 46px;
+    height: 46px;
+  
+    background: var(--ember);
+    border-color: var(--ember);
+  
+    color: #fff;
+  
+    box-shadow: 0 5px 20px var(--ember-glow);
+  }
+  
+  .favorite-burger-1 .favorite-burger-position svg {
+    stroke-width: 2.5;
+  }
+  
+  /* ========================================
+     SEGUNDO E TERCEIRO
+     ======================================== */
+  
+  .favorite-burger-2,
+  .favorite-burger-3 {
+    margin-bottom: 0.8rem;
+  }
+  
+  .favorite-burger-2 .favorite-burger-position,
+  .favorite-burger-3 .favorite-burger-position {
+    width: 36px;
+    height: 36px;
+    font-size: 0.9rem;
+  }
+  
+  /* ========================================
+     INFORMAÇÕES
+     ======================================== */
+  
+  .favorite-burger-info {
+    padding: 1.2rem 1.25rem 1.3rem;
+  }
+  
+  .favorite-burger-orders {
+    display: block;
+  
+    margin-bottom: 0.45rem;
+  
+    font-family: var(--sans);
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  
+    color: var(--ember);
+  }
+  
+  .favorite-burger-info h3 {
+    margin-bottom: 1rem;
+  
+    font-family: var(--serif);
+    font-size: 1.15rem;
+    font-weight: 600;
+    line-height: 1.2;
+  
+    color: var(--text);
+  }
+  
+  /* ========================================
+     PRIMEIRO — TEXTO MAIOR
+     ======================================== */
+  
+  .favorite-burger-1 .favorite-burger-info {
+    padding: 1.4rem 1.5rem 1.5rem;
+  }
+  
+  .favorite-burger-1 .favorite-burger-info h3 {
+    font-size: 1.4rem;
+  }
+  
+  /* ========================================
+     RODAPÉ DO CARD
+     ======================================== */
+  
+  .favorite-burger-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  
+    padding-top: 1rem;
+  
+    border-top: 1px solid var(--border);
+  }
+  
+  .favorite-burger-footer strong {
+    font-family: var(--serif);
+    font-size: 1.1rem;
+    font-weight: 600;
+  
+    color: var(--text);
+  }
+  
+  /* ========================================
+     BOTÃO CARRINHO
+     ======================================== */
+  
+  .favorite-burger-footer button {
+    width: 36px;
+    height: 36px;
+  
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  
+    background: var(--ember);
+    border: none;
+    border-radius: 2px;
+  
+    color: #fff;
+  
+    cursor: pointer;
+  
+    transition:
+      background 0.25s ease,
+      transform 0.2s ease;
+  }
+  
+  .favorite-burger-footer button:hover {
+    background: var(--ember-light);
+    transform: scale(1.08);
+  }
+  
+  .favorite-burger-footer button:active {
+    transform: scale(0.95);
+  }
+  
+  /* ========================================
+     DESTAQUE VISUAL DO PRIMEIRO
+     ======================================== */
+  
+  .favorite-burger-1::after {
+    content: 'CAMPEÃO DA CASA';
+  
+    position: absolute;
+    top: 0;
+    right: 0;
+  
+    padding: 0.45rem 0.75rem;
+  
+    background: var(--ember);
+    color: #fff;
+  
+    font-family: var(--sans);
+    font-size: 0.58rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+  
+    z-index: 3;
+  }
+  
+  /* ========================================
+     TABLET
+     ======================================== */
+  
+  @media (max-width: 900px) {
+    .favorite-burgers-podium {
+      gap: 1rem;
+    }
+  
+    .favorite-burger-card {
+      width: 240px;
+    }
+  
+    .favorite-burger-1 {
+      width: 280px;
+    }
+  }
+  
+  /* ========================================
+     MOBILE
+     ======================================== */
+  
+  @media (max-width: 768px) {
+    .favorite-burgers-section {
+      padding: 5rem 4%;
+    }
+  
+    .favorite-burgers-podium {
+      margin-top: 2.5rem;
+  
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: end;
+  
+      gap: 0.75rem;
+  
+      max-width: 600px;
+    }
+  
+    /* Primeiro ocupa toda a linha */
+    .favorite-burger-1 {
+      grid-column: 1 / -1;
+      grid-row: 1;
+  
+      width: min(100%, 320px);
+      justify-self: center;
+    }
+  
+    /* Segundo */
+    .favorite-burger-2 {
+      grid-column: 1;
+      grid-row: 2;
+  
+      width: 100%;
+      margin-bottom: 0;
+    }
+  
+    /* Terceiro */
+    .favorite-burger-3 {
+      grid-column: 2;
+      grid-row: 2;
+  
+      width: 100%;
+      margin-bottom: 0;
+    }
+  
+    .favorite-burger-info {
+      padding: 0.9rem;
+    }
+  
+    .favorite-burger-info h3 {
+      font-size: 0.95rem;
+    }
+  
+    .favorite-burger-1 .favorite-burger-info {
+      padding: 1.1rem;
+    }
+  
+    .favorite-burger-1 .favorite-burger-info h3 {
+      font-size: 1.15rem;
+    }
+  
+    .favorite-burger-orders {
+      font-size: 0.58rem;
+    }
+  
+    .favorite-burger-footer {
+      padding-top: 0.75rem;
+    }
+  
+    .favorite-burger-footer strong {
+      font-size: 0.95rem;
+    }
+  
+    .favorite-burger-footer button {
+      width: 32px;
+      height: 32px;
+    }
+  }
+  
+  /* ========================================
+     MOBILE PEQUENO
+     ======================================== */
+  
+  @media (max-width: 480px) {
+    .favorite-burgers-section {
+      padding: 4rem 4%;
+    }
+  
+    .favorite-burgers-podium {
+      gap: 0.5rem;
+    }
+  
+    .favorite-burger-1 {
+      width: min(100%, 290px);
+    }
+  
+    .favorite-burger-info {
+      padding: 0.75rem;
+    }
+  
+    .favorite-burger-info h3 {
+      font-size: 0.85rem;
+    }
+  
+    .favorite-burger-1 .favorite-burger-info {
+      padding: 0.9rem;
+    }
+  
+    .favorite-burger-1 .favorite-burger-info h3 {
+      font-size: 1rem;
+    }
+  
+    .favorite-burger-position {
+      width: 32px;
+      height: 32px;
+      font-size: 0.8rem;
+    }
+  
+    .favorite-burger-1 .favorite-burger-position {
+      width: 38px;
+      height: 38px;
+    }
+  
+    .favorite-burger-1::after {
+      font-size: 0.5rem;
+      padding: 0.35rem 0.5rem;
+    }
+  }
+  
+  /* ========================================
+     ACESSIBILIDADE
+     ======================================== */
+  
+  .favorite-burger-card:focus-visible {
+    outline: 2px solid var(--ember);
+    outline-offset: 4px;
+  }
+  
+  @media (prefers-reduced-motion: reduce) {
+    .favorite-burger-card,
+    .favorite-burger-image img,
+    .favorite-burger-footer button {
+      transition: none;
+    }
+  }

@@ -14,6 +14,7 @@ import {
   MapPin,
   Clock
 } from '@phosphor-icons/react';
+import FavoriteBurgers from "../components/FavoriteBurgers";
 
 const FALLBACK_PRODUCTS = [
   {
@@ -576,6 +577,12 @@ export const Home = () => {
             </p>
 
           </div>
+
+          <FavoriteBurgers
+  products={products}
+  bestsellerIds={bestsellerIds}
+  onProductClick={setSelectedProduct}
+/>
 
           {/* BARRA DE BUSCA */}
 
