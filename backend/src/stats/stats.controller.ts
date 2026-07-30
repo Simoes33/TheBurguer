@@ -22,7 +22,7 @@ export class StatsController {
   // Rota pública — só os IDs dos mais vendidos, sem dados sensíveis
   @Get('bestsellers')
   getBestsellers(@Query('limit') limit?: string) {
-    const parsedLimit = limit ? parseInt(limit, 10) : 2;
+    const parsedLimit = limit ? parseInt(limit, 10) : 3;
     return this.statsService.getBestsellerIds(parsedLimit);
   }
 }

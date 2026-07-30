@@ -5,17 +5,49 @@ import { PrismaService } from '../prisma/prisma.service';
 export class StatsService {
   constructor(private prisma: PrismaService) {}
 
-  async getBestsellerIds(limit = 2): Promise<string[]> {
-  const popular = await this.prisma.orderItem.groupBy({
-    by: ['productId'],
-    _sum: { quantity: true },
-    orderBy: { _sum: { quantity: 'desc' } },
-    take: limit,
-  });
-
-  return popular.map((p) => p.productId);
-}
-
+  async getBestsellerIds(limit = 3): Promise<string[]> {
+    // Busca somente produtos da categoria de hambúrguer
+    const burgerProducts = await this.prisma.product.findMany({
+      where: {
+        category: {
+          name: {
+            contains: 'burger',
+            mode: 'insensitive',
+          },
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+  
+    const burgerIds = burgerProducts.map((product) => product.id);
+  
+    if (burgerIds.length === 0) {
+      return [];
+    }
+  
+    // Calcula os mais vendidos somente entre os hambúrgueres
+    const popular = await this.prisma.orderItem.groupBy({
+      by: ['productId'],
+      where: {
+        productId: {
+          in: burgerIds,
+        },
+      },
+      _sum: {
+        quantity: true,
+      },
+      orderBy: {
+        _sum: {
+          quantity: 'desc',
+        },
+      },
+      take: limit,
+    });
+  
+    return popular.map((p) => p.productId);
+  }
   async getDashboardStats() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
