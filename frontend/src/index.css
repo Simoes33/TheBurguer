@@ -1619,11 +1619,11 @@ header {
 /* ========================================
    BUSCA INTELIGENTE
    ======================================== */
-.search-bar-wrapper {
-  position: relative;
-  max-width: 480px;
-  margin: 0 auto 2.5rem;
-}
+   .search-bar-wrapper {
+    position: relative;
+    max-width: 480px;
+    margin: 3rem auto 2.5rem;
+  }
 
 .search-bar {
   width: 100%;
