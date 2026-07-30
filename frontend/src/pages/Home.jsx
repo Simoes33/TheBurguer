@@ -468,7 +468,7 @@ export const Home = () => {
 
         {/* ── ESTATÍSTICAS DA MARCA ─────────── */}
 
-        <section
+        {/* <section
           className="stats-strip"
           aria-label="Nossos números"
         >
@@ -503,7 +503,7 @@ export const Home = () => {
             </div>
           </div>
 
-        </section>
+          </section> */}
 
         {/* ── HORÁRIOS ────────────────────── */}
 
