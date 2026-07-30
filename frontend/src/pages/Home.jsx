@@ -1,9 +1,18 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+  useMemo
+} from 'react';
+
 import { Header } from '../components/Header';
 import { CartDrawer } from '../components/CartDrawer';
 import { ProductCard } from '../components/ProductCard';
 import { ProductModal } from '../components/ProductModal';
+import FavoriteBurgers from '../components/FavoriteBurgers';
+
 import api from '../api/axios';
+
 import {
   ArrowDown,
   MagnifyingGlass,
@@ -14,118 +23,206 @@ import {
   MapPin,
   Clock
 } from '@phosphor-icons/react';
-import FavoriteBurgers from "../components/FavoriteBurgers";
+
+
+/*
+ * ========================================
+ * PRODUTOS DE FALLBACK
+ * ========================================
+ */
 
 const FALLBACK_PRODUCTS = [
   {
     id: '1',
     name: 'The Classic',
     description: 'O clássico que nunca erra.',
-    ingredients: 'Blend 180g de Angus, queijo prato, alface americana, tomate e molho especial no brioche.',
+    ingredients:
+      'Blend 180g de Angus, queijo prato, alface americana, tomate e molho especial no brioche.',
     price: 32.90,
-    imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&q=80&w=800',
-    category: { name: 'Burgers' }
+    imageUrl:
+      'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&q=80&w=800',
+    category: {
+      name: 'Burgers'
+    }
   },
+
   {
     id: '2',
     name: 'Double Smash Bacon',
     description: 'Para quem tem fome de verdade.',
-    ingredients: 'Dois smashs de 90g, duplo cheddar, bacon artesanal e cebola caramelizada.',
+    ingredients:
+      'Dois smashs de 90g, duplo cheddar, bacon artesanal e cebola caramelizada.',
     price: 39.90,
-    imageUrl: 'https://images.unsplash.com/photo-1594212691516-069e8f8ddce8?auto=format&fit=crop&q=80&w=800',
-    category: { name: 'Burgers' }
+    imageUrl:
+      'https://images.unsplash.com/photo-1594212691516-069e8f8ddce8?auto=format&fit=crop&q=80&w=800',
+    category: {
+      name: 'Burgers'
+    }
   },
+
   {
     id: '3',
     name: 'Truffle Mushroom',
     description: 'Uma explosão de sabores terrosos.',
-    ingredients: 'Blend 180g, mix de cogumelos salteados, queijo gruyère e maionese trufada.',
+    ingredients:
+      'Blend 180g, mix de cogumelos salteados, queijo gruyère e maionese trufada.',
     price: 45.90,
-    imageUrl: 'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&q=80&w=800',
-    category: { name: 'Burgers' }
+    imageUrl:
+      'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&q=80&w=800',
+    category: {
+      name: 'Burgers'
+    }
   },
+
   {
     id: '4',
     name: 'Crispy Chicken',
     description: 'Frango crocante e suculento.',
-    ingredients: 'Sobrecoxa empanada crocante, coleslaw, picles e maionese de limão siciliano.',
+    ingredients:
+      'Sobrecoxa empanada crocante, coleslaw, picles e maionese de limão siciliano.',
     price: 29.90,
-    imageUrl: 'https://images.unsplash.com/photo-1615887023516-9dfbc8f117ce?auto=format&fit=crop&q=80&w=800',
-    category: { name: 'Burgers' }
+    imageUrl:
+      'https://images.unsplash.com/photo-1615887023516-9dfbc8f117ce?auto=format&fit=crop&q=80&w=800',
+    category: {
+      name: 'Burgers'
+    }
   },
+
   {
     id: '5',
     name: 'Veggie Supreme',
     description: 'Saboroso e 100% vegetal.',
-    ingredients: 'Hambúrguer de grão de bico, rúcula, tomate confit e creme de queijo vegano no pão rústico.',
+    ingredients:
+      'Hambúrguer de grão de bico, rúcula, tomate confit e creme de queijo vegano no pão rústico.',
     price: 34.90,
-    imageUrl: 'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&q=80&w=800',
-    category: { name: 'Burgers' }
+    imageUrl:
+      'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&q=80&w=800',
+    category: {
+      name: 'Burgers'
+    }
   },
+
   {
     id: '6',
     name: 'Fritas Rústicas',
     description: 'O acompanhamento perfeito.',
-    ingredients: 'Batatas rústicas com páprica, alecrim e sal marinho. Acompanha maionese da casa.',
+    ingredients:
+      'Batatas rústicas com páprica, alecrim e sal marinho. Acompanha maionese da casa.',
     price: 18.90,
-    imageUrl: 'https://images.unsplash.com/photo-1576107232684-1279f3908594?auto=format&fit=crop&q=80&w=800',
-    category: { name: 'Porções' }
+    imageUrl:
+      'https://images.unsplash.com/photo-1576107232684-1279f3908594?auto=format&fit=crop&q=80&w=800',
+    category: {
+      name: 'Porções'
+    }
   },
+
   {
     id: '7',
     name: 'Onion Rings',
     description: 'Crocantes por fora, macias por dentro.',
-    ingredients: 'Anéis de cebola empanados e crocantes. Servidos com molho barbecue artesanal.',
+    ingredients:
+      'Anéis de cebola empanados e crocantes. Servidos com molho barbecue artesanal.',
     price: 22.90,
-    imageUrl: 'https://images.unsplash.com/photo-1639024471283-03518883512d?auto=format&fit=crop&q=80&w=800',
-    category: { name: 'Porções' }
+    imageUrl:
+      'https://images.unsplash.com/photo-1639024471283-03518883512d?auto=format&fit=crop&q=80&w=800',
+    category: {
+      name: 'Porções'
+    }
   },
+
   {
     id: '8',
     name: 'Nuggets Artesanais',
     description: 'Feitos com frango de verdade.',
-    ingredients: 'Pedaços de peito de frango empanados em farinha panko. (10 unidades)',
+    ingredients:
+      'Pedaços de peito de frango empanados em farinha panko. (10 unidades)',
     price: 24.90,
-    imageUrl: 'https://images.unsplash.com/photo-1562967914-01efa7e87832?auto=format&fit=crop&q=80&w=800',
-    category: { name: 'Porções' }
+    imageUrl:
+      'https://images.unsplash.com/photo-1562967914-01efa7e87832?auto=format&fit=crop&q=80&w=800',
+    category: {
+      name: 'Porções'
+    }
   },
+
   {
     id: '9',
     name: 'Milkshake de Nutella',
     description: 'Doce na medida certa.',
-    ingredients: 'Sorvete de creme batido com muita Nutella e chantilly fresco.',
+    ingredients:
+      'Sorvete de creme batido com muita Nutella e chantilly fresco.',
     price: 26.90,
-    imageUrl: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&q=80&w=800',
-    category: { name: 'Bebidas' }
+    imageUrl:
+      'https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&q=80&w=800',
+    category: {
+      name: 'Bebidas'
+    }
   },
+
   {
     id: '10',
     name: 'Pink Lemonade',
     description: 'Refrescância total.',
-    ingredients: 'Limonada com xarope de frutas vermelhas e hortelã fresca.',
+    ingredients:
+      'Limonada com xarope de frutas vermelhas e hortelã fresca.',
     price: 14.90,
-    imageUrl: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&q=80&w=800',
-    category: { name: 'Bebidas' }
-  },
+    imageUrl:
+      'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&q=80&w=800',
+    category: {
+      name: 'Bebidas'
+    }
+  }
 ];
 
-export const Home = () => {
-  const [products, setProducts] = useState(FALLBACK_PRODUCTS);
-  const [bestsellerIds, setBestsellerIds] = useState([]);
-  const [activeCategory, setActiveCategory] = useState('Todos');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
-  const [instaPosts, setInstaPosts] = useState([]);
-  const [isStoreOpen, setIsStoreOpen] = useState(true);
-  const [selectedProduct, setSelectedProduct] = useState(null);
 
-  // Controle do carrossel do Instagram
-  const [instaIndex, setInstaIndex] = useState(0);
-  const [instaCardsPerView, setInstaCardsPerView] = useState(4);
+/*
+ * ========================================
+ * HOME
+ * ========================================
+ */
+
+export const Home = () => {
+
+  const [products, setProducts] =
+    useState(FALLBACK_PRODUCTS);
+
+  const [bestsellerIds, setBestsellerIds] =
+    useState([]);
+
+  const [activeCategory, setActiveCategory] =
+    useState('Todos');
+
+  const [searchQuery, setSearchQuery] =
+    useState('');
+
+  const [isLoading, setIsLoading] =
+    useState(true);
+
+  const [instaPosts, setInstaPosts] =
+    useState([]);
+
+  const [isStoreOpen, setIsStoreOpen] =
+    useState(true);
+
+  const [selectedProduct, setSelectedProduct] =
+    useState(null);
+
 
   /*
    * ========================================
-   * INSTAGRAM POSTS
+   * INSTAGRAM
+   * ========================================
+   */
+
+  const [instaIndex, setInstaIndex] =
+    useState(0);
+
+  const [instaCardsPerView, setInstaCardsPerView] =
+    useState(4);
+
+
+  /*
+   * ========================================
+   * POSTS DO INSTAGRAM
    * ========================================
    */
 
@@ -133,40 +230,53 @@ export const Home = () => {
     ? instaPosts.slice(0, 6)
     : [
         'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=800&auto=format&fit=crop',
+
         'https://images.unsplash.com/photo-1550547660-d9450f859349?q=80&w=800&auto=format&fit=crop',
+
         'https://images.unsplash.com/photo-1561758033-d89a9ad46330?q=80&w=800&auto=format&fit=crop',
+
         'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?q=80&w=800&auto=format&fit=crop',
+
         'https://images.unsplash.com/photo-1571091718767-18b5b1457add?q=80&w=800&auto=format&fit=crop',
-        'https://images.unsplash.com/photo-1551782450-a2132b4ba21d?q=80&w=800&auto=format&fit=crop',
+
+        'https://images.unsplash.com/photo-1551782450-a2132b4ba21d?q=80&w=800&auto=format&fit=crop'
       ];
+
 
   /*
    * ========================================
-   * DEFINIR QUANTIDADE DE POSTS VISÍVEIS
+   * RESPONSIVIDADE INSTAGRAM
    * ========================================
-   *
-   * Desktop: 4
-   * Tablet: 3
-   * Mobile: 3
    */
 
   useEffect(() => {
+
     const updateCardsPerView = () => {
+
       if (window.innerWidth <= 1100) {
         setInstaCardsPerView(3);
       } else {
         setInstaCardsPerView(4);
       }
+
     };
 
     updateCardsPerView();
 
-    window.addEventListener('resize', updateCardsPerView);
+    window.addEventListener(
+      'resize',
+      updateCardsPerView
+    );
 
     return () => {
-      window.removeEventListener('resize', updateCardsPerView);
+      window.removeEventListener(
+        'resize',
+        updateCardsPerView
+      );
     };
+
   }, []);
+
 
   /*
    * ========================================
@@ -175,14 +285,23 @@ export const Home = () => {
    */
 
   useEffect(() => {
-    const video = document.querySelector('.hero-video');
+
+    const video =
+      document.querySelector('.hero-video');
 
     if (video) {
-      video.play().catch(e => {
-        console.log('Autoplay blocked', e);
+
+      video.play().catch((error) => {
+        console.log(
+          'Autoplay blocked',
+          error
+        );
       });
+
     }
+
   }, []);
+
 
   /*
    * ========================================
@@ -191,53 +310,87 @@ export const Home = () => {
    */
 
   useEffect(() => {
-    if (instaPostsToShow.length <= instaCardsPerView) {
+
+    if (
+      instaPostsToShow.length <=
+      instaCardsPerView
+    ) {
       return;
     }
 
     const maxIndex =
-      instaPostsToShow.length - instaCardsPerView;
+      instaPostsToShow.length -
+      instaCardsPerView;
 
-    const interval = setInterval(() => {
-      setInstaIndex(prev => {
-        if (prev >= maxIndex) {
-          return 0;
-        }
+    const interval =
+      setInterval(() => {
 
-        return prev + 1;
-      });
-    }, 4000);
+        setInstaIndex((prev) => {
 
-    return () => clearInterval(interval);
+          if (prev >= maxIndex) {
+            return 0;
+          }
+
+          return prev + 1;
+
+        });
+
+      }, 4000);
+
+    return () =>
+      clearInterval(interval);
+
   }, [
     instaPostsToShow.length,
     instaCardsPerView
   ]);
 
+
   /*
    * ========================================
-   * API DATA
+   * CARREGAR DADOS DA API
    * ========================================
    */
 
   useEffect(() => {
+
     let cancelled = false;
 
     Promise.all([
-      api.get('/products').catch(() => ({ data: [] })),
 
-      api.get('/settings/store-status').catch(() => ({
-        data: { isOpen: true }
-      })),
+      api
+        .get('/products')
+        .catch(() => ({
+          data: []
+        })),
 
-      api.get('/instagram/feed').catch(() => ({
-        data: []
-      })),
+      api
+        .get('/settings/store-status')
+        .catch(() => ({
+          data: {
+            isOpen: true
+          }
+        })),
 
-      api.get('/stats/bestsellers?limit=3').catch(() => ({
-        data: []
-      })),
+      api
+        .get('/instagram/feed')
+        .catch(() => ({
+          data: []
+        })),
+
+      /*
+       * IMPORTANTE:
+       * Agora buscamos 3 produtos.
+       */
+
+      api
+        .get('/stats/bestsellers?limit=3')
+        .catch(() => ({
+          data: []
+        }))
+
     ])
+
       .then(([
         productsRes,
         statusRes,
@@ -245,7 +398,14 @@ export const Home = () => {
         bestsellersRes
       ]) => {
 
-        if (cancelled) return;
+        if (cancelled) {
+          return;
+        }
+
+
+        /*
+         * PRODUTOS
+         */
 
         setProducts(
           productsRes.data.length
@@ -253,158 +413,280 @@ export const Home = () => {
             : FALLBACK_PRODUCTS
         );
 
+
+        /*
+         * STATUS DA LOJA
+         */
+
         setIsStoreOpen(
           statusRes.data.isOpen
         );
 
-        if (instaRes.data.length) {
-          setInstaPosts(instaRes.data);
+
+        /*
+         * INSTAGRAM
+         */
+
+        if (
+          instaRes.data.length
+        ) {
+          setInstaPosts(
+            instaRes.data
+          );
         }
 
+
+        /*
+         * MAIS VENDIDOS
+         */
+
         setBestsellerIds(
-          bestsellersRes.data || []
+          Array.isArray(
+            bestsellersRes.data
+          )
+            ? bestsellersRes.data
+            : []
         );
+
       })
+
       .finally(() => {
+
         if (!cancelled) {
           setIsLoading(false);
         }
+
       });
+
 
     return () => {
       cancelled = true;
     };
+
   }, []);
+
 
   /*
    * ========================================
-   * CATEGORY
+   * CATEGORIA
    * ========================================
    */
 
-  const handleCategoryChange = useCallback(
-    cat => setActiveCategory(cat),
-    []
-  );
+  const handleCategoryChange =
+    useCallback(
+      (category) => {
+        setActiveCategory(category);
+      },
+      []
+    );
+
 
   /*
    * ========================================
-   * CATEGORIES
+   * CATEGORIAS
    * ========================================
    */
 
   const categories = useMemo(() => {
+
     return [
       'Todos',
+
       ...new Set(
         products
-          .map(p => p.category?.name)
+          .map(
+            (product) =>
+              product.category?.name
+          )
           .filter(Boolean)
       )
     ];
+
   }, [products]);
+
 
   /*
    * ========================================
-   * FILTER PRODUCTS
+   * FILTRAR PRODUTOS
    * ========================================
    */
 
   const filteredProducts = useMemo(() => {
+
     let result = products;
 
-    if (activeCategory !== 'Todos') {
-      result = result.filter(
-        p => p.category?.name === activeCategory
-      );
+
+    /*
+     * Categoria
+     */
+
+    if (
+      activeCategory !== 'Todos'
+    ) {
+
+      result =
+        result.filter(
+          (product) =>
+            product.category?.name ===
+            activeCategory
+        );
+
     }
 
-    if (searchQuery.trim()) {
-      const q = searchQuery
-        .toLowerCase()
-        .trim();
 
-      result = result.filter(p =>
-        p.name.toLowerCase().includes(q) ||
-        p.description.toLowerCase().includes(q) ||
-        (
-          p.ingredients &&
-          p.ingredients.toLowerCase().includes(q)
-        )
-      );
+    /*
+     * Busca
+     */
+
+    if (
+      searchQuery.trim()
+    ) {
+
+      const query =
+        searchQuery
+          .toLowerCase()
+          .trim();
+
+      result =
+        result.filter(
+          (product) => {
+
+            const name =
+              product.name
+                ?.toLowerCase()
+                .includes(query);
+
+            const description =
+              product.description
+                ?.toLowerCase()
+                .includes(query);
+
+            const ingredients =
+              product.ingredients &&
+              product.ingredients
+                .toLowerCase()
+                .includes(query);
+
+            return (
+              name ||
+              description ||
+              ingredients
+            );
+
+          }
+        );
+
     }
 
     return result;
+
   }, [
     products,
     activeCategory,
     searchQuery
   ]);
 
-  /*
-   * ========================================
-   * INSTAGRAM PREVIOUS
-   * ========================================
-   */
-
-  const handleInstaPrevious = () => {
-    setInstaIndex(prev => {
-      const maxIndex =
-        instaPostsToShow.length -
-        instaCardsPerView;
-
-      if (prev === 0) {
-        return Math.max(0, maxIndex);
-      }
-
-      return prev - 1;
-    });
-  };
 
   /*
    * ========================================
-   * INSTAGRAM NEXT
+   * INSTAGRAM ANTERIOR
    * ========================================
    */
 
-  const handleInstaNext = () => {
-    setInstaIndex(prev => {
-      const maxIndex =
-        instaPostsToShow.length -
-        instaCardsPerView;
+  const handleInstaPrevious =
+    () => {
 
-      if (prev >= maxIndex) {
-        return 0;
-      }
+      setInstaIndex((prev) => {
 
-      return prev + 1;
-    });
-  };
+        const maxIndex =
+          instaPostsToShow.length -
+          instaCardsPerView;
+
+        if (prev === 0) {
+          return Math.max(
+            0,
+            maxIndex
+          );
+        }
+
+        return prev - 1;
+
+      });
+
+    };
+
+
+  /*
+   * ========================================
+   * INSTAGRAM PRÓXIMO
+   * ========================================
+   */
+
+  const handleInstaNext =
+    () => {
+
+      setInstaIndex((prev) => {
+
+        const maxIndex =
+          instaPostsToShow.length -
+          instaCardsPerView;
+
+        if (prev >= maxIndex) {
+          return 0;
+        }
+
+        return prev + 1;
+
+      });
+
+    };
+
+
+  /*
+   * ========================================
+   * RENDER
+   * ========================================
+   */
 
   return (
     <>
+
       <Header />
 
+
+      {/* ==================================
+          LOJA FECHADA
+          ================================== */}
+
       {!isStoreOpen && (
+
         <div
           className="store-closed-banner"
           role="status"
         >
-          ⚠️ Loja Fechada no momento. Aceitamos apenas consultas ao cardápio.
+          ⚠️ Loja Fechada no momento.
+          Aceitamos apenas consultas ao cardápio.
         </div>
+
       )}
+
 
       <CartDrawer />
 
+
       <main>
 
-        {/* ── HERO ────────────────────────── */}
+
+        {/* ==================================
+            HERO
+            ================================== */}
 
         <section
           className="hero"
           id="home"
           aria-label="Destaque principal"
         >
+
           <video
             autoPlay
             loop
@@ -413,13 +695,17 @@ export const Home = () => {
             className="hero-video"
             poster="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&q=80&w=1920"
           >
+
             <source
               src="https://videos.pexels.com/video-files/34556299/14641961_1920_1080_24fps.mp4"
               type="video/mp4"
             />
+
           </video>
 
+
           <div className="hero-bg" />
+
 
           <div className="hero-content">
 
@@ -427,9 +713,13 @@ export const Home = () => {
               Hamburgueria Artesanal
             </span>
 
+
             <h1>
-              O sabor<br />
+              O sabor
+              <br />
+
               da{' '}
+
               <em
                 style={{
                   color: 'var(--ember)',
@@ -438,115 +728,111 @@ export const Home = () => {
               >
                 brasa
               </em>
+
               <br />
+
               na sua mesa.
             </h1>
 
+
             <p>
-              Ingredientes selecionados, carnes nobres e receitas únicas.
-              Uma experiência que vai além do prato.
+              Ingredientes selecionados,
+              carnes nobres e receitas únicas.
+              Uma experiência que vai além
+              do prato.
             </p>
 
+
             <div className="hero-actions">
+
               <a
                 href="#menu"
                 className="btn-primary"
               >
                 Ver Cardápio
               </a>
+
             </div>
 
           </div>
+
 
           <div
             className="hero-scroll"
             aria-hidden="true"
           >
-            Scroll <ArrowDown size={14} />
+            Scroll
+            <ArrowDown size={14} />
           </div>
 
         </section>
 
-        {/* ── ESTATÍSTICAS DA MARCA ─────────── */}
 
-        {/* <section
-          className="stats-strip"
-          aria-label="Nossos números"
-        >
-
-          <div className="stat-item">
-            <div className="stat-number">
-              100%
-            </div>
-
-            <div className="stat-label">
-              Carne Angus Certificada
-            </div>
-          </div>
-
-          <div className="stat-item">
-            <div className="stat-number">
-              +50k
-            </div>
-
-            <div className="stat-label">
-              Burgers Entregues
-            </div>
-          </div>
-
-          <div className="stat-item">
-            <div className="stat-number">
-              4.9★
-            </div>
-
-            <div className="stat-label">
-              Avaliação dos Clientes
-            </div>
-          </div>
-
-          </section> */}
-
-        {/* ── HORÁRIOS ────────────────────── */}
+        {/* ==================================
+            HORÁRIOS / INFORMAÇÕES
+            ================================== */}
 
         <div
           role="complementary"
           aria-label="Horários de funcionamento"
           className="info-strip-wrapper"
         >
+
           <div className="info-strip">
 
             {[
               {
-                label: 'Segunda a Domingo',
-                value: '19h às 23h'
+                label:
+                  'Segunda a Domingo',
+                value:
+                  '19h às 23h'
               },
-              {
-                label: 'Contato',
-                value: '(21) 98507-5154'
-              },
-              {
-                label: 'Siga The Burguer',
-                value: '@the.burguer'
-              },
-            ].map(({ label, value }) => (
-              <div
-                key={label}
-                className="info-strip-item"
-              >
-                <span className="label">
-                  {label}
-                </span>
 
-                <p>
-                  {value}
-                </p>
-              </div>
-            ))}
+              {
+                label:
+                  'Contato',
+                value:
+                  '(21) 98507-5154'
+              },
+
+              {
+                label:
+                  'Siga The Burguer',
+                value:
+                  '@the.burguer'
+              }
+            ].map(
+              ({
+                label,
+                value
+              }) => (
+
+                <div
+                  key={label}
+                  className="info-strip-item"
+                >
+
+                  <span className="label">
+                    {label}
+                  </span>
+
+                  <p>
+                    {value}
+                  </p>
+
+                </div>
+
+              )
+            )}
 
           </div>
+
         </div>
 
-        {/* ── CARDÁPIO ────────────────────── */}
+
+        {/* ==================================
+            CARDÁPIO
+            ================================== */}
 
         <section
           className="menu-section"
@@ -554,14 +840,18 @@ export const Home = () => {
           aria-label="Cardápio"
         >
 
+
           <div className="section-header">
 
             <span className="label">
               Cardápio
             </span>
 
+
             <h2>
+
               Escolha o seu{' '}
+
               <em
                 style={{
                   color: 'var(--ember)',
@@ -570,21 +860,35 @@ export const Home = () => {
               >
                 favorito
               </em>
+
             </h2>
 
+
             <p>
-              Preparado na hora, com ingredientes frescos e muito amor pelo que fazemos.
+              Preparado na hora,
+              com ingredientes frescos
+              e muito amor pelo que fazemos.
             </p>
 
           </div>
 
-          <FavoriteBurgers
-  products={products}
-  bestsellerIds={bestsellerIds}
-  onProductClick={setSelectedProduct}
-/>
 
-          {/* BARRA DE BUSCA */}
+          {/* ==================================
+              FAVORITOS DA CASA
+              ================================== */}
+
+          <FavoriteBurgers
+            products={products}
+            bestsellerIds={bestsellerIds}
+            onProductClick={
+              setSelectedProduct
+            }
+          />
+
+
+          {/* ==================================
+              BUSCA
+              ================================== */}
 
           <div className="search-bar-wrapper">
 
@@ -593,18 +897,23 @@ export const Home = () => {
               className="search-bar"
               placeholder="Buscar por nome, ingrediente ou descrição..."
               value={searchQuery}
-              onChange={e =>
-                setSearchQuery(e.target.value)
+              onChange={(event) =>
+                setSearchQuery(
+                  event.target.value
+                )
               }
               aria-label="Buscar produtos no cardápio"
             />
+
 
             <MagnifyingGlass
               size={18}
               className="search-icon"
             />
 
+
             {searchQuery && (
+
               <button
                 className="search-clear"
                 onClick={() =>
@@ -612,41 +921,60 @@ export const Home = () => {
                 }
                 aria-label="Limpar busca"
               >
+
                 <X size={16} />
+
               </button>
+
             )}
 
           </div>
 
-          {/* TABS DE CATEGORIA */}
+
+          {/* ==================================
+              CATEGORIAS
+              ================================== */}
 
           <div
             className="cat-tabs"
             role="tablist"
             aria-label="Filtrar por categoria"
           >
-            {categories.map(cat => (
-              <button
-                key={cat}
-                role="tab"
-                aria-selected={
-                  activeCategory === cat
-                }
-                className={`cat-tab ${
-                  activeCategory === cat
-                    ? 'active'
-                    : ''
-                }`}
-                onClick={() =>
-                  handleCategoryChange(cat)
-                }
-              >
-                {cat}
-              </button>
-            ))}
+
+            {categories.map(
+              (category) => (
+
+                <button
+                  key={category}
+                  role="tab"
+                  aria-selected={
+                    activeCategory ===
+                    category
+                  }
+                  className={`cat-tab ${
+                    activeCategory ===
+                    category
+                      ? 'active'
+                      : ''
+                  }`}
+                  onClick={() =>
+                    handleCategoryChange(
+                      category
+                    )
+                  }
+                >
+                  {category}
+                </button>
+
+              )
+            )}
+
           </div>
 
-          {/* PRODUTOS */}
+
+          {/* ==================================
+              PRODUTOS
+              ================================== */}
 
           {isLoading ? (
 
@@ -654,39 +982,64 @@ export const Home = () => {
               className="products-grid"
               role="list"
             >
-              {[1, 2, 3, 4, 5, 6].map(i => (
+
+              {[
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+              ].map((item) => (
+
                 <div
-                  key={i}
+                  key={item}
                   className="product-card skeleton"
                   style={{
                     border: 'none'
                   }}
                 >
-                  <div className="skeleton-card"></div>
+
+                  <div className="skeleton-card" />
+
                 </div>
+
               ))}
+
             </div>
 
           ) : filteredProducts.length === 0 ? (
 
             <div className="empty-state">
 
-              <MagnifyingGlass size={48} />
+              <MagnifyingGlass
+                size={48}
+              />
+
 
               <h3>
                 Nenhum produto encontrado
               </h3>
 
+
               <p>
-                Não encontramos nenhum item correspondente a "{searchQuery}".
+                Não encontramos nenhum item
+                correspondente a "
+                {searchQuery}".
                 Tente buscar por outros termos.
               </p>
+
 
               <button
                 className="btn-outline"
                 onClick={() => {
+
                   setSearchQuery('');
-                  setActiveCategory('Todos');
+
+                  setActiveCategory(
+                    'Todos'
+                  );
+
                 }}
               >
                 Ver Todo o Cardápio
@@ -700,36 +1053,52 @@ export const Home = () => {
               className="products-grid"
               role="list"
             >
-              {filteredProducts.map(product => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  onClick={setSelectedProduct}
-                  isBestseller={
-                    bestsellerIds.includes(
-                      product.id
-                    )
-                  }
-                />
-              ))}
+
+              {filteredProducts.map(
+                (product) => (
+
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    onClick={
+                      setSelectedProduct
+                    }
+                    isBestseller={
+                      bestsellerIds.includes(
+                        product.id
+                      )
+                    }
+                  />
+
+                )
+              )}
+
             </div>
 
           )}
 
         </section>
 
-        {/* ── MODAL DO PRODUTO ───────────── */}
+
+        {/* ==================================
+            MODAL DO PRODUTO
+            ================================== */}
 
         {selectedProduct && (
+
           <ProductModal
             product={selectedProduct}
             onClose={() =>
               setSelectedProduct(null)
             }
           />
+
         )}
 
-        {/* ── INSTAGRAM FEED ─────────────── */}
+
+        {/* ==================================
+            INSTAGRAM
+            ================================== */}
 
         <section
           className="instagram-section"
@@ -742,8 +1111,11 @@ export const Home = () => {
               Social
             </span>
 
+
             <h2>
+
               Siga{' '}
+
               <em
                 style={{
                   color: 'var(--ember)',
@@ -752,57 +1124,74 @@ export const Home = () => {
               >
                 @TheBurguer
               </em>
+
             </h2>
 
+
             <p>
-              Acompanhe nossos bastidores e novidades em tempo real.
+              Acompanhe nossos bastidores
+              e novidades em tempo real.
             </p>
 
           </div>
 
+
           <div className="insta-carousel">
+
 
             {/* SETA ANTERIOR */}
 
             <button
               type="button"
               className="insta-arrow insta-arrow-prev"
-              onClick={handleInstaPrevious}
+              onClick={
+                handleInstaPrevious
+              }
               aria-label="Post anterior"
             >
               ‹
             </button>
 
-            {/* ÁREA VISÍVEL */}
+
+            {/* VIEWPORT */}
 
             <div className="insta-viewport">
 
               <div
                 className="insta-track"
                 style={{
-                  transform: `translateX(-${
-                    instaIndex *
-                    (100 / instaCardsPerView)
-                  }%)`
+                  transform:
+                    `translateX(-${
+                      instaIndex *
+                      (
+                        100 /
+                        instaCardsPerView
+                      )
+                    }%)`
                 }}
               >
 
                 {instaPostsToShow.map(
-                  (post, i) => {
+                  (post, index) => {
 
                     const url =
-                      typeof post === 'string'
+                      typeof post ===
+                      'string'
                         ? post
                         : post.url;
 
+
                     const permalink =
-                      typeof post === 'string'
+                      typeof post ===
+                      'string'
                         ? 'https://www.instagram.com/hamburgueria.theburguer/'
                         : post.permalink;
 
+
                     return (
+
                       <a
-                        key={i}
+                        key={index}
                         href={permalink}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -811,18 +1200,25 @@ export const Home = () => {
 
                         <img
                           src={url}
-                          alt={`Instagram post ${i + 1}`}
+                          alt={`Instagram post ${
+                            index + 1
+                          }`}
                           loading="lazy"
                         />
 
+
                         <div className="insta-overlay">
+
                           <span>
                             Ver no Instagram
                           </span>
+
                         </div>
 
                       </a>
+
                     );
+
                   }
                 )}
 
@@ -830,12 +1226,15 @@ export const Home = () => {
 
             </div>
 
+
             {/* SETA PRÓXIMA */}
 
             <button
               type="button"
               className="insta-arrow insta-arrow-next"
-              onClick={handleInstaNext}
+              onClick={
+                handleInstaNext
+              }
               aria-label="Próximo post"
             >
               ›
@@ -845,11 +1244,17 @@ export const Home = () => {
 
         </section>
 
-        {/* ── FOOTER ─────────────────────── */}
+
+        {/* ==================================
+            FOOTER
+            ================================== */}
 
         <footer className="footer-main">
 
           <div className="footer-grid">
+
+
+            {/* MARCA */}
 
             <div className="footer-brand">
 
@@ -862,6 +1267,7 @@ export const Home = () => {
                 />
 
                 THE
+
                 <em
                   style={{
                     color: 'var(--ember)',
@@ -873,18 +1279,26 @@ export const Home = () => {
 
               </div>
 
+
               <p>
-                Hamburgueria artesanal comprometida com a excelência do fogo,
-                trazendo a experiência autêntica do churrasco diretamente para o seu prato.
+                Hamburgueria artesanal
+                comprometida com a excelência
+                do fogo, trazendo a experiência
+                autêntica do churrasco diretamente
+                para o seu prato.
               </p>
 
             </div>
+
+
+            {/* NAVEGAÇÃO */}
 
             <div className="footer-col">
 
               <h4>
                 Navegação
               </h4>
+
 
               <ul className="footer-links">
 
@@ -894,11 +1308,13 @@ export const Home = () => {
                   </a>
                 </li>
 
+
                 <li>
                   <a href="#menu">
                     Cardápio
                   </a>
                 </li>
+
 
                 <li>
                   <a href="/login">
@@ -910,11 +1326,15 @@ export const Home = () => {
 
             </div>
 
+
+            {/* ATENDIMENTO */}
+
             <div className="footer-col">
 
               <h4>
                 Atendimento
               </h4>
+
 
               <ul className="footer-links">
 
@@ -925,13 +1345,17 @@ export const Home = () => {
                     gap: '0.5rem'
                   }}
                 >
+
                   <Clock
                     size={16}
                     color="var(--gold)"
                   />
 
-                  Segunda a Domingo: 19h - 23h
+                  Segunda a Domingo:
+                  19h - 23h
+
                 </li>
+
 
                 <li
                   style={{
@@ -940,13 +1364,16 @@ export const Home = () => {
                     gap: '0.5rem'
                   }}
                 >
+
                   <MapPin
                     size={16}
                     color="var(--gold)"
                   />
 
                   Rio de Janeiro, RJ
+
                 </li>
+
 
                 <li
                   style={{
@@ -955,12 +1382,14 @@ export const Home = () => {
                     gap: '0.5rem'
                   }}
                 >
+
                   <WhatsappLogo
                     size={16}
                     color="#25D366"
                   />
 
                   (21) 98507-5154
+
                 </li>
 
               </ul>
@@ -969,12 +1398,18 @@ export const Home = () => {
 
           </div>
 
+
+          {/* FOOTER BOTTOM */}
+
           <div className="footer-bottom">
 
             <p>
-              © {new Date().getFullYear()} The Burguer.
+              © {new Date().getFullYear()}
+              {' '}
+              The Burguer.
               Todos os direitos reservados.
             </p>
+
 
             <div className="social-links">
 
@@ -985,8 +1420,13 @@ export const Home = () => {
                 className="social-link"
                 aria-label="Instagram"
               >
-                <InstagramLogo size={18} />
+
+                <InstagramLogo
+                  size={18}
+                />
+
               </a>
+
 
               <a
                 href="https://wa.me/5521985075154"
@@ -995,7 +1435,11 @@ export const Home = () => {
                 className="social-link"
                 aria-label="WhatsApp"
               >
-                <WhatsappLogo size={18} />
+
+                <WhatsappLogo
+                  size={18}
+                />
+
               </a>
 
             </div>
@@ -1005,6 +1449,7 @@ export const Home = () => {
         </footer>
 
       </main>
+
     </>
   );
 };
