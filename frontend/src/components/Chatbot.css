@@ -420,8 +420,9 @@ box-shadow:0 2px 10px rgba(200,64,26,.3);
 
 .quick-actions{
 
-
 display:flex;
+
+flex-wrap:wrap;
 
 gap:8px;
 
@@ -438,8 +439,9 @@ flex-shrink:0;
 
 .quick-actions button{
 
+flex:1 1 calc(50% - 4px);
 
-flex:1;
+min-width:80px;
 
 border:1px solid var(--border);
 
