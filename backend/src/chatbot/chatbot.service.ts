@@ -193,7 +193,7 @@ ${products.map(p => `${p.name} - R$ ${p.price.toFixed(2)}`).join("\n")}
 
     if (message.includes("horario")) {
       return {
-        reply: "🕒 Funcionamos todos os dias das 18h às 23h."
+        reply: "🕒 Funcionamos de Terça a Domingo, das 19h às 23h."
       };
     }
 
