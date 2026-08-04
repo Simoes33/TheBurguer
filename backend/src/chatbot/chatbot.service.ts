@@ -1,64 +1,110 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { ChatbotMessageDto } from './dto/chatbot-message.dto';
 
+const MAX_ORDER_ATTEMPTS = 3;
+const INACTIVITY_LIMIT_MS = 5 * 60 * 1000; // 5 minutos
+
+const EXIT_KEYWORDS = ['cancelar', 'sair', 'voltar', 'menu', 'reiniciar', 'inicio', 'início'];
+
+const MENU_TEXT = `
+Olá! 🍔 Sou o assistente da The Burguer.
+
+Posso ajudar com:
+
+🍔 Cardápio
+📦 Acompanhar pedido
+🕒 Horários
+`;
+
 @Injectable()
 export class ChatbotService {
-  private readonly logger = new Logger(ChatbotService.name);
 
   constructor(private prisma: PrismaService) {}
 
   async process(dto: ChatbotMessageDto) {
-    try {
-      return await this.handleMessage(dto);
-    } catch (err) {
-      // Nunca deixa uma exceção crua virar 500 pro usuário final do chat.
-      // O erro completo vai pro log do servidor pra investigação.
-      this.logger.error(`Falha ao processar mensagem do chatbot: ${err.message}`, err.stack);
-      return {
-        reply: 'Desculpe, tive um problema técnico agora. Pode tentar de novo em instantes?'
-      };
-    }
-  }
 
-  private async handleMessage(dto: ChatbotMessageDto) {
     const message = dto.message
       .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, ''); // remove acentos (á, ã, é, ó, etc.)
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, ""); // remove acentos
 
-    // Normaliza userId: trata null (usuário não logado) e undefined da mesma forma,
-    // evitando passar `null` explícito pro Prisma quando o campo não aceitar isso.
-    const userId = dto.userId ?? undefined;
+    // BUSCA SESSÃO
 
-    // ─── BUSCA SESSÃO ────────────────────────────────────────
     let session = await this.prisma.chatSession.findFirst({
-      where: { userId }
+      where: { userId: dto.userId }
     });
 
     if (!session) {
       session = await this.prisma.chatSession.create({
-        data: { userId, state: 'START' }
+        data: { userId: dto.userId, state: "START" }
       });
     }
 
+    // Reset por inatividade — se ficou parado no meio do fluxo de pedido
+    if (session.state === "WAIT_ORDER") {
+      const idleTime = Date.now() - new Date(session.updatedAt).getTime();
+
+      if (idleTime > INACTIVITY_LIMIT_MS) {
+        session = await this.prisma.chatSession.update({
+          where: { id: session.id },
+          data: { state: "START", attempts: 0 }
+        });
+      }
+    }
+
+    // Palavras de saída — funcionam em QUALQUER estado, a qualquer momento
+    const isExitRequest = EXIT_KEYWORDS.some(keyword => message.includes(keyword));
+
+    if (isExitRequest && session.state !== "START") {
+      await this.prisma.chatSession.update({
+        where: { id: session.id },
+        data: { state: "START", attempts: 0 }
+      });
+
+      return {
+        reply: `Sem problemas, voltando ao menu principal! 👍\n${MENU_TEXT}`
+      };
+    }
+
+    // Se está esperando um código de pedido, mas a mensagem parece ser
+    // outra intenção (cardápio/horário/pedido novo), sai do fluxo sozinho
+    // em vez de travar tentando interpretar como código.
+    const looksLikeOtherIntent =
+      message.includes("cardapio") ||
+      message.includes("menu") ||
+      message.includes("horario") ||
+      message.includes("pedido");
+
+    if (session.state === "WAIT_ORDER" && looksLikeOtherIntent) {
+      session = await this.prisma.chatSession.update({
+        where: { id: session.id },
+        data: { state: "START", attempts: 0 }
+      });
+      // segue o fluxo normal abaixo, já com o estado resetado
+    }
+
     /*
-      ==========================
-      FLUXO PEDIDO
-      ==========================
+    ==========================
+    FLUXO PEDIDO
+    ==========================
     */
-    if (session.state === 'WAIT_ORDER') {
+
+    if (session.state === "WAIT_ORDER") {
+
       const orderId = dto.message.replace('#', '').trim();
 
       const order = await this.prisma.order.findUnique({
         where: { id: orderId },
-        include: { items: { include: { product: true } } }
+        include: {
+          items: { include: { product: true } }
+        }
       });
 
       if (order) {
         await this.prisma.chatSession.update({
           where: { id: session.id },
-          data: { state: 'START' }
+          data: { state: "START", attempts: 0 }
         });
 
         return {
@@ -73,22 +119,42 @@ R$ ${order.total.toFixed(2)}
 
 Itens:
 
-${order.items.map(item => `${item.quantity}x ${item.product.name}`).join('\n')}
+${order.items.map(item => `${item.quantity}x ${item.product.name}`).join("\n")}
 `
         };
       }
 
+      const attempts = session.attempts + 1;
+
+      if (attempts >= MAX_ORDER_ATTEMPTS) {
+        await this.prisma.chatSession.update({
+          where: { id: session.id },
+          data: { state: "START", attempts: 0 }
+        });
+
+        return {
+          reply: `Não consegui localizar esse pedido depois de algumas tentativas. Vamos voltar ao menu principal — pode tentar de novo quando quiser! 🙂\n${MENU_TEXT}`
+        };
+      }
+
+      await this.prisma.chatSession.update({
+        where: { id: session.id },
+        data: { attempts }
+      });
+
       return {
-        reply: '❌ Não encontrei esse pedido. Verifique o código informado.'
+        reply: `❌ Não encontrei esse pedido. Verifique o código, ou digite "cancelar" para voltar ao menu. (Tentativa ${attempts}/${MAX_ORDER_ATTEMPTS})`
       };
     }
 
     /*
-      ==========================
-      CARDÁPIO
-      ==========================
+    ==========================
+    CARDÁPIO
+    ==========================
     */
-    if (message.includes('cardapio') || message.includes('menu')) {
+
+    if (message.includes("cardapio") || message.includes("menu")) {
+
       const products = await this.prisma.product.findMany({
         select: { name: true, price: true }
       });
@@ -97,48 +163,42 @@ ${order.items.map(item => `${item.quantity}x ${item.product.name}`).join('\n')}
         reply: `
 🍔 Nosso cardápio:
 
-${products.map(p => `${p.name} - R$ ${p.price.toFixed(2)}`).join('\n')}
+${products.map(p => `${p.name} - R$ ${p.price.toFixed(2)}`).join("\n")}
 `
       };
     }
 
     /*
-      ==========================
-      PEDIDO
-      ==========================
+    ==========================
+    PEDIDO
+    ==========================
     */
-    if (message.includes('pedido')) {
+
+    if (message.includes("pedido")) {
       await this.prisma.chatSession.update({
         where: { id: session.id },
-        data: { state: 'WAIT_ORDER' }
+        data: { state: "WAIT_ORDER", attempts: 0 }
       });
 
       return {
-        reply: '📦 Claro! Informe o código do seu pedido.'
+        reply: "📦 Claro! Informe o código do seu pedido. (Ou digite \"cancelar\" a qualquer momento para voltar ao menu.)"
       };
     }
 
     /*
-      ==========================
-      HORÁRIO
-      ==========================
+    ==========================
+    HORÁRIO
+    ==========================
     */
-    if (message.includes('horario')) {
+
+    if (message.includes("horario")) {
       return {
-        reply: '🕒 Funcionamos todos os dias das 18h às 23h.'
+        reply: "🕒 Funcionamos todos os dias das 18h às 23h."
       };
     }
 
     return {
-      reply: `
-Olá! 🍔 Sou o assistente da The Burguer.
-
-Posso ajudar com:
-
-🍔 Cardápio
-📦 Acompanhar pedido
-🕒 Horários
-`
+      reply: MENU_TEXT
     };
   }
 }
