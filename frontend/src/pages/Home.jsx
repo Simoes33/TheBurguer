@@ -1342,7 +1342,7 @@ export const Home = () => {
                     color="var(--gold)"
                   />
 
-                  Segunda a Domingo:
+                  Quarta a Domingo:
                   19h - 23h
 
                 </li>
