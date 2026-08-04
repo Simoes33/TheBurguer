@@ -1,13 +1,14 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useContext } from 'react';
 
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider, AuthContext } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartContext';
 import { ToastProvider } from './contexts/ToastContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 
 import { Home } from './pages/Home';
-import { Cardapio } from './pages/Cardapio';
 import { MenuKiosk } from './pages/MenuKiosk';
+import { Cardapio } from './pages/Cardapio';
 
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
@@ -16,10 +17,6 @@ import { OrderTracking } from './pages/OrderTracking';
 import { MyOrders } from './pages/MyOrders';
 import { Profile } from './pages/Profile';
 import { NotFound } from './pages/NotFound';
-
-import { useContext } from 'react';
-import { AuthContext } from './contexts/AuthContext';
-import { Navigate } from 'react-router-dom';
 
 import Chatbot from './components/Chatbot';
 
@@ -51,13 +48,13 @@ function App() {
             <Router>
               <Routes>
 
-                {/* DELIVERY */}
+                {/* DELIVERY - HOME PRINCIPAL */}
                 <Route path="/" element={<Home />} />
 
-                {/* MENU DE ESCOLHA */}
+                {/* TELA DE ESCOLHA */}
                 <Route path="/kiosk" element={<MenuKiosk />} />
 
-                {/* RESTAURANTE */}
+                {/* CARDÁPIO PARA CLIENTE NO RESTAURANTE */}
                 <Route path="/cardapio" element={<Cardapio />} />
 
                 {/* AUTENTICAÇÃO */}
