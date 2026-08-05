@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState, useRef } from 'react';
 import { AuthContext } from '../contexts/AuthContext';
 import { Navigate, Link } from 'react-router-dom';
 import api from '../api/axios';
-import { Flame, Package, CheckCircle, Clock, ShoppingCart, List, ChartBar, Storefront, TrendUp } from '@phosphor-icons/react';
+import { Flame, Package, CheckCircle, Clock, ShoppingCart, List, ChartBar, Storefront, TrendUp, Printer } from '@phosphor-icons/react';
 import { ProductManagement } from '../components/ProductManagement';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from 'recharts';
 import { useToast } from '../contexts/ToastContext';
@@ -478,10 +478,74 @@ export const AdminDashboard = () => {
           >
             <ChartBar size={18} /> <span className="adb-tab-label">Relatórios</span>
           </button>
+          <button
+            onClick={() => setActiveTab('printer')}
+            className="adb-tab-btn"
+            style={{
+              background: activeTab === 'printer' ? 'var(--bg-2)' : 'var(--bg-3)',
+              color: activeTab === 'printer' ? 'var(--ember)' : 'var(--text-muted)',
+            }}
+          >
+            <Printer size={18} /> <span className="adb-tab-label">Impressão</span>
+          </button>
         </div>
 
         {activeTab === 'products' ? (
           <ProductManagement />
+        ) : activeTab === 'printer' ? (
+          <div style={{ animation: 'fadeIn 0.3s ease', background: 'var(--bg-2)', border: '1px solid var(--border)', padding: '2.5rem', borderRadius: '4px', maxWidth: '800px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
+              <div style={{ background: 'rgba(200, 64, 26, 0.15)', padding: '1rem', borderRadius: '8px', color: 'var(--ember)' }}>
+                <Printer size={32} />
+              </div>
+              <div>
+                <h2 style={{ fontFamily: 'var(--serif)', fontSize: '1.6rem', color: 'var(--text)', margin: 0 }}>Print Agent — Impressão Automática</h2>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', margin: '0.3rem 0 0 0' }}>Aplicativo Android para conectar impressoras térmicas Bluetooth (Knup KP-1025) ao sistema.</p>
+              </div>
+            </div>
+
+            <div style={{ background: 'var(--bg-3)', border: '1px solid var(--border)', padding: '1.5rem', borderRadius: '4px', marginBottom: '2rem' }}>
+              <h3 style={{ fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ember)', marginTop: 0, marginBottom: '1rem' }}>Instalação do Aplicativo Android</h3>
+              <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', lineHeight: '1.6', marginBottom: '1.5rem' }}>
+                Clique no botão abaixo para baixar o instalador oficial do <strong>Print Agent (.APK)</strong> diretamente no tablet ou celular Android da cozinha.
+              </p>
+
+              <a
+                href="/downloads/print-agent.apk"
+                download="the-burguer-print-agent.apk"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.8rem',
+                  background: 'var(--ember)',
+                  color: '#ffffff',
+                  padding: '1rem 2rem',
+                  borderRadius: '4px',
+                  fontWeight: 600,
+                  fontSize: '0.88rem',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                  textDecoration: 'none',
+                  boxShadow: '0 4px 15px rgba(200,64,26,0.3)',
+                  transition: 'all 0.2s',
+                }}
+              >
+                <Printer size={22} />
+                Baixar Print Agent (Arquivo APK)
+              </a>
+            </div>
+
+            <div style={{ borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
+              <h4 style={{ fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text)', marginBottom: '1rem' }}>Passos para Configuração na Loja:</h4>
+              <ol style={{ color: 'var(--text-muted)', fontSize: '0.85rem', lineHeight: '1.8', paddingLeft: '1.2rem', margin: 0 }}>
+                <li>Abra este painel no tablet ou celular Android da loja e clique no botão de download acima.</li>
+                <li>Abra o arquivo <code>the-burguer-print-agent.apk</code> baixado e confirme a instalação (permita fontes desconhecidas se solicitado).</li>
+                <li>Ligue a impressora <strong>Knup KP-1025</strong> e pareie via Bluetooth no Android (PIN: <code>0000</code> ou <code>1234</code>).</li>
+                <li>Abra o app <strong>Print Agent</strong>, acesse as configurações ⚙️, selecione a Knup KP-1025 e salve.</li>
+                <li>Pronto! Todos os novos pedidos serão impressos automaticamente assim que realizados.</li>
+              </ol>
+            </div>
+          </div>
         ) : activeTab === 'stats' ? (
           <div style={{ animation: 'fadeIn 0.3s ease' }}>
             {!dashboardData ? (
