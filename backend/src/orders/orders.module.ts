@@ -3,7 +3,7 @@ import { OrdersService } from './orders.service';
 import { OrdersController } from './orders.controller';
 import { PrismaModule } from '../prisma/prisma.module';
 import { SettingsModule } from '../settings/settings.module';
-import { PrinterModule } from './printer/printer.module';
+import { PrinterModule } from '../printer/printer.module';
 
 @Module({
   imports: [PrismaModule, SettingsModule,PrinterModule],

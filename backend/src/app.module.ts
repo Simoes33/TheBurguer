@@ -15,7 +15,7 @@ import { StatsModule } from './stats/stats.module';
 import { SettingsModule } from './settings/settings.module';
 import { SseModule } from './common/sse/sse.module';
 import { SseController } from './common/sse/sse.controller';
-import { PrinterModule } from './orders/printer/printer.module';
+import { PrinterModule } from './printer/printer.module';
 import { ChatbotModule } from './chatbot/chatbot.module';
 import { PushModule } from './push/push.module';
 

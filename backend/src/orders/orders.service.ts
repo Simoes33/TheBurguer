@@ -4,7 +4,7 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { OrderStatus } from '@prisma/client';
 import { SettingsService } from '../settings/settings.service';
 import { SseService } from '../common/sse/sse.service';
-import { PrinterService } from './printer/printer.service';
+import { PrinterService } from '../printer/services/printer.service';
 
 
 @Injectable()
@@ -179,14 +179,14 @@ export class OrdersService {
 
 
 
-    // ============================
-    // Impressão automática cozinha
-    // ============================
+    // ====================================
+    // Envio ao Print Agent (assíncrono)
+    // ====================================
 
     try {
 
 
-      await this.printerService.printOrder(order);
+      await this.printerService.sendOrder(order);
 
 
 
@@ -194,12 +194,12 @@ export class OrdersService {
 
 
       console.error(
-        'Erro ao imprimir pedido:',
+        'Erro ao encaminhar pedido ao Print Agent:',
         error
       );
 
 
-      // Não cancela o pedido se a Zebra falhar
+      // Não cancela o pedido se o Agent não estiver disponível
 
     }
 
