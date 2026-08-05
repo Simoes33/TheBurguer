@@ -8,12 +8,12 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { useToast } from '../contexts/ToastContext';
 
 const STATUS_MAP = {
-  PENDING:   { label: 'Pendente',   color: '#BFA06A', bg: 'rgba(191,160,106,0.15)' },
+  PENDING: { label: 'Pendente', color: '#BFA06A', bg: 'rgba(191,160,106,0.15)' },
   PREPARING: { label: 'Preparando', color: '#4EA8DE', bg: 'rgba(78,168,222,0.15)' },
-  READY:     { label: 'Pronto',     color: '#56CF87', bg: 'rgba(86,207,135,0.15)' },
+  READY: { label: 'Pronto', color: '#56CF87', bg: 'rgba(86,207,135,0.15)' },
   OUT_FOR_DELIVERY: { label: 'Saiu para Entrega', color: 'var(--ember)', bg: 'rgba(200, 64, 26, 0.15)' },
-  DELIVERED: { label: 'Entregue',   color: '#807870', bg: 'rgba(128,120,112,0.1)' },
-  CANCELLED: { label: 'Cancelado',  color: '#C8401A', bg: 'rgba(200,64,26,0.12)' },
+  DELIVERED: { label: 'Entregue', color: '#807870', bg: 'rgba(128,120,112,0.1)' },
+  CANCELLED: { label: 'Cancelado', color: '#C8401A', bg: 'rgba(200,64,26,0.12)' },
 };
 
 // Estilos globais do dashboard, incluindo os breakpoints responsivos.
@@ -354,7 +354,7 @@ export const AdminDashboard = () => {
         const res = await api.get('/orders');
         const newCount = res.data.length;
         if (newCount > prevOrdersCount.current) {
-          notificationSound.current.play().catch(() => {});
+          notificationSound.current.play().catch(() => { });
         }
         prevOrdersCount.current = newCount;
         setOrders(res.data);
@@ -511,7 +511,7 @@ export const AdminDashboard = () => {
               </p>
 
               <a
-                href="/downloads/print-agent.apk"
+                href="https://github.com/Simoes33/TheBurguer/releases/download/print-agent-v1.0/the-burguer-print-agent.apk"
                 download="the-burguer-print-agent.apk"
                 style={{
                   display: 'inline-flex',
@@ -599,9 +599,9 @@ export const AdminDashboard = () => {
             <div className="adb-stats-grid">
               {[
                 { label: 'Total de Pedidos', value: stats.total, icon: <Package size={18} /> },
-                { label: 'Pendentes',        value: stats.pending,  icon: <Clock size={18} />, color: '#BFA06A' },
-                { label: 'Preparando',       value: stats.preparing, icon: <Flame size={18} />, color: '#4EA8DE' },
-                { label: 'Prontos',          value: stats.ready,  icon: <CheckCircle size={18} />, color: '#56CF87' },
+                { label: 'Pendentes', value: stats.pending, icon: <Clock size={18} />, color: '#BFA06A' },
+                { label: 'Preparando', value: stats.preparing, icon: <Flame size={18} />, color: '#4EA8DE' },
+                { label: 'Prontos', value: stats.ready, icon: <CheckCircle size={18} />, color: '#56CF87' },
               ].map(s => (
                 <div key={s.label}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.8rem' }}>
