@@ -511,7 +511,7 @@ export const AdminDashboard = () => {
               </p>
 
               <a
-                href="https://github.com/Simoes33/TheBurguer/releases/download/print-agent-v1.0/the-burguer-print-agent.apk"
+                href="https://github.com/Simoes33/TheBurguer/releases/download/print-agent/app-release.apk"
                 download="the-burguer-print-agent.apk"
                 style={{
                   display: 'inline-flex',
