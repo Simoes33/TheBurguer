@@ -16,6 +16,8 @@ import { RegisterAgentDto } from '../dto/register-agent.dto';
 import { PrintResultDto } from '../dto/print-result.dto';
 
 
+import { OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+
 @WebSocketGateway({
   /**
    * Namespace dedicado para Print Agents.
@@ -32,7 +34,7 @@ import { PrintResultDto } from '../dto/print-result.dto';
   },
 })
 export class PrinterGateway
-  implements OnGatewayConnection, OnGatewayDisconnect
+  implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit, OnModuleDestroy
 {
   @WebSocketServer()
   private readonly server: Server;
@@ -41,9 +43,38 @@ export class PrinterGateway
 
   /**
    * Mapa de agents conectados, indexado pelo socketId.
-   * Futuramente pode ser migrado para Redis para suporte multi-instância.
    */
   private readonly connectedAgents = new Map<string, PrinterAgent>();
+  private cleanupInterval: NodeJS.Timeout | null = null;
+
+  onModuleInit(): void {
+    // Varredura a cada 60s para remover agents inativos (sem heartbeat por mais de 90s)
+    this.cleanupInterval = setInterval(() => {
+      const now = Date.now();
+      const TIMEOUT_MS = 90000; // 90 segundos
+
+      for (const [socketId, agent] of this.connectedAgents.entries()) {
+        const elapsed = now - agent.lastHeartbeat.getTime();
+        if (elapsed > TIMEOUT_MS) {
+          this.logger.warn(
+            `⚠️ Agent inativo removido (zombie connection) — deviceId: ${agent.deviceId} | sem heartbeat há ${Math.round(elapsed / 1000)}s`,
+          );
+          this.connectedAgents.delete(socketId);
+          try {
+            const socket = this.server.sockets.sockets.get(socketId);
+            socket?.disconnect(true);
+          } catch { /* ignora */ }
+        }
+      }
+    }, 60000);
+  }
+
+  onModuleDestroy(): void {
+    if (this.cleanupInterval) {
+      clearInterval(this.cleanupInterval);
+      this.cleanupInterval = null;
+    }
+  }
 
 
   // ─── Ciclo de vida da conexão ────────────────────────────────────────────────
