@@ -7,7 +7,7 @@ export interface AgentConfig {
 }
 
 export const DEFAULT_CONFIG: AgentConfig = {
-  backendUrl: 'https://the-burguer-backend.onrender.com', // Altere para a URL real do backend se necessário
+  backendUrl: 'https://theburguer.onrender.com', // Altere para a URL real do backend se necessário
   storeId: 'default',
   deviceId: '',
 };
