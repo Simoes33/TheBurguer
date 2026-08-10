@@ -229,18 +229,18 @@ export const Home = () => {
   const instaPostsToShow = instaPosts.length
     ? instaPosts.slice(0, 6)
     : [
-        'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=800&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=800&auto=format&fit=crop',
 
-        'https://images.unsplash.com/photo-1550547660-d9450f859349?q=80&w=800&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1550547660-d9450f859349?q=80&w=800&auto=format&fit=crop',
 
-        'https://images.unsplash.com/photo-1561758033-d89a9ad46330?q=80&w=800&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1561758033-d89a9ad46330?q=80&w=800&auto=format&fit=crop',
 
-        'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?q=80&w=800&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?q=80&w=800&auto=format&fit=crop',
 
-        'https://images.unsplash.com/photo-1571091718767-18b5b1457add?q=80&w=800&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1571091718767-18b5b1457add?q=80&w=800&auto=format&fit=crop',
 
-        'https://images.unsplash.com/photo-1551782450-a2132b4ba21d?q=80&w=800&auto=format&fit=crop'
-      ];
+      'https://images.unsplash.com/photo-1551782450-a2132b4ba21d?q=80&w=800&auto=format&fit=crop'
+    ];
 
 
   /*
@@ -888,12 +888,11 @@ export const Home = () => {
                     activeCategory ===
                     category
                   }
-                  className={`cat-tab ${
-                    activeCategory ===
-                    category
+                  className={`cat-tab ${activeCategory ===
+                      category
                       ? 'active'
                       : ''
-                  }`}
+                    }`}
                   onClick={() =>
                     handleCategoryChange(
                       category
@@ -1032,11 +1031,11 @@ export const Home = () => {
 
         )}
 
-         {/* ==================================
+        {/* ==================================
             HORÁRIOS / INFORMAÇÕES
             ================================== */}
 
-<div
+        <div
           role="complementary"
           aria-label="Horários de funcionamento"
           className="info-strip-wrapper"
@@ -1152,12 +1151,11 @@ export const Home = () => {
                 className="insta-track"
                 style={{
                   transform:
-                    `translateX(-${
-                      instaIndex *
-                      (
-                        100 /
-                        instaCardsPerView
-                      )
+                    `translateX(-${instaIndex *
+                    (
+                      100 /
+                      instaCardsPerView
+                    )
                     }%)`
                 }}
               >
@@ -1167,14 +1165,14 @@ export const Home = () => {
 
                     const url =
                       typeof post ===
-                      'string'
+                        'string'
                         ? post
                         : post.url;
 
 
                     const permalink =
                       typeof post ===
-                      'string'
+                        'string'
                         ? 'https://www.instagram.com/hamburgueria.theburguer/'
                         : post.permalink;
 
@@ -1191,9 +1189,8 @@ export const Home = () => {
 
                         <img
                           src={url}
-                          alt={`Instagram post ${
-                            index + 1
-                          }`}
+                          alt={`Instagram post ${index + 1
+                            }`}
                           loading="lazy"
                         />
 
@@ -1308,7 +1305,7 @@ export const Home = () => {
 
 
                 <li>
-                  <a href="/login">
+                  <a href="/profile">
                     Área do Cliente
                   </a>
                 </li>
