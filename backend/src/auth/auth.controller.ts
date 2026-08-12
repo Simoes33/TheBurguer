@@ -19,12 +19,16 @@ export class AuthController {
   }
 
   @Post('register')
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
+  @ApiOperation({ summary: 'Registro de novo cliente' })
   async register(@Body() createUserDto: CreateUserDto) {
     return this.authService.register(createUserDto);
   }
 
   @Post('social')
   @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @ApiOperation({ summary: 'Login via provedor social' })
   async socialLogin(@Body('token') token: string, @Body('provider') provider: string) {
     return this.authService.socialLogin(token, provider);
   }
