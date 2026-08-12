@@ -3,6 +3,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { StorageService } from '../storage/storage.service';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
+import { UpdateProductDto } from './dto/update-product.dto';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
@@ -39,15 +40,19 @@ export class ProductsController {
   @Roles(Role.ADMIN)
   @UseInterceptors(FileInterceptor('image'))
   async create(
-    @Body() createProductDto: any,
-    @UploadedFile() file: Express.Multer.File,
+    @Body() createProductDto: CreateProductDto,
+    @UploadedFile() file?: Express.Multer.File,
   ) {
     if (file) {
       createProductDto.imageUrl = await this.storageService.uploadFile(file, 'product-images');
     }
     // Converte strings do form-data para números se necessário
-    if (typeof createProductDto.price === 'string') createProductDto.price = parseFloat(createProductDto.price);
-    if (typeof createProductDto.stock === 'string') createProductDto.stock = parseInt(createProductDto.stock);
+    if (typeof (createProductDto as any).price === 'string') {
+      createProductDto.price = parseFloat((createProductDto as any).price);
+    }
+    if (typeof (createProductDto as any).stock === 'string') {
+      createProductDto.stock = parseInt((createProductDto as any).stock, 10);
+    }
     
     return this.productsService.create(createProductDto);
   }
@@ -59,16 +64,20 @@ export class ProductsController {
   @UseInterceptors(FileInterceptor('image'))
   async update(
     @Param('id') id: string, 
-    @Body() body: any,
-    @UploadedFile() file: Express.Multer.File,
+    @Body() updateProductDto: UpdateProductDto,
+    @UploadedFile() file?: Express.Multer.File,
   ) {
     if (file) {
-      body.imageUrl = await this.storageService.uploadFile(file, 'product-images');
+      updateProductDto.imageUrl = await this.storageService.uploadFile(file, 'product-images');
     }
-    if (typeof body.price === 'string') body.price = parseFloat(body.price);
-    if (typeof body.stock === 'string') body.stock = parseInt(body.stock);
+    if (typeof (updateProductDto as any).price === 'string') {
+      updateProductDto.price = parseFloat((updateProductDto as any).price);
+    }
+    if (typeof (updateProductDto as any).stock === 'string') {
+      updateProductDto.stock = parseInt((updateProductDto as any).stock, 10);
+    }
 
-    return this.productsService.update(id, body);
+    return this.productsService.update(id, updateProductDto);
   }
 
   @Delete(':id')

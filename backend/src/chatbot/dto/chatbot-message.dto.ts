@@ -1,17 +1,13 @@
-import { IsOptional, IsString, IsNotEmpty } from 'class-validator';
-
+import { IsOptional, IsString, IsNotEmpty, MaxLength } from 'class-validator';
 
 export class ChatbotMessageDto {
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(1000)
+  message: string;
 
-
-    @IsString()
-    @IsNotEmpty()
-    message:string;
-
-
-    @IsOptional()
-    @IsString()
-    userId?:string;
-
-
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  userId?: string;
 }

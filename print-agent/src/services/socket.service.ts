@@ -14,6 +14,7 @@ export enum PrinterEvent {
 export interface SocketServiceOptions {
   backendUrl: string;
   storeId: string;
+  agentToken?: string;
   onStatusChange?: (connected: boolean, message?: string) => void;
   onJobReceived?: (jobId: string, orderId: string) => void;
 }
@@ -37,7 +38,7 @@ export class SocketService {
       this.socket.disconnect();
     }
 
-    const { backendUrl, storeId, onStatusChange, onJobReceived } = this.options;
+    const { backendUrl, storeId, agentToken, onStatusChange, onJobReceived } = this.options;
 
     // Conecta ao namespace /printer do backend NestJS
     const url = backendUrl.endsWith('/') ? `${backendUrl}printer` : `${backendUrl}/printer`;
@@ -47,6 +48,7 @@ export class SocketService {
 
     this.socket = io(url, {
       transports: ['websocket'],
+      auth: { token: agentToken || '' },
       reconnection: true,
       reconnectionDelay: 2000,
       reconnectionAttempts: Infinity,

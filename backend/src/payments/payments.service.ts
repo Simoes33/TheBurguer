@@ -7,7 +7,11 @@ export class PaymentsService {
   private readonly logger = new Logger(PaymentsService.name);
 
   constructor() {
-    this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'stripe_secret_placeholder', {
+    const key = process.env.STRIPE_SECRET_KEY;
+    if (!key) {
+      this.logger.warn('STRIPE_SECRET_KEY não foi definida nas variáveis de ambiente!');
+    }
+    this.stripe = new Stripe(key || 'invalid_key', {
       apiVersion: '2025-01-27-acacia' as any,
     });
   }
@@ -58,9 +62,12 @@ export class PaymentsService {
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
     if (!webhookSecret) {
-      this.logger.warn('STRIPE_WEBHOOK_SECRET não configurado. Pulando validação de assinatura.');
-      // Em desenvolvimento sem secret, tenta parsear o body diretamente
-      return JSON.parse(rawBody.toString()) as ReturnType<typeof this.stripe.webhooks.constructEvent>;
+      this.logger.error('STRIPE_WEBHOOK_SECRET não configurado. Rejeitando validação de webhook.');
+      throw new BadRequestException('Configuração de webhook incompleta no servidor.');
+    }
+
+    if (!signature) {
+      throw new BadRequestException('Assinatura do Stripe ausente nos cabeçalhos.');
     }
 
     try {

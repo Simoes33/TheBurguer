@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ForbiddenException, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { OrderStatus } from '@prisma/client';
@@ -9,6 +9,7 @@ import { PrinterService } from '../printer/services/printer.service';
 
 @Injectable()
 export class OrdersService {
+  private readonly logger = new Logger(OrdersService.name);
 
   constructor(
     private prisma: PrismaService,
@@ -191,16 +192,10 @@ export class OrdersService {
 
 
     } catch(error){
-
-
-      console.error(
-        'Erro ao encaminhar pedido ao Print Agent:',
-        error
+      this.logger.error(
+        `Erro ao encaminhar pedido ao Print Agent: ${error.message}`,
       );
-
-
       // Não cancela o pedido se o Agent não estiver disponível
-
     }
 
 

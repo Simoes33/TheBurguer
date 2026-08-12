@@ -13,8 +13,9 @@ export class PushController {
   subscribe(@Req() req: any, @Body() subscription: any) {
     return this.pushService.subscribe(req.user.id, subscription);
   }
+  @UseGuards(JwtAuthGuard)
   @Post('unsubscribe')
-  unsubscribe(@Body('endpoint') endpoint: string) {
-    return this.pushService.unsubscribe(endpoint);
+  unsubscribe(@Req() req: any, @Body('endpoint') endpoint: string) {
+    return this.pushService.unsubscribe(req.user.id, endpoint);
   }
 } 

@@ -15,6 +15,9 @@ import { OrdersService } from '../orders/orders.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 
+import { CreatePaymentIntentDto } from './dto/create-payment-intent.dto';
+import { BadRequestException } from '@nestjs/common';
+
 @ApiTags('Payments')
 @Controller('payments')
 export class PaymentsController {
@@ -30,10 +33,13 @@ export class PaymentsController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Cria um PaymentIntent no Stripe para processar pagamento' })
   async createIntent(
-    @Body('amount') amount: number,
-    @Body('orderId') orderId?: string,
+    @Req() req: any,
+    @Body() dto: CreatePaymentIntentDto,
   ) {
-    return this.paymentsService.createPaymentIntent(amount, 'brl', orderId);
+    // Garante que o pedido existe e pertence ao usuário autenticado (ou admin)
+    const order = await this.ordersService.findOne(dto.orderId, req.user.id, req.user.role);
+    const currency = dto.currency || 'brl';
+    return this.paymentsService.createPaymentIntent(order.total, currency, order.id);
   }
 
   @Post('setup-intent')
@@ -59,8 +65,8 @@ export class PaymentsController {
     const rawBody = req.rawBody;
 
     if (!rawBody) {
-      this.logger.warn('Webhook recebido sem rawBody. Verifique a configuração do NestJS.');
-      return { received: true };
+      this.logger.warn('Webhook recebido sem rawBody.');
+      throw new BadRequestException('Raw body ausente na requisição do webhook.');
     }
 
     let event: any;
@@ -68,7 +74,7 @@ export class PaymentsController {
       event = this.paymentsService.constructWebhookEvent(rawBody, signature);
     } catch (err) {
       this.logger.error(`Falha ao validar webhook: ${err.message}`);
-      return { received: false, error: err.message };
+      throw new BadRequestException(`Falha ao validar webhook: ${err.message}`);
     }
 
     this.logger.log(`Webhook Stripe recebido: ${event.type}`);

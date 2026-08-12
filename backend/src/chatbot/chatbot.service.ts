@@ -22,7 +22,7 @@ export class ChatbotService {
 
   constructor(private prisma: PrismaService) {}
 
-  async process(dto: ChatbotMessageDto) {
+  async process(userId: string, dto: ChatbotMessageDto) {
 
     const message = dto.message
       .toLowerCase()
@@ -32,12 +32,12 @@ export class ChatbotService {
     // BUSCA SESSÃO
 
     let session = await this.prisma.chatSession.findFirst({
-      where: { userId: dto.userId }
+      where: { userId }
     });
 
     if (!session) {
       session = await this.prisma.chatSession.create({
-        data: { userId: dto.userId, state: "START" }
+        data: { userId, state: "START" }
       });
     }
 
@@ -94,8 +94,8 @@ export class ChatbotService {
 
       const orderId = dto.message.replace('#', '').trim();
 
-      const order = await this.prisma.order.findUnique({
-        where: { id: orderId },
+      const order = await this.prisma.order.findFirst({
+        where: { id: orderId, userId },
         include: {
           items: { include: { product: true } }
         }

@@ -1,8 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class StatsService {
+  private readonly logger = new Logger(StatsService.name);
+
   constructor(private prisma: PrismaService) {}
 
   async getBestsellerIds(limit = 3): Promise<string[]> {
@@ -19,7 +21,7 @@ export class StatsService {
       take: limit,
     });
 
-    console.log('BESTSELLERS:', popular);
+    this.logger.debug(`BESTSELLERS: ${JSON.stringify(popular)}`);
 
     return popular.map((item) => item.productId);
   }

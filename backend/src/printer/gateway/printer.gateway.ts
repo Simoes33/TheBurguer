@@ -80,6 +80,17 @@ export class PrinterGateway
   // ─── Ciclo de vida da conexão ────────────────────────────────────────────────
 
   handleConnection(client: Socket): void {
+    const expectedToken = process.env.PRINTER_AGENT_TOKEN;
+    const token = client.handshake.auth?.token || client.handshake.headers?.['x-agent-token'];
+
+    if (expectedToken && token !== expectedToken) {
+      this.logger.warn(
+        `⛔ Conexão de Print Agent rejeitada — token inválido | socketId: ${client.id} | ip: ${client.handshake.address}`,
+      );
+      client.disconnect(true);
+      return;
+    }
+
     this.logger.log(
       `Print Agent conectado — socketId: ${client.id} | ip: ${client.handshake.address}`,
     );
