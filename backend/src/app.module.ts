@@ -18,6 +18,7 @@ import { SseController } from './common/sse/sse.controller';
 import { PrinterModule } from './printer/printer.module';
 import { ChatbotModule } from './chatbot/chatbot.module';
 import { PushModule } from './push/push.module';
+import { HeartbeatModule } from './heartbeat/heartbeat.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { PushModule } from './push/push.module';
     SseModule,
     ChatbotModule,
     PushModule,
+    HeartbeatModule,
   ],
   controllers: [SseController],
   providers: [
