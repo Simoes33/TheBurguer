@@ -307,19 +307,26 @@ else if (/batata|fritas/i.test(productName)) {
 
             {reviews.length > 0 && (
               <div className="reviews-section" style={{ marginTop: '2rem' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem', fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--gold)', letterSpacing: '0.1em' }}>
-                  <Star size={18} weight="fill" /> Avaliações ({reviews.length})
-                </label>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxHeight: '200px', overflowY: 'auto', paddingRight: '0.5rem' }}>
-                  {reviews.map(r => (
-                    <div key={r.id} style={{ padding: '1rem', background: 'var(--bg-3)', border: '1px solid var(--border)', borderRadius: '2px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.8rem' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0, fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--gold)', letterSpacing: '0.1em', fontWeight: 600 }}>
+                    <Star size={18} weight="fill" /> Avaliações Recentes
+                  </label>
+                  <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                    {reviews.length} {reviews.length === 1 ? 'avaliação' : 'avaliações'}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                  {reviews.slice(0, 3).map(r => (
+                    <div key={r.id} style={{ padding: '0.85rem 1rem', background: 'var(--bg-3)', border: '1px solid var(--border)', borderRadius: '4px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
                         <span style={{ fontWeight: 600, fontSize: '0.85rem' }}>{r.user?.name || 'Cliente'}</span>
                         <div style={{ display: 'flex', gap: '2px' }}>
-                          {[1,2,3,4,5].map(n => <Star key={n} size={12} weight={n <= r.rating ? 'fill' : 'thin'} color="var(--gold)" />)}
+                          {[1,2,3,4,5].map(n => (
+                            <Star key={n} size={12} weight={n <= r.rating ? 'fill' : 'thin'} color="var(--gold)" />
+                          ))}
                         </div>
                       </div>
-                      {r.comment && <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>"{r.comment}"</p>}
+                      {r.comment && <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontStyle: 'italic', margin: 0 }}>"{r.comment}"</p>}
                     </div>
                   ))}
                 </div>

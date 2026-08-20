@@ -1,10 +1,10 @@
-import { Controller, Get, Post, Body, Param, UseGuards, Request, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, UseGuards, Request, ParseUUIDPipe } from '@nestjs/common';
 import { ReviewsService } from './reviews.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../users/dto/create-user.dto';
-import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { Throttle } from '@nestjs/throttler';
 
@@ -22,8 +22,12 @@ export class ReviewsController {
   }
 
   @Get('product/:productId')
-  findByProduct(@Param('productId', ParseUUIDPipe) productId: string) {
-    return this.reviewsService.findByProduct(productId);
+  @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Quantidade máxima de avaliações (padrão 3)' })
+  findByProduct(
+    @Param('productId', ParseUUIDPipe) productId: string,
+    @Query('limit') limit?: number,
+  ) {
+    return this.reviewsService.findByProduct(productId, limit);
   }
 
   @Get()

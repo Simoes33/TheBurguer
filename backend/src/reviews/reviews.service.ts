@@ -25,11 +25,13 @@ export class ReviewsService {
     });
   }
 
-  async findByProduct(productId: string) {
+  async findByProduct(productId: string, limit: number = 3) {
+    const take = Math.max(1, Math.min(Number(limit) || 3, 50));
     return this.prisma.review.findMany({
       where: { productId },
       include: { user: { select: { name: true } } },
       orderBy: { createdAt: 'desc' },
+      take,
     });
   }
 
