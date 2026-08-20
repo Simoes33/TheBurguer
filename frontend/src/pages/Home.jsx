@@ -183,7 +183,7 @@ const FALLBACK_PRODUCTS = [
 export const Home = () => {
 
   const [products, setProducts] =
-    useState(FALLBACK_PRODUCTS);
+    useState([]);
 
   const [bestsellerIds, setBestsellerIds] =
     useState([]);
