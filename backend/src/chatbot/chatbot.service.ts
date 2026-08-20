@@ -7,143 +7,166 @@ const INACTIVITY_LIMIT_MS = 5 * 60 * 1000; // 5 minutos
 
 const EXIT_KEYWORDS = ['cancelar', 'sair', 'voltar', 'menu', 'reiniciar', 'inicio', 'início'];
 
+const ORDER_STATUS_MAP: Record<string, string> = {
+  PENDING: '⏳ Pendente / Recebido',
+  PREPARING: '👨‍🍳 Em preparo na chapa',
+  READY: '✅ Pronto para retirada/entrega',
+  OUT_FOR_DELIVERY: '🛵 Saiu para entrega',
+  DELIVERED: '🎉 Pedido Entregue',
+  CANCELLED: '❌ Cancelado',
+};
+
 const MENU_TEXT = `
 Olá! 🍔 Sou o assistente da The Burguer.
 
 Posso ajudar com:
-
-🍔 Cardápio
-📦 Acompanhar pedido
-🕒 Horários
+• 🍔 Digite *cardápio* para ver nossos produtos
+• 📦 Digite *pedido* para rastrear seu pedido
+• 🕒 Digite *horário* para saber o horário de funcionamento
 `;
 
 @Injectable()
 export class ChatbotService {
-
   constructor(private prisma: PrismaService) {}
 
-  async process(userId: string, dto: ChatbotMessageDto) {
-
-    const message = dto.message
+  async process(userId: string | undefined, dto: ChatbotMessageDto) {
+    const rawMessage = dto.message || '';
+    const message = rawMessage
       .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, ""); // remove acentos
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, ''); // remove acentos
 
-    // BUSCA SESSÃO
+    // ─── BUSCA OU CRIA SESSÃO (Suporta visitantes anônimos e usuários logados) ───
+    let session = null;
 
-    let session = await this.prisma.chatSession.findFirst({
-      where: { userId }
-    });
+    if (userId) {
+      session = await this.prisma.chatSession.findFirst({
+        where: { userId },
+        orderBy: { updatedAt: 'desc' },
+      });
+    } else if (dto.sessionId) {
+      session = await this.prisma.chatSession.findUnique({
+        where: { id: dto.sessionId },
+      }).catch(() => null);
+    }
 
     if (!session) {
       session = await this.prisma.chatSession.create({
-        data: { userId, state: "START" }
+        data: {
+          id: dto.sessionId || undefined,
+          userId: userId || null,
+          state: 'START',
+        },
       });
     }
 
     // Reset por inatividade — se ficou parado no meio do fluxo de pedido
-    if (session.state === "WAIT_ORDER") {
+    if (session.state === 'WAIT_ORDER') {
       const idleTime = Date.now() - new Date(session.updatedAt).getTime();
-
       if (idleTime > INACTIVITY_LIMIT_MS) {
         session = await this.prisma.chatSession.update({
           where: { id: session.id },
-          data: { state: "START", attempts: 0 }
+          data: { state: 'START', attempts: 0 },
         });
       }
     }
 
-    // Palavras de saída — funcionam em QUALQUER estado, a qualquer momento
-    const isExitRequest = EXIT_KEYWORDS.some(keyword => message.includes(keyword));
-
-    if (isExitRequest && session.state !== "START") {
+    // Palavras de saída — funcionam em qualquer estado
+    const isExitRequest = EXIT_KEYWORDS.some((keyword) => message.includes(keyword));
+    if (isExitRequest && session.state !== 'START') {
       await this.prisma.chatSession.update({
         where: { id: session.id },
-        data: { state: "START", attempts: 0 }
+        data: { state: 'START', attempts: 0 },
       });
 
       return {
-        reply: `Sem problemas, voltando ao menu principal! 👍\n${MENU_TEXT}`
+        sessionId: session.id,
+        reply: `Sem problemas, voltando ao menu principal! 👍\n${MENU_TEXT}`,
       };
     }
 
-    // Se está esperando um código de pedido, mas a mensagem parece ser
-    // outra intenção (cardápio/horário/pedido novo), sai do fluxo sozinho
-    // em vez de travar tentando interpretar como código.
+    // Identifica se a intenção mudou enquanto esperava código
     const looksLikeOtherIntent =
-      message.includes("cardapio") ||
-      message.includes("menu") ||
-      message.includes("horario") ||
-      message.includes("pedido");
+      message.includes('cardapio') ||
+      message.includes('menu') ||
+      message.includes('horario') ||
+      message.includes('horas') ||
+      message.includes('funciona');
 
-    if (session.state === "WAIT_ORDER" && looksLikeOtherIntent) {
+    if (session.state === 'WAIT_ORDER' && looksLikeOtherIntent) {
       session = await this.prisma.chatSession.update({
         where: { id: session.id },
-        data: { state: "START", attempts: 0 }
+        data: { state: 'START', attempts: 0 },
       });
-      // segue o fluxo normal abaixo, já com o estado resetado
     }
 
     /*
     ==========================
-    FLUXO PEDIDO
+    FLUXO: RASTREIO DE PEDIDO
     ==========================
     */
+    if (session.state === 'WAIT_ORDER') {
+      const orderId = rawMessage.replace('#', '').trim();
 
-    if (session.state === "WAIT_ORDER") {
+      const whereCondition = userId
+        ? { id: orderId, userId }
+        : { id: orderId };
 
-      const orderId = dto.message.replace('#', '').trim();
-
-      const order = await this.prisma.order.findFirst({
-        where: { id: orderId, userId },
-        include: {
-          items: { include: { product: true } }
-        }
-      });
+      let order = null;
+      try {
+        order = await this.prisma.order.findFirst({
+          where: whereCondition,
+          include: {
+            items: { include: { product: true } },
+          },
+        });
+      } catch {
+        order = null;
+      }
 
       if (order) {
         await this.prisma.chatSession.update({
           where: { id: session.id },
-          data: { state: "START", attempts: 0 }
+          data: { state: 'START', attempts: 0 },
         });
 
+        const statusDescription = ORDER_STATUS_MAP[order.status] || order.status;
+        const itemsList = order.items
+          .map((item) => `• ${item.quantity}x ${item.product?.name || 'Item'}`)
+          .join('\n');
+
         return {
-          reply: `
-📦 Pedido encontrado!
-
-Status:
-${order.status}
-
-Total:
-R$ ${order.total.toFixed(2)}
-
-Itens:
-
-${order.items.map(item => `${item.quantity}x ${item.product.name}`).join("\n")}
-`
+          sessionId: session.id,
+          reply: `📦 **Pedido #${order.id.slice(0, 8)}**\n\n` +
+            `**Status:** ${statusDescription}\n` +
+            `**Total:** R$ ${order.total.toFixed(2).replace('.', ',')}\n\n` +
+            `**Itens:**\n${itemsList}\n\n` +
+            `Mais alguma dúvida?`,
         };
       }
 
-      const attempts = session.attempts + 1;
+      const attempts = (session.attempts || 0) + 1;
 
       if (attempts >= MAX_ORDER_ATTEMPTS) {
         await this.prisma.chatSession.update({
           where: { id: session.id },
-          data: { state: "START", attempts: 0 }
+          data: { state: 'START', attempts: 0 },
         });
 
         return {
-          reply: `Não consegui localizar esse pedido depois de algumas tentativas. Vamos voltar ao menu principal — pode tentar de novo quando quiser! 🙂\n${MENU_TEXT}`
+          sessionId: session.id,
+          reply: `Não consegui localizar esse pedido depois de algumas tentativas. Voltando ao menu inicial! 🙂\n${MENU_TEXT}`,
         };
       }
 
       await this.prisma.chatSession.update({
         where: { id: session.id },
-        data: { attempts }
+        data: { attempts },
       });
 
       return {
-        reply: `❌ Não encontrei esse pedido. Verifique o código, ou digite "cancelar" para voltar ao menu. (Tentativa ${attempts}/${MAX_ORDER_ATTEMPTS})`
+        sessionId: session.id,
+        reply: `❌ Não encontrei nenhum pedido com esse código. Verifique o código (ex: id do pedido) ou digite "cancelar" para voltar. (Tentativa ${attempts}/${MAX_ORDER_ATTEMPTS})`,
       };
     }
 
@@ -152,19 +175,27 @@ ${order.items.map(item => `${item.quantity}x ${item.product.name}`).join("\n")}
     CARDÁPIO
     ==========================
     */
-
-    if (message.includes("cardapio") || message.includes("menu")) {
-
+    if (message.includes('cardapio') || message.includes('menu') || message.includes('lanche') || message.includes('burg')) {
       const products = await this.prisma.product.findMany({
-        select: { name: true, price: true }
+        where: { stock: { gt: 0 } },
+        select: { name: true, price: true, category: { select: { name: true } } },
+        orderBy: [{ category: { name: 'asc' } }, { name: 'asc' }],
       });
 
-      return {
-        reply: `
-🍔 Nosso cardápio:
+      if (!products.length) {
+        return {
+          sessionId: session.id,
+          reply: '🍔 Nosso cardápio está sendo atualizado no momento. Você pode conferir os itens na página inicial!',
+        };
+      }
 
-${products.map(p => `${p.name} - R$ ${p.price.toFixed(2)}`).join("\n")}
-`
+      const formattedMenu = products
+        .map((p) => `• **${p.name}** — R$ ${p.price.toFixed(2).replace('.', ',')}`)
+        .join('\n');
+
+      return {
+        sessionId: session.id,
+        reply: `🍔 **Nosso Cardápio Especial:**\n\n${formattedMenu}\n\n💡 Você pode clicar nos produtos na tela para adicionar ao carrinho!`,
       };
     }
 
@@ -173,15 +204,15 @@ ${products.map(p => `${p.name} - R$ ${p.price.toFixed(2)}`).join("\n")}
     PEDIDO
     ==========================
     */
-
-    if (message.includes("pedido")) {
+    if (message.includes('pedido') || message.includes('rastrear') || message.includes('entrega') || message.includes('status')) {
       await this.prisma.chatSession.update({
         where: { id: session.id },
-        data: { state: "WAIT_ORDER", attempts: 0 }
+        data: { state: 'WAIT_ORDER', attempts: 0 },
       });
 
       return {
-        reply: "📦 Claro! Informe o código do seu pedido. (Ou digite \"cancelar\" a qualquer momento para voltar ao menu.)"
+        sessionId: session.id,
+        reply: '📦 Por favor, digite o **código do seu pedido** (você encontra na tela Meus Pedidos ou no comprovante). Digite "cancelar" para voltar a qualquer momento.',
       };
     }
 
@@ -190,15 +221,21 @@ ${products.map(p => `${p.name} - R$ ${p.price.toFixed(2)}`).join("\n")}
     HORÁRIO
     ==========================
     */
-
-    if (message.includes("horario")) {
+    if (message.includes('horario') || message.includes('horas') || message.includes('funciona') || message.includes('aberto') || message.includes('abre')) {
       return {
-        reply: "🕒 Funcionamos de Terça a Domingo, das 19h às 23h."
+        sessionId: session.id,
+        reply: '🕒 **Horário de Funcionamento:**\n\nTerça a Domingo: das **19:00 às 23:00**.\nSegunda-feira: Fechado para descanso da equipe.',
       };
     }
 
+    /*
+    ==========================
+    SAUDAÇÕES / MENU PADRÃO
+    ==========================
+    */
     return {
-      reply: MENU_TEXT
+      sessionId: session.id,
+      reply: MENU_TEXT,
     };
   }
 }

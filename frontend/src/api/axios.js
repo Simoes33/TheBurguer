@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Rotas públicas que NÃO devem redirecionar para login no 401
-const PUBLIC_PATHS = ['/auth/login', '/auth/register', '/auth/social'];
+const PUBLIC_PATHS = ['/auth/login', '/auth/register', '/auth/social', '/chatbot'];
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}` : '/api',

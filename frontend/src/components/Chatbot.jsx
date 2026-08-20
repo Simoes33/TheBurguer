@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from "react";
-import API_URL from "../services/api";
+import api from "../api/axios";
 import "./Chatbot.css";
 
 const STORAGE_KEY = "theburguer_chat_messages";
+const SESSION_KEY = "theburguer_chat_session_id";
 const INACTIVITY_MINIMIZE_MS = 3 * 60 * 1000; // 3 minutos
 
 const WELCOME_MESSAGE = {
@@ -10,9 +11,21 @@ const WELCOME_MESSAGE = {
   text: "Olá! 🍔\nSou o assistente da The Burguer.\nComo posso ajudar?"
 };
 
-export default function Chatbot() {
-  const userId = localStorage.getItem("userId");
+// Gera UUID v4 simples para sessão anônima persistente
+function getOrCreateSessionId() {
+  try {
+    let id = localStorage.getItem(SESSION_KEY);
+    if (!id) {
+      id = "chat_" + Math.random().toString(36).substring(2, 11) + "_" + Date.now();
+      localStorage.setItem(SESSION_KEY, id);
+    }
+    return id;
+  } catch {
+    return "chat_" + Date.now();
+  }
+}
 
+export default function Chatbot() {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
@@ -37,7 +50,7 @@ export default function Chatbot() {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
     } catch {
-      // localStorage indisponível — sem problema, só perde persistência
+      // localStorage indisponível
     }
   }, [messages]);
 
@@ -95,35 +108,38 @@ export default function Chatbot() {
 
     setIsTyping(true);
 
-    // DEBUG TEMPORÁRIO: confirma exatamente qual URL está sendo chamada.
-    // Se aparecer "[object Object]/chatbot" ou "undefined/chatbot" no console,
-    // o problema é o valor exportado por services/api.js.
-    const targetUrl = `${API_URL}/chatbot`;
-    console.log("Chatbot -> chamando:", targetUrl);
-
     try {
-      const response = await fetch(targetUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text, userId })
-      });
-
-      if (!response.ok) {
-        const errorBody = await response.text().catch(() => "");
-        throw new Error(`HTTP ${response.status} - ${errorBody}`);
+      // Recupera ID do usuário logado se houver
+      let userId = null;
+      try {
+        const storedUser = sessionStorage.getItem("@TheBurguer:user");
+        if (storedUser) {
+          const parsed = JSON.parse(storedUser);
+          userId = parsed?.id || null;
+        }
+      } catch {
+        userId = null;
       }
 
-      const data = await response.json();
+      const sessionId = getOrCreateSessionId();
 
-      setMessages(prev => [...prev, { sender: "bot", text: data.reply }]);
+      const response = await api.post("/chatbot", {
+        message: text,
+        sessionId,
+        userId: userId || undefined,
+      });
+
+      const data = response.data;
+      const botReply = data?.reply || "Olá! Como posso ajudar?";
+
+      setMessages(prev => [...prev, { sender: "bot", text: botReply }]);
 
       if (!open) {
         setUnreadCount(prev => prev + 1);
       }
 
     } catch (err) {
-      // Log real do erro, em vez de simplesmente engolir a falha.
-      console.error("Chatbot -> falha ao buscar resposta:", err.message || err);
+      console.error("Chatbot -> falha ao buscar resposta:", err?.response?.data || err?.message || err);
 
       setLastFailedMessage(text);
 
@@ -131,7 +147,7 @@ export default function Chatbot() {
         ...prev,
         {
           sender: "bot",
-          text: "Ops! Não consegui responder agora.",
+          text: "Ops! Não consegui responder agora. Verifique sua conexão ou tente novamente.",
           isError: true
         }
       ]);
@@ -149,7 +165,7 @@ export default function Chatbot() {
 
   return (
     <>
-      <button className="chatbot-fab" onClick={() => setOpen(true)}>
+      <button className="chatbot-fab" onClick={() => setOpen(true)} aria-label="Abrir assistente virtual">
         🍔
         {unreadCount > 0 && (
           <span className="chatbot-badge">{unreadCount}</span>
@@ -167,7 +183,7 @@ export default function Chatbot() {
               <span>Online agora</span>
             </div>
 
-            <button className="chatbot-close" onClick={() => setOpen(false)}>
+            <button className="chatbot-close" onClick={() => setOpen(false)} aria-label="Fechar assistente">
               ×
             </button>
           </div>
@@ -175,9 +191,9 @@ export default function Chatbot() {
           <div className="chatbot-body" ref={bodyRef}>
             {messages.map((msg, index) => (
               <div key={index} className={`message ${msg.sender}`}>
-                {msg.text}
+                <div style={{ whiteSpace: "pre-line" }}>{msg.text}</div>
                 {msg.isError && lastFailedMessage && index === messages.length - 1 && (
-                  <button className="retry-button" onClick={retryLastMessage}>
+                  <button className="retry-button" onClick={retryLastMessage} style={{ marginTop: "0.5rem" }}>
                     ↻ Tentar novamente
                   </button>
                 )}
@@ -215,7 +231,7 @@ export default function Chatbot() {
               }}
             />
 
-            <button onClick={() => sendMessage()}>➤</button>
+            <button onClick={() => sendMessage()} aria-label="Enviar mensagem">➤</button>
           </div>
 
         </div>
