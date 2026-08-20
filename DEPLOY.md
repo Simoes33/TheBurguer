@@ -10,43 +10,56 @@ O seu banco de dados e as imagens já estão na nuvem, então não precisam de "
 
 ---
 
-## 2. Backend (Sugerido: Railway ou Render)
+## 2. Backend (Render ou Railway)
 
-### Passo a Passo no Railway:
-1. Crie uma conta em [railway.app](https://railway.app).
-2. Clique em **New Project** > **Deploy from GitHub repo**.
-3. Selecione o seu repositório.
-4. Vá em **Settings** > **Root Directory** e coloque `/backend`.
-5. Vá em **Variables** e adicione as seguintes chaves do seu `.env`:
-   - `DATABASE_URL`: (Seu link do banco)
-   - `DIRECT_URL`: (Seu link direto do banco)
-   - `JWT_SECRET`: (Uma frase secreta longa e segura)
-   - `SUPABASE_URL`: (Link do seu projeto Supabase)
-   - `SUPABASE_KEY`: (Sua Service Role Key do Supabase)
-   - `STRIPE_SECRET_KEY`: (Sua chave secreta do Stripe)
-6. O Railway gerará um domínio para você (ex: `api-production.up.railway.app`). **Copie este link.**
+### Passo a Passo no Render:
+1. Crie uma conta em [render.com](https://render.com).
+2. Clique em **New +** > **Web Service** > Conecte seu repositório GitHub.
+3. Configure:
+   - **Root Directory**: `backend`
+   - **Build Command**: `npm install && npm run build`
+   - **Start Command**: `npm run start:prod`
+4. Em **Environment Variables**, adicione as chaves do seu `.env` (`DATABASE_URL`, `DIRECT_URL`, `JWT_SECRET`, `SUPABASE_URL`, `SUPABASE_KEY`, etc.).
+5. Copie a URL gerada (ex: `https://theburguer.onrender.com`).
 
 ---
 
-## 3. Frontend (Sugerido: Vercel)
+## 3. Frontend (Vercel)
 
 ### Passo a Passo na Vercel:
 1. Crie uma conta em [vercel.com](https://vercel.com).
-2. Clique em **Add New** > **Project**.
-3. Importe o seu repositório do GitHub.
-4. Em **Root Directory**, selecione a pasta `frontend`.
-5. Em **Environment Variables**, adicione:
+2. Clique em **Add New** > **Project** e importe o repositório.
+3. Em **Root Directory**, selecione a pasta `frontend`.
+4. Em **Environment Variables**, adicione:
    - `VITE_SUPABASE_URL`: (URL do seu Supabase)
    - `VITE_SUPABASE_ANON_KEY`: (Sua chave ANON do Supabase)
-   - `VITE_API_URL`: (O link que o Railway gerou no passo anterior)
-6. Clique em **Deploy**.
+   - `VITE_API_URL`: (Link do seu backend, ex: `https://theburguer.onrender.com`)
+5. Clique em **Deploy**.
 
 ---
 
-## 4. Ajustes Finais de Segurança
+## 4. 💓 Sistema de Heartbeat & Keep-Alive 24/7 (Nunca Deixa o Banco Pausar)
+
+Para evitar que o plano gratuito do Render entre em hibernação (sleep) e o Supabase pause por 7 dias de inatividade, o sistema possui 3 proteções ativas:
+
+### 1. GitHub Actions Automático (Já Configurado)
+- O arquivo `.github/workflows/keepalive.yml` roda a cada 10 minutos automaticamente no GitHub.
+- Ele envia um ping para `https://theburguer.onrender.com/health`, executando uma query leve no banco de dados para mantê-lo 100% acordado.
+
+### 2. Monitor Gratuito Externo (Altamente Recomendado)
+Para ter redundância total e garantir 100% de uptime sem depender apenas do GitHub Actions:
+1. Crie uma conta gratuita no [cron-job.org](https://cron-job.org) ou [uptimerobot.com](https://uptimerobot.com).
+2. Adicione um novo monitor HTTP GET apontando para:
+   `https://theburguer.onrender.com/health`
+3. Defina o intervalo para **cada 5 ou 10 minutos**.
+4. Pronto! O Render nunca entrará em sleep e o Supabase nunca será pausado.
+
+---
+
+## 5. Ajustes Finais de Segurança
 
 ### Atualizar URLs de Redirecionamento (Auth):
-- **No Supabase:** Vá em *Authentication > URL Configuration* e mude o **Site URL** para o link que a Vercel te deu.
+- **No Supabase:** Vá em *Authentication > URL Configuration* e mude o **Site URL** para o link da Vercel.
 - **No Google Cloud Console:** Adicione o link da Vercel em *Origens JavaScript autorizadas* e o link do Supabase `auth/v1/callback` em *URIs de redirecionamento autorizados*.
 
 ### Webhooks do Stripe:

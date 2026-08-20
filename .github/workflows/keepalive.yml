@@ -1,0 +1,41 @@
+name: Keep-Alive Heartbeat (24/7)
+
+on:
+  schedule:
+    # Executa a cada 10 minutos (24 horas por dia, 7 dias por semana)
+    - cron: '*/10 * * * *'
+  workflow_dispatch: # Permite execução manual a qualquer momento pelo painel do GitHub
+
+jobs:
+  keepalive:
+    name: Ping Services & Database
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🌐 Ping Render Backend (/health)
+        run: |
+          echo "Enviando ping para o backend no Render..."
+          HTTP_STATUS=$(curl -s -o /tmp/render_resp.txt -w "%{http_code}" --max-time 60 "https://theburguer.onrender.com/health")
+          echo "Status Render: $HTTP_STATUS"
+          cat /tmp/render_resp.txt || true
+          echo ""
+
+      - name: 🗄️ Ping Supabase REST API (Keep Database Active)
+        run: |
+          echo "Enviando query direta para o Supabase (garantia contra pausa de 7 dias)..."
+          SUPABASE_URL="https://agmokfzhxiypxosymetd.supabase.co"
+          SUPABASE_ANON="sb_publishable_ZX2wmCxsuHOaD6fGA2fnwg_Wr1yBmLk"
+          
+          HTTP_STATUS=$(curl -s -o /tmp/supabase_resp.txt -w "%{http_code}" --max-time 30 \
+            -H "apikey: $SUPABASE_ANON" \
+            -H "Authorization: Bearer $SUPABASE_ANON" \
+            "$SUPABASE_URL/rest/v1/product?select=id&limit=1")
+          
+          echo "Status Supabase REST: $HTTP_STATUS"
+          cat /tmp/supabase_resp.txt || true
+          echo ""
+          
+          if [ "$HTTP_STATUS" -ge 200 ] && [ "$HTTP_STATUS" -lt 400 ]; then
+            echo "✅ Supabase ativo com sucesso!"
+          else
+            echo "⚠️ Resposta inesperada do Supabase (HTTP $HTTP_STATUS)"
+          fi
