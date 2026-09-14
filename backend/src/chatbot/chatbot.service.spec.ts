@@ -72,16 +72,16 @@ describe('ChatbotService', () => {
     expect(status.label).toContain('Aberto');
   });
 
-  it('deve responder à intenção de cardápio com produtos estruturados', async () => {
+  it('deve responder à intenção de cardápio com destaques simples convidando para o site', async () => {
     const response = await service.process('user_123', {
       message: 'Gostaria de ver o cardápio de lanches',
       sessionId: 'session_test_123',
     });
 
-    expect(response.type).toBe('products');
-    expect(response.data?.products).toHaveLength(1);
-    expect(response.data.products[0].name).toBe('Classic Smash Burger');
-    expect(response.quickReplies).toContain('🔥 Mais Vendidos');
+    expect(response.type).toBe('menu_highlights');
+    expect(response.reply).toContain('Classic Smash Burger');
+    expect(response.reply).toContain('R$ 29,90');
+    expect(response.quickReplies).toContain('📖 Ver Cardápio no Site');
   });
 
   it('deve responder sobre horário e formas de pagamento', async () => {

@@ -31,7 +31,7 @@ const MUTED_KEY = "@TheBurguer:chat_muted";
 const INACTIVITY_MINIMIZE_MS = 4 * 60 * 1000; // 4 minutos
 
 const DEFAULT_QUICK_REPLIES = [
-  "🍔 Ver Cardápio",
+  "📖 Ver Cardápio no Site",
   "🔥 Mais Vendidos",
   "📦 Rastrear Pedido",
   "🛒 Meu Carrinho",
@@ -280,17 +280,19 @@ export default function Chatbot() {
     }
   };
 
-  // ─── Adicionar produto diretamente pelo card no Chat ──────────
-  const handleAddProductFromChat = (product) => {
-    addToCart(product, 1);
-    playTone("send", isMuted);
-    toast.success(`${product.name} adicionado ao seu carrinho! 🍔`);
-
-    setAddedItems((prev) => ({ ...prev, [product.id]: true }));
-    setTimeout(() => {
-      setAddedItems((prev) => ({ ...prev, [product.id]: false }));
-    }, 2200);
-  };
+  // ─── Navegar para o Cardápio no Site e Minimizar o Chat ──────
+  const handleGoToMenu = useCallback(() => {
+    setOpen(false);
+    const menuEl = document.getElementById("menu");
+    if (menuEl) {
+      menuEl.scrollIntoView({ behavior: "smooth" });
+    } else {
+      navigate("/");
+      setTimeout(() => {
+        document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" });
+      }, 350);
+    }
+  }, [navigate]);
 
   // ─── Enviar Mensagem ──────────────────────────────────────────
   async function sendMessage(customMessage = null) {
@@ -303,18 +305,28 @@ export default function Chatbot() {
     const currentTime = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
     // Trata comandos locais imediatos antes de chamar API se for o caso
-    if (text.toLowerCase() === "abrir carrinho" || text.toLowerCase() === "ver carrinho") {
+    const lowerText = text.toLowerCase();
+    if (
+      lowerText.includes("ver cardápio no site") ||
+      lowerText.includes("ver cardapio no site") ||
+      lowerText.includes("explorar cardápio") ||
+      lowerText.includes("cardápio no site")
+    ) {
+      handleGoToMenu();
+      return;
+    }
+
+    if (lowerText === "abrir carrinho" || lowerText === "ver carrinho") {
       openCart();
       return;
     }
 
-    if (text.toLowerCase().includes("whatsapp")) {
+    if (lowerText.includes("whatsapp")) {
       window.open(buildWhatsAppUrl("Olá, gostaria de tirar uma dúvida sobre o The Burguer!"), "_blank");
       return;
     }
 
-    if (text.toLowerCase().includes("acompanhar pedido ao vivo")) {
-      // Procura se tem algum pedido recente nas mensagens
+    if (lowerText.includes("acompanhar pedido ao vivo")) {
       const lastOrderMsg = [...messages].reverse().find((m) => m.type === "order" && m.data?.order?.id);
       if (lastOrderMsg) {
         navigate(`/tracking/${lastOrderMsg.data.order.id}`);
@@ -497,53 +509,17 @@ export default function Chatbot() {
                 <div className={`message ${msg.sender} ${msg.isError ? "error" : ""}`}>
                   <div className="message-content">{renderFormattedText(msg.text)}</div>
 
-                  {/* WIDGET: CARDS INTERATIVOS DE PRODUTOS */}
-                  {msg.type === "products" && msg.data?.products && (
-                    <div className="chat-products-carousel">
-                      {msg.data.products.map((prod) => (
-                        <div key={prod.id} className="chat-product-card">
-                          <div className="chat-prod-img-wrapper">
-                            {prod.imageUrl ? (
-                              <img src={prod.imageUrl} alt={prod.name} loading="lazy" />
-                            ) : (
-                              <div className="chat-prod-img-placeholder">🍔</div>
-                            )}
-                            {prod.category && <span className="chat-prod-category">{prod.category}</span>}
-                          </div>
-
-                          <div className="chat-prod-details">
-                            <h4>{prod.name}</h4>
-                            {prod.rating && (
-                              <div className="chat-prod-rating">
-                                <Star size={12} weight="fill" color="var(--gold)" />
-                                <span>{prod.rating}</span>
-                              </div>
-                            )}
-                            <p className="chat-prod-desc">{prod.description}</p>
-
-                            <div className="chat-prod-footer">
-                              <span className="chat-prod-price">{fmt(prod.price)}</span>
-                              <button
-                                className={`chat-add-btn ${addedItems[prod.id] ? "added" : ""}`}
-                                onClick={() => handleAddProductFromChat(prod)}
-                                aria-label={`Adicionar ${prod.name} ao carrinho`}
-                              >
-                                {addedItems[prod.id] ? (
-                                  <>
-                                    <Check size={14} weight="bold" />
-                                    <span>Adicionado</span>
-                                  </>
-                                ) : (
-                                  <>
-                                    <Plus size={14} weight="bold" />
-                                    <span>Adicionar</span>
-                                  </>
-                                )}
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
+                  {/* WIDGET: VER CARDÁPIO COMPLETO NO SITE */}
+                  {(msg.type === "menu_highlights" || msg.type === "products") && (
+                    <div className="chat-menu-cta-widget">
+                      <button
+                        className="chat-explore-menu-btn"
+                        onClick={handleGoToMenu}
+                        type="button"
+                      >
+                        <span>📖 Explorar Cardápio Completo no Site</span>
+                        <ArrowSquareOut size={16} weight="bold" />
+                      </button>
                     </div>
                   )}
 

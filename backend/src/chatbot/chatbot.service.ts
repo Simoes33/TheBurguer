@@ -20,7 +20,7 @@ const ORDER_STATUS_MAP: Record<string, string> = {
 export interface ChatbotResponse {
   sessionId: string;
   reply: string;
-  type?: 'text' | 'products' | 'order' | 'cart_prompt' | 'whatsapp';
+  type?: 'text' | 'products' | 'menu_highlights' | 'order' | 'cart_prompt' | 'whatsapp';
   data?: any;
   quickReplies?: string[];
   storeStatus?: {
@@ -458,30 +458,26 @@ export class ChatbotService {
 
       if (products.length > 0) {
         const title = message.includes('mais vendido')
-          ? '🔥 **Nossos Destaques Mais Pedidos:**'
+          ? '🔥 **Alguns dos Mais Pedidos:**'
           : message.includes('bebida')
-          ? '🥤 **Nossas Bebidas Geladas:**'
+          ? '🥤 **Algumas de nossas Bebidas Geladas:**'
           : message.includes('batata') || message.includes('acompanha')
           ? '🍟 **Nossos Acompanhamentos Crocantes:**'
-          : '🍔 **Nossos Hambúrgueres Especiais:**';
+          : '🍔 **Alguns destaques do nosso cardápio:**';
+
+        // Seleciona até 4 destaques para uma resposta leve e ágil
+        const highlights = products.slice(0, 4);
+        const listText = highlights
+          .map((p) => `• **${p.name}** — R$ ${p.price.toFixed(2).replace('.', ',')}`)
+          .join('\n');
 
         return this.sendResponse(session.id, {
-          type: 'products',
-          reply: `${title}\n\nVocê pode clicar em **"+ Adicionar"** para colocar direto no seu carrinho! 🛒👇`,
+          type: 'menu_highlights',
+          reply: `${title}\n\n${listText}\n\n✨ Para ver fotos apetitosas, ingredientes completos e personalizar seu pedido, explore nosso cardápio completo no site logo abaixo! 👇`,
           data: {
-            products: products.map((p) => ({
-              id: p.id,
-              name: p.name,
-              description: p.description,
-              price: p.price,
-              imageUrl: p.imageUrl,
-              category: p.category?.name || 'Gourmet',
-              rating: p.Review.length
-                ? (p.Review.reduce((acc, r) => acc + r.rating, 0) / p.Review.length).toFixed(1)
-                : null,
-            })),
+            highlightNames: highlights.map((p) => p.name),
           },
-          quickReplies: ['🔥 Mais Vendidos', '🥤 Bebidas', '🍟 Acompanhamentos', '🛒 Ver Carrinho'],
+          quickReplies: ['📖 Ver Cardápio no Site', '🔥 Mais Vendidos', '📦 Rastrear Pedido', '🛒 Meu Carrinho'],
           storeStatus,
         });
       }
