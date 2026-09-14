@@ -477,7 +477,7 @@ export class ChatbotService {
           data: {
             highlightNames: highlights.map((p) => p.name),
           },
-          quickReplies: ['📖 Ver Cardápio no Site', '🔥 Mais Vendidos', '📦 Rastrear Pedido', '🛒 Meu Carrinho'],
+          quickReplies: ['📖 Ver Cardápio no Site', '🔥 Mais Vendidos', '🍔 Ver Cardápio', '🛒 Meu Carrinho'],
           storeStatus,
         });
       }

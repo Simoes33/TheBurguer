@@ -553,17 +553,12 @@
 /* ─── BARRA DE AÇÕES RÁPIDAS (QUICK CHIPS) ───────── */
 .quick-actions-bar {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
-  padding: 8px 14px;
+  padding: 10px 14px;
   background: var(--bg-2, #101010);
   border-top: 1px solid var(--border, rgba(255, 255, 255, 0.06));
-  overflow-x: auto;
   flex-shrink: 0;
-  scrollbar-width: none;
-}
-
-.quick-actions-bar::-webkit-scrollbar {
-  display: none;
 }
 
 .quick-chip {
@@ -773,6 +768,17 @@
     width: 56px;
     height: 56px;
     font-size: 24px;
+  }
+
+  /* No mobile: scroll horizontal sem quebra de linha (mais compacto) */
+  .quick-actions-bar {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .quick-actions-bar::-webkit-scrollbar {
+    display: none;
   }
 
   .quick-chip {

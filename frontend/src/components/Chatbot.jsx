@@ -31,7 +31,7 @@ const MUTED_KEY = "@TheBurguer:chat_muted";
 const INACTIVITY_MINIMIZE_MS = 4 * 60 * 1000; // 4 minutos
 
 const DEFAULT_QUICK_REPLIES = [
-  "📖 Ver Cardápio no Site",
+  "🍔 Ver Cardápio",
   "🔥 Mais Vendidos",
   "📦 Rastrear Pedido",
   "🛒 Meu Carrinho",
