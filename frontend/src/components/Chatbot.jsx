@@ -316,7 +316,13 @@ export default function Chatbot() {
       return;
     }
 
-    if (lowerText === "abrir carrinho" || lowerText === "ver carrinho") {
+    if (
+      lowerText === "abrir carrinho" ||
+      lowerText === "ver carrinho" ||
+      lowerText.includes("meu carrinho") ||
+      lowerText.includes("🛒")
+    ) {
+      setOpen(false);
       openCart();
       return;
     }
@@ -630,7 +636,7 @@ export default function Chatbot() {
                           Total: <strong>{fmt(totalPrice)}</strong>
                         </span>
                       </div>
-                      <button className="chat-open-cart-btn" onClick={openCart}>
+                      <button className="chat-open-cart-btn" onClick={() => { setOpen(false); openCart(); }}>
                         <ShoppingCart size={16} weight="bold" />
                         <span>Abrir Meu Carrinho</span>
                       </button>
