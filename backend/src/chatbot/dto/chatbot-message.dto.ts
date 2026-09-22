@@ -9,10 +9,5 @@ export class ChatbotMessageDto {
   @IsOptional()
   @IsString()
   @MaxLength(100)
-  userId?: string;
-
-  @IsOptional()
-  @IsString()
-  @MaxLength(100)
   sessionId?: string;
 }

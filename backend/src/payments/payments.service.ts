@@ -9,9 +9,9 @@ export class PaymentsService {
   constructor() {
     const key = process.env.STRIPE_SECRET_KEY;
     if (!key) {
-      this.logger.warn('STRIPE_SECRET_KEY não foi definida nas variáveis de ambiente!');
+      throw new Error('FATAL: STRIPE_SECRET_KEY environment variable is missing!');
     }
-    this.stripe = new Stripe(key || 'invalid_key', {
+    this.stripe = new Stripe(key, {
       apiVersion: '2025-01-27-acacia' as any,
     });
   }

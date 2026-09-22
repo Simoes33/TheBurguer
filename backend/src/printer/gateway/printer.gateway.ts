@@ -48,6 +48,13 @@ export class PrinterGateway
   private cleanupInterval: NodeJS.Timeout | null = null;
 
   onModuleInit(): void {
+    // Avisa no startup se PRINTER_AGENT_TOKEN não está configurado
+    if (!process.env.PRINTER_AGENT_TOKEN) {
+      this.logger.warn(
+        '⚠️  PRINTER_AGENT_TOKEN não está configurado! O WebSocket do Print Agent irá rejeitar TODAS as conexões até que a variável seja definida.',
+      );
+    }
+
     // Varredura a cada 60s para remover agents inativos (sem heartbeat por mais de 90s)
     this.cleanupInterval = setInterval(() => {
       const now = Date.now();
@@ -83,9 +90,12 @@ export class PrinterGateway
     const expectedToken = process.env.PRINTER_AGENT_TOKEN;
     const token = client.handshake.auth?.token || client.handshake.headers?.['x-agent-token'];
 
-    if (expectedToken && token !== expectedToken) {
+    // Rejeita se: (1) nenhum token foi enviado pelo cliente, OU
+    //             (2) PRINTER_AGENT_TOKEN não está configurado no servidor, OU
+    //             (3) o token enviado não corresponde ao token esperado.
+    if (!token || !expectedToken || token !== expectedToken) {
       this.logger.warn(
-        `⛔ Conexão de Print Agent rejeitada — token inválido | socketId: ${client.id} | ip: ${client.handshake.address}`,
+        `⛔ Conexão de Print Agent rejeitada — ${!token ? 'token ausente' : !expectedToken ? 'PRINTER_AGENT_TOKEN não configurado' : 'token inválido'} | socketId: ${client.id} | ip: ${client.handshake.address}`,
       );
       client.disconnect(true);
       return;

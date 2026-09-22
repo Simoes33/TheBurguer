@@ -11,7 +11,8 @@ export class ChatbotController {
   @Post()
   @ApiOperation({ summary: 'Envia mensagem para o assistente virtual' })
   async message(@Req() req: any, @Body() dto: ChatbotMessageDto) {
-    const userId = req.user?.id || dto.userId;
+    // userId extraído apenas do token JWT — nunca do body (evita IDOR)
+    const userId = req.user?.id;
     return this.chatbotService.process(userId, dto);
   }
 

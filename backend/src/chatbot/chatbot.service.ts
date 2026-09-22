@@ -142,13 +142,20 @@ export class ChatbotService {
     if (session.state === 'WAIT_ORDER') {
       const cleanOrderId = rawMessage.replace('#', '').trim();
 
+      // Busca o pedido — se o usuário estiver autenticado, filtra pelo seu userId
+      // para evitar que um usuário logado consulte pedidos alheios (IDOR).
+      const orderWhere: any = {
+        OR: [
+          { id: cleanOrderId },
+          { id: { startsWith: cleanOrderId } },
+        ],
+      };
+      if (userId) {
+        orderWhere.userId = userId;
+      }
+
       const order = await this.prisma.order.findFirst({
-        where: {
-          OR: [
-            { id: cleanOrderId },
-            { id: { startsWith: cleanOrderId } },
-          ],
-        },
+        where: orderWhere,
         include: {
           items: { include: { product: true } },
         },
