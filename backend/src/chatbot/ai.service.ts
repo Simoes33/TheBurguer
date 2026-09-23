@@ -1,6 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { GoogleGenAI } from '@google/genai';
 
+export interface ChatHistoryMessage {
+  role: 'user' | 'assistant' | string;
+  content: string;
+}
+
 @Injectable()
 export class AiService {
   private readonly logger = new Logger(AiService.name);
@@ -25,27 +30,49 @@ export class AiService {
     return !!this.ai && !!process.env.GEMINI_API_KEY;
   }
 
-  async ask(prompt: string, systemInstruction?: string): Promise<string | null> {
+  /**
+   * Envia prompt ao Gemini 2.5 Flash, opcionalmente com instruções de sistema
+   * e histórico recente da conversa para manter contexto.
+   */
+  async ask(
+    prompt: string,
+    systemInstruction?: string,
+    history?: ChatHistoryMessage[],
+  ): Promise<string | null> {
     if (!this.ai || !process.env.GEMINI_API_KEY) {
       return null;
     }
 
     try {
+      let finalPrompt = prompt;
+
+      // Se houver histórico recente, contextualiza a conversa
+      if (history && history.length > 0) {
+        const historyText = history
+          .slice(-6) // últimas 6 mensagens
+          .map((m) => `${m.role === 'user' ? 'Cliente' : 'Assistente'}: ${m.content}`)
+          .join('\n');
+
+        finalPrompt = `Histórico da conversa recente:\n${historyText}\n\nCliente: ${prompt}\nAssistente:`;
+      }
+
       const response = await this.ai.models.generateContent({
         model: 'gemini-2.5-flash',
-        contents: prompt,
+        contents: finalPrompt,
         config: systemInstruction
           ? {
               systemInstruction,
               temperature: 0.7,
-              maxOutputTokens: 350,
+              maxOutputTokens: 600,
             }
-          : undefined,
+          : {
+              maxOutputTokens: 600,
+            },
       });
 
-      return response.text || null;
+      return response.text ? response.text.trim() : null;
     } catch (err: any) {
-      this.logger.warn(`Erro na chamada ao Gemini AI: ${err?.message}`);
+      this.logger.warn(`Erro na chamada ao Gemini AI: ${err?.message || err}`);
       return null;
     }
   }

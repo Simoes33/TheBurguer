@@ -17,6 +17,10 @@ const ORDER_STATUS_MAP: Record<string, string> = {
   CANCELLED: '❌ Cancelado',
 };
 
+export function formatCurrency(value: number): string {
+  return `R$ ${(value || 0).toFixed(2).replace('.', ',')}`;
+}
+
 export interface ChatbotResponse {
   sessionId: string;
   reply: string;
@@ -176,7 +180,7 @@ export class ChatbotService {
           type: 'order',
           reply: `📦 **Pedido #${order.id.slice(0, 8)}** localizado com sucesso!\n\n` +
             `**Status:** ${statusDescription}\n` +
-            `**Total:** R$ ${order.total.toFixed(2).replace('.', ',')}\n\n` +
+            `**Total:** ${formatCurrency(order.total)}\n\n` +
             `**Itens:**\n${itemsList}`,
           data: { order },
           quickReplies: ['Acompanhar Pedido ao Vivo', '🍔 Ver Cardápio', '💬 Falar no WhatsApp'],
@@ -248,7 +252,7 @@ export class ChatbotService {
               reply: `Encontrei seu pedido em andamento! 🛵\n\n` +
                 `**Pedido #${activeOrder.id.slice(0, 8)}**\n` +
                 `**Status:** ${statusDesc}\n` +
-                `**Total:** R$ ${activeOrder.total.toFixed(2).replace('.', ',')}\n\n` +
+                `**Total:** ${formatCurrency(activeOrder.total)}\n\n` +
                 `**Itens:**\n${itemsList}\n\n` +
                 `Você pode clicar no botão abaixo para acompanhar cada etapa em tempo real:`,
               data: { order: activeOrder },
@@ -263,7 +267,7 @@ export class ChatbotService {
           return this.sendResponse(session.id, {
             type: 'order',
             reply: `Seu último pedido foi o **#${lastOrder.id.slice(0, 8)}** (${statusDesc}).\n\n` +
-              `Total: R$ ${lastOrder.total.toFixed(2).replace('.', ',')}.\n` +
+              `Total: ${formatCurrency(lastOrder.total)}.\n` +
               `Deseja fazer um novo pedido hoje? 🍔🔥`,
             data: { order: lastOrder },
             quickReplies: ['🍔 Ver Cardápio', '🔥 Mais Vendidos', '🛒 Meu Carrinho'],
@@ -315,11 +319,19 @@ export class ChatbotService {
         ? '🟢 **Estamos ABERTOS agora!** A chapa está quente e pronta para preparar seu burger.'
         : '🔴 **Estamos FECHADOS no momento.** Mas você já pode navegar pelo cardápio e montar seu carrinho!';
 
+      const hoursSetting = await this.prisma.setting.findUnique({
+        where: { key: 'storeHours' },
+      }).catch(() => null);
+
+      const hoursText =
+        hoursSetting && hoursSetting.value && hoursSetting.key === 'storeHours'
+          ? hoursSetting.value
+          : '• **Terça a Domingo:** das 19:00 às 23:00\n• **Segunda-feira:** Fechado para descanso da equipe';
+
       return this.sendResponse(session.id, {
         reply: `${openMessage}\n\n` +
           `🕒 **Horário de Atendimento:**\n` +
-          `• **Terça a Domingo:** das 19:00 às 23:00\n` +
-          `• **Segunda-feira:** Fechado para descanso da equipe\n\n` +
+          `${hoursText}\n\n` +
           `Qualquer dúvida, estamos por aqui!`,
         quickReplies: ['🍔 Ver Cardápio', '🛵 Tempo de Entrega', '💳 Formas de Pagamento'],
         storeStatus,
@@ -506,7 +518,19 @@ export class ChatbotService {
           `- Use emojis de comida com bom gosto.\n` +
           `- Sempre convide a ver o cardápio ou adicionar itens ao carrinho.`;
 
-        const aiReply = await this.aiService.ask(rawMessage, systemPrompt);
+        // Recupera as últimas mensagens da sessão para manter contexto contínuo
+        const recentMessages = await this.prisma.chatMessage.findMany({
+          where: { sessionId: session.id },
+          orderBy: { createdAt: 'desc' },
+          take: 6,
+        }).catch(() => []);
+
+        const history = recentMessages.reverse().map((m) => ({
+          role: m.role,
+          content: m.content,
+        }));
+
+        const aiReply = await this.aiService.ask(rawMessage, systemPrompt, history);
         if (aiReply && aiReply.trim()) {
           return this.sendResponse(session.id, {
             reply: aiReply.trim(),

@@ -17,7 +17,6 @@ export class AuthService {
     process.env.SUPABASE_URL,
     process.env.SUPABASE_KEY
   );
-  private resetCodes = new Map<string, { code: string; expires: Date }>();
 
   constructor(
     private usersService: UsersService,

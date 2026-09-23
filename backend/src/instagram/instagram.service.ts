@@ -22,44 +22,49 @@ export class InstagramService {
   private readonly CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutos
 
   private cache: CacheEntry | null = null;
-  private refreshing = false; // flag para evitar múltiplas revalidações simultâneas
+  private refreshPromise: Promise<InstaPost[]> | null = null;
 
   async getFeed(): Promise<InstaPost[]> {
     const isStale =
       !this.cache || Date.now() - this.cache.fetchedAt > this.CACHE_TTL_MS;
 
-    if (isStale && !this.refreshing) {
+    if (isStale) {
       const accessToken = process.env.INSTAGRAM_ACCESS_TOKEN;
 
-      if (accessToken) {
-        // Padrão stale-while-revalidate:
-        // Dispara o refresh em background sem await — responde imediatamente com o cache atual.
-        this.refreshing = true;
-        this.fetchFromGraphAPI(accessToken)
-          .then((posts) => {
-            this.cache = { posts, fetchedAt: Date.now() };
-            this.logger.log(`Cache do Instagram revalidado com ${posts.length} posts.`);
-          })
-          .catch((err) => {
-            this.logger.error(`Falha ao revalidar feed do Instagram: ${err.message}`);
-          })
-          .finally(() => {
-            this.refreshing = false;
-          });
-      } else {
+      if (!accessToken) {
         this.logger.warn(
           'INSTAGRAM_ACCESS_TOKEN não configurado. ' +
           'Veja INSTAGRAM_SETUP.md para instruções de configuração.',
         );
-        return [];
+        return this.cache?.posts ?? [];
       }
-    } else if (isStale) {
-      this.logger.log('Revalidação do Instagram já em andamento, servindo cache atual.');
+
+      // Se já houver um refresh em andamento, não dispara outro
+      if (!this.refreshPromise) {
+        this.refreshPromise = this.fetchFromGraphAPI(accessToken)
+          .then((posts) => {
+            this.cache = { posts, fetchedAt: Date.now() };
+            this.logger.log(`Cache do Instagram revalidado com ${posts.length} posts.`);
+            return posts;
+          })
+          .catch((err) => {
+            this.logger.error(`Falha ao revalidar feed do Instagram: ${err.message}`);
+            return this.cache?.posts ?? [];
+          })
+          .finally(() => {
+            this.refreshPromise = null;
+          });
+      }
+
+      // Se não há cache algum ainda, aguarda a primeira carga para não devolver array vazio
+      if (!this.cache) {
+        return this.refreshPromise;
+      }
     } else {
       this.logger.log('Servindo feed do Instagram a partir do cache.');
     }
 
-    // Retorna imediatamente o cache existente (pode estar levemente desatualizado — isso é aceitável)
+    // Retorna imediatamente o cache existente (stale-while-revalidate)
     return this.cache?.posts ?? [];
   }
 
@@ -122,8 +127,8 @@ export class InstagramService {
 
       this.logger.log(`${posts.length} posts obtidos do Instagram Graph API.`);
       return posts;
-    } catch (error) {
-      this.logger.error(`Erro no Instagram Graph API: ${error.message}`);
+    } catch (error: any) {
+      this.logger.error(`Erro no Instagram Graph API: ${error?.message || error}`);
 
       // Em caso de erro na revalidação, mantém o cache existente (stale-on-error)
       if (this.cache) {
@@ -134,13 +139,19 @@ export class InstagramService {
     }
   }
 
-  /** Força revalidação imediata do cache. Pode ser chamado por endpoint admin. */
+  /** Força revalidação imediata do cache de forma determinística. */
   async refreshCache(): Promise<{ success: boolean; count: number }> {
-    this.cache = null;
-    this.refreshing = false;
-    const posts = await this.getFeed();
-    // getFeed inicia o refresh em background; aguarda finalização
-    await new Promise((resolve) => setTimeout(resolve, 3000));
-    return { success: true, count: this.cache?.posts.length ?? posts.length };
+    const accessToken = process.env.INSTAGRAM_ACCESS_TOKEN;
+    if (!accessToken) {
+      return { success: false, count: 0 };
+    }
+
+    try {
+      const posts = await this.fetchFromGraphAPI(accessToken);
+      this.cache = { posts, fetchedAt: Date.now() };
+      return { success: true, count: posts.length };
+    } catch (error) {
+      return { success: false, count: this.cache?.posts.length ?? 0 };
+    }
   }
 }
