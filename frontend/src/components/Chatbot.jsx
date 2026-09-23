@@ -367,7 +367,6 @@ export default function Chatbot() {
       const response = await api.post("/chatbot", {
         message: text,
         sessionId,
-        userId: user?.id || undefined,
       });
 
       const data = response.data;
